@@ -3,6 +3,7 @@ WichitaGame/Debug/
 WichitaGame/WichitaGame/Debug/
 
 # Ignore user-specific files
+*.sln
 *.user
 *.vcxproj
 *.vcxproj*
