@@ -11,3 +11,4 @@ WichitaGame/WichitaGame/Debug/
 *.suo
 *.sdf
 *.opensdf
+*.ipch
