@@ -4,5 +4,6 @@ Debug/*
 # Ignore user-specific file
 *.user
 
-# Ignore build file
+# Ignore build files
 *.ncb
+*.suo
