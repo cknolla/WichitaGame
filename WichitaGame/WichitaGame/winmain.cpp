@@ -67,13 +67,13 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance,
         SAFE_DELETE(graphics);  // free memory before exit
         return msg.wParam;
     }
-//    catch(const GameError &err)
-//    {
-//        MessageBox(NULL, err.getMessage(), "Error", MB_OK);
-//    }
+    catch(const GameError &err)
+    {
+        MessageBox(NULL, err.getMessage(), "Error", MB_OK);
+    }
     catch(...)
     {
-        MessageBox(NULL, L"Unknown error occured in game.", L"Error", MB_OK);
+        MessageBox(NULL, "Unknown error occured in game.", "Error", MB_OK);
     }
     SAFE_DELETE(graphics);  // free memory before exit
     return 0;
@@ -115,7 +115,7 @@ bool CreateMainWindow(HWND &hwnd, HINSTANCE hInstance, int nCmdShow)
     wcx.hCursor = LoadCursor(NULL,IDC_ARROW);   // predefined arrow 
     wcx.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);    // black background 
     wcx.lpszMenuName =  NULL;           // name of menu resource 
-    wcx.lpszClassName = L"WinMain";     // name of window class 
+    wcx.lpszClassName = CLASS_NAME;     // name of window class 
     wcx.hIconSm = NULL;                 // small class icon 
  
     // Register the window class. 
@@ -125,8 +125,8 @@ bool CreateMainWindow(HWND &hwnd, HINSTANCE hInstance, int nCmdShow)
 
     // Create window
     hwnd = CreateWindow(
-        L"WinMain",             // name of the window class
-        L"DirectX Window",             // title bar text
+        CLASS_NAME,             // name of the window class
+        GAME_TITLE,             // title bar text
         WS_OVERLAPPEDWINDOW,    // window style
         CW_USEDEFAULT,          // default horizontal position of window
         CW_USEDEFAULT,          // default vertical position of window
