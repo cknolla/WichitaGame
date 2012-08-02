@@ -1,1 +1,5 @@
-Placeholder .gitignore
+# Ignore Debug directory
+Debug/*
+
+# Ignore user-specific file
+*.user
