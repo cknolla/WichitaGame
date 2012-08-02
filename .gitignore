@@ -4,7 +4,8 @@ WichitaGame/WichitaGame/Debug/
 
 # Ignore user-specific files
 *.user
-*.vcxproj.*
+*.vcxproj
+*.vcxproj*
 
 # Ignore build files
 *.ncb
