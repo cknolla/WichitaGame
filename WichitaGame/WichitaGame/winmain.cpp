@@ -1,57 +1,84 @@
-#include <windows.h>
-// Change made by Casey's work computer
+// Programming 2D Games
+// Copyright (c) 2011 by:
+// Charles Kelly
+// Chapter 3 DirectX Window v1.0
+// winmain.cpp
+
+#define _CRTDBG_MAP_ALLOC       // for detecting memory leaks
+#define WIN32_LEAN_AND_MEAN
+
+#include <Windows.h>
+#include <stdlib.h>             // for detecting memory leaks
+#include <crtdbg.h>             // for detecting memory leaks
+#include "graphics.h"
 
 // Function prototypes
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int); 
-bool CreateMainWindow(HINSTANCE, int);
+bool CreateMainWindow(HWND &, HINSTANCE, int);
 LRESULT WINAPI WinProc(HWND, UINT, WPARAM, LPARAM); 
 
 // Global variable
 HINSTANCE hinst;
 
-// Constants
-//LPCWSTR  = "WinMain";
-//LPCWSTR APP_TITLE[]   = "Hello World";   // title bar text
-const int  WINDOW_WIDTH  = 400;             // width of window
-const int  WINDOW_HEIGHT = 400;             // height of window
+// Graphics pointer
+Graphics *graphics;
 
 //=============================================================================
 // Starting point for a Windows application
-// Parameters are:
-//   hInstance - handle to the current instance of the application
-//   hPrevInstance - always NULL, obsolete parameter, maintained for backwards compatibilty
-//   lpCmdLine - pointer to null-terminated string of command line arguments
-//   nCmdShow - specifies how the window is to be shown
 //=============================================================================
-int WINAPI WinMain( HINSTANCE hInstance,
-                    HINSTANCE hPrevInstance,
-                    LPSTR     lpCmdLine,
-                    int       nCmdShow)
+int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance,
+                    LPSTR lpCmdLine, int nCmdShow)
 {
+    // Check for memory leak if debug build
+    #if defined(DEBUG) | defined(_DEBUG)
+        _CrtSetDbgFlag( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
+    #endif
+
     MSG	 msg;
+    HWND hwnd = NULL;
 
     // Create the window
-    if (!CreateMainWindow(hInstance, nCmdShow))
-        return false;
+    if (!CreateMainWindow(hwnd, hInstance, nCmdShow))
+        return 1;
 
-    // main message loop
-    int done = 0;
-    while (!done)
-    {
-        // PeekMessage is a non-blocking method for checking for Windows messages.
-        if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) 
+    try{
+        // Create Graphics object
+        graphics = new Graphics;
+        // Initialize Graphics, throws GameError
+        graphics->initialize(hwnd, GAME_WIDTH, GAME_HEIGHT, FULLSCREEN);
+
+        // main message loop
+        int done = 0;
+        while (!done)
         {
-            //look for quit message
-            if (msg.message == WM_QUIT)
-                done = 1;
+            // PeekMessage,non-blocking method for checking for Windows messages.
+            if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) 
+            {
+                // look for quit message
+                if (msg.message == WM_QUIT)
+                    done = 1;
 
-            //decode and pass messages on to WinProc
-            TranslateMessage(&msg);
-            DispatchMessage(&msg);
+                // decode and pass messages on to WinProc
+                TranslateMessage(&msg);
+                DispatchMessage(&msg);
+            } else
+                graphics->showBackbuffer();
         }
+        SAFE_DELETE(graphics);  // free memory before exit
+        return msg.wParam;
     }
-    return msg.wParam;
+    catch(const GameError &err)
+    {
+        MessageBox(NULL, err.getMessage(), "Error", MB_OK);
+    }
+    catch(...)
+    {
+        MessageBox(NULL, "Unknown error occured in game.", "Error", MB_OK);
+    }
+    SAFE_DELETE(graphics);  // free memory before exit
+    return 0;
 }
+
 
 //=============================================================================
 // window event callback function
@@ -72,10 +99,9 @@ LRESULT WINAPI WinProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam )
 // Create the window
 // Returns: false on error
 //=============================================================================
-bool CreateMainWindow(HINSTANCE hInstance, int nCmdShow) 
+bool CreateMainWindow(HWND &hwnd, HINSTANCE hInstance, int nCmdShow) 
 { 
     WNDCLASSEX wcx; 
-    HWND hwnd;
  
     // Fill in the window class structure with parameters 
     // that describe the main window. 
@@ -87,9 +113,9 @@ bool CreateMainWindow(HINSTANCE hInstance, int nCmdShow)
     wcx.hInstance = hInstance;          // handle to instance 
     wcx.hIcon = NULL; 
     wcx.hCursor = LoadCursor(NULL,IDC_ARROW);   // predefined arrow 
-    wcx.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);    // black background brush 
+    wcx.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);    // black background 
     wcx.lpszMenuName =  NULL;           // name of menu resource 
-    wcx.lpszClassName = L"WinMain";     // name of window class 
+    wcx.lpszClassName = CLASS_NAME;     // name of window class 
     wcx.hIconSm = NULL;                 // small class icon 
  
     // Register the window class. 
@@ -99,13 +125,13 @@ bool CreateMainWindow(HINSTANCE hInstance, int nCmdShow)
 
     // Create window
     hwnd = CreateWindow(
-        L"WinMain",             // name of the window class
-        L"Hello World",              // title bar text
+        CLASS_NAME,             // name of the window class
+        GAME_TITLE,             // title bar text
         WS_OVERLAPPEDWINDOW,    // window style
         CW_USEDEFAULT,          // default horizontal position of window
         CW_USEDEFAULT,          // default vertical position of window
-        WINDOW_WIDTH,           // width of window
-        WINDOW_HEIGHT,          // height of the window
+        GAME_WIDTH,             // width of window
+        GAME_HEIGHT,            // height of the window
         (HWND) NULL,            // no parent window
         (HMENU) NULL,           // no menu
         hInstance,              // handle to application instance
@@ -122,6 +148,3 @@ bool CreateMainWindow(HINSTANCE hInstance, int nCmdShow)
     UpdateWindow(hwnd);
     return true;
 }
-
-
- 
