@@ -1,9 +1,9 @@
 # Ignore Debug directory
-/Debug/*
+Debug/*
 
 # Ignore user-specific files
 *.user
-*.vcxproj*
+*.vcxproj.*
 
 # Ignore build files
 *.ncb
