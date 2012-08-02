@@ -3,3 +3,6 @@ Debug/*
 
 # Ignore user-specific file
 *.user
+
+# Ignore build file
+*.ncb
