@@ -1,5 +1,6 @@
 # Ignore Debug directory
-*/Debug/*
+WichitaGame/Debug/
+WichitaGame/WichitaGame/Debug/
 
 # Ignore user-specific files
 *.user
@@ -8,3 +9,4 @@
 # Ignore build files
 *.ncb
 *.suo
+*.sdf
