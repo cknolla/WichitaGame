@@ -1,4 +1,5 @@
 #include <windows.h>
+// Change made by Casey's work computer
 
 // Function prototypes
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int); 
