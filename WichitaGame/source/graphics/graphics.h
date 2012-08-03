@@ -12,8 +12,8 @@
 #endif
 #include <d3d9.h>
 #include <d3dx9.h>
-#include "constants.h"
-#include "gameError.h"
+#include "../engine/constants.h"
+#include "../engine/gameError.h"
 #pragma comment (lib, "d3d9.lib")
 #pragma comment (lib, "d3dx9.lib")
 
