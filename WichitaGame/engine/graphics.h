@@ -11,9 +11,11 @@
 #define D3D_DEBUG_INFO
 #endif
 #include <d3d9.h>
+#include <d3dx9.h>
 #include "constants.h"
 #include "gameError.h"
 #pragma comment (lib, "d3d9.lib")
+#pragma comment (lib, "d3dx9.lib")
 
 // DirectX pointer types
 #define LP_3DDEVICE LPDIRECT3DDEVICE9
