@@ -1,8 +1,7 @@
 // Programming 2D Games
 // Copyright (c) 2011 by:
 // Charles Kelly
-// Chapter 3 DirectX Window v1.0
-// winmain.cpp
+// Space War winmain.cpp v1.0
 
 #define _CRTDBG_MAP_ALLOC       // for detecting memory leaks
 #define WIN32_LEAN_AND_MEAN
@@ -10,18 +9,16 @@
 #include <Windows.h>
 #include <stdlib.h>             // for detecting memory leaks
 #include <crtdbg.h>             // for detecting memory leaks
-#include "graphics/graphics.h"
+#include "createThisClass.h"
 
 // Function prototypes
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int); 
 bool CreateMainWindow(HWND &, HINSTANCE, int);
 LRESULT WINAPI WinProc(HWND, UINT, WPARAM, LPARAM); 
 
-// Global variable
-HINSTANCE hinst;
-
-// Graphics pointer
-Graphics *graphics;
+// Game pointer
+CreateThis *game = NULL;
+HWND hwnd = NULL;
 
 //=============================================================================
 // Starting point for a Windows application
@@ -34,24 +31,22 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance,
         _CrtSetDbgFlag( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
     #endif
 
-    MSG	 msg;
-    HWND hwnd = NULL;
+    MSG msg;
+
+    // Create the game, sets up message handler
+    game = new CreateThis;
 
     // Create the window
     if (!CreateMainWindow(hwnd, hInstance, nCmdShow))
         return 1;
 
     try{
-        // Create Graphics object
-        graphics = new Graphics;
-        // Initialize Graphics, throws GameError
-        graphics->initialize(hwnd, GAME_WIDTH, GAME_HEIGHT, FULLSCREEN);
+        game->initialize(hwnd);     // throws GameError
 
         // main message loop
         int done = 0;
         while (!done)
         {
-            // PeekMessage,non-blocking method for checking for Windows messages.
             if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) 
             {
                 // look for quit message
@@ -62,37 +57,34 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance,
                 TranslateMessage(&msg);
                 DispatchMessage(&msg);
             } else
-                graphics->showBackbuffer();
+                game->run(hwnd);    // run the game loop
         }
-        SAFE_DELETE(graphics);  // free memory before exit
+        SAFE_DELETE (game);     // free memory before exit
         return msg.wParam;
     }
     catch(const GameError &err)
     {
+        game->deleteAll();
+        DestroyWindow(hwnd);
         MessageBox(NULL, err.getMessage(), "Error", MB_OK);
     }
     catch(...)
     {
+        game->deleteAll();
+        DestroyWindow(hwnd);
         MessageBox(NULL, "Unknown error occured in game.", "Error", MB_OK);
     }
-    SAFE_DELETE(graphics);  // free memory before exit
+
+    SAFE_DELETE (game);     // free memory before exit
     return 0;
 }
-
 
 //=============================================================================
 // window event callback function
 //=============================================================================
-LRESULT WINAPI WinProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam )
+LRESULT WINAPI WinProc( HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam )
 {
-    switch( msg )
-    {
-        case WM_DESTROY:
-            //tell Windows to kill this program
-            PostQuitMessage(0);
-            return 0;
-    }
-    return DefWindowProc( hWnd, msg, wParam, lParam );
+    return (game->messageHandler(hwnd, msg, wParam, lParam));
 }
 
 //=============================================================================
@@ -123,11 +115,18 @@ bool CreateMainWindow(HWND &hwnd, HINSTANCE hInstance, int nCmdShow)
     if (RegisterClassEx(&wcx) == 0)    // if error
         return false;
 
+    //set up the screen in windowed or fullscreen mode?
+    DWORD style;
+    if (FULLSCREEN)
+        style = WS_EX_TOPMOST | WS_VISIBLE | WS_POPUP;
+    else
+        style = WS_OVERLAPPEDWINDOW;
+
     // Create window
     hwnd = CreateWindow(
         CLASS_NAME,             // name of the window class
         GAME_TITLE,             // title bar text
-        WS_OVERLAPPEDWINDOW,    // window style
+        style,                  // window style
         CW_USEDEFAULT,          // default horizontal position of window
         CW_USEDEFAULT,          // default vertical position of window
         GAME_WIDTH,             // width of window
@@ -141,10 +140,23 @@ bool CreateMainWindow(HWND &hwnd, HINSTANCE hInstance, int nCmdShow)
     if (!hwnd)
         return false;
 
+    if(!FULLSCREEN)             // if window
+    {
+        // Adjust window size so client area is GAME_WIDTH x GAME_HEIGHT
+        RECT clientRect;
+        GetClientRect(hwnd, &clientRect);   // get size of client area of window
+        MoveWindow(hwnd,
+                   0,                                           // Left
+                   0,                                           // Top
+                   GAME_WIDTH+(GAME_WIDTH-clientRect.right),    // Right
+                   GAME_HEIGHT+(GAME_HEIGHT-clientRect.bottom), // Bottom
+                   TRUE);                                       // Repaint the window
+    }
+
     // Show the window
     ShowWindow(hwnd, nCmdShow);
 
-    // Send a WM_PAINT message to the window procedure
-    UpdateWindow(hwnd);
     return true;
 }
+
+
