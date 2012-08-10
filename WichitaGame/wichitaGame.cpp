@@ -113,10 +113,11 @@ void WichitaGame::update()
 
 	if(input->isKeyDown('D')) {
 		testChar.moveRight(frameTime);
-	} else if( input->isKeyDown('W')) {
-		testChar.moveUp(frameTime);
 	} else if( input->isKeyDown('A')) {
 		testChar.moveLeft(frameTime);
+	}
+	if( input->isKeyDown('W')) {
+		testChar.moveUp(frameTime);
 	} else if( input->isKeyDown('S')) {
 		testChar.moveDown(frameTime);
 	}
