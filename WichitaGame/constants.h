@@ -45,6 +45,11 @@ const float MAX_FRAME_TIME = 1.0f/MIN_FRAME_RATE; // maximum time used in calcul
 const char MENU_IMAGE[] =     "pictures\\menu.png";      // menu texture
 const char TEST_CHAR_IMAGE[] = "pictures/testcharacter01.png";
 const char TEST_MAP_IMAGE[] = "pictures/testmap01.png";
+const char TEST_TILE_MAP_IMAGE[] = "pictures/tileset01.png";
+const int MAP_WIDTH = GAME_WIDTH;
+const int MAP_HEIGHT = GAME_HEIGHT;
+const int TILE_WIDTH = 32;
+const int TILE_HEIGHT = 32;
 
 
 // audio files required by audio.cpp

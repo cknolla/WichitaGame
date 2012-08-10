@@ -21,7 +21,7 @@ Game::Game()
     messageDialog = NULL;
     inputDialog = NULL;
     fps = 100;
-    fpsOn = false;              // default to fps display off
+    fpsOn = true;              // default to fps display on
     initialized = false;
 }
 

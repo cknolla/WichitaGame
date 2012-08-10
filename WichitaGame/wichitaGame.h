@@ -27,6 +27,8 @@ private:
 	Character testChar;
 	TextureManager mapTexture;
 	Image map;
+	TextureManager tileMapTexture;
+	Entity tileMap[MAP_HEIGHT/TILE_HEIGHT][MAP_WIDTH/TILE_WIDTH];
     TextDX  *dxFont;            // DirectX font
     std::string  message;
     float messageY;

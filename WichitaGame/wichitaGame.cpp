@@ -31,6 +31,32 @@ WichitaGame::~WichitaGame()
 void WichitaGame::initialize(HWND hwnd)
 {
     Game::initialize(hwnd); // throws GameError
+	const int tileMapKey[MAP_HEIGHT/TILE_HEIGHT][MAP_WIDTH/TILE_WIDTH] = {
+		1,1,0,0,0,0,0,0,0,0,0,0,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,1,1,
+		1,0,0,0,0,0,0,0,0,0,0,0,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,1,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,
+		1,1,0,0,0,0,0,0,0,2,2,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		1,1,0,0,0,0,0,0,2,2,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		1,1,0,0,0,0,0,0,2,3,3,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		1,1,0,0,0,0,0,0,0,3,3,3,2,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		1,1,0,0,0,0,0,0,0,3,3,3,2,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		1,1,0,0,0,0,0,0,0,3,3,3,3,3,3,3,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		1,1,0,0,0,0,0,0,0,0,3,3,3,3,3,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		1,1,0,0,0,0,0,0,0,0,0,3,3,3,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		1,1,0,0,0,0,0,0,0,0,0,0,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		1,1,0,0,0,0,0,0,0,0,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+		1,1,0,0,0,0,0,0,0,0,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,
+		1,1,0,0,0,0,0,0,0,0,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,
+		1,1,0,0,0,0,0,0,0,0,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,
+		1,1,0,0,0,0,0,0,0,0,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,
+		1,1,0,0,0,0,0,0,0,0,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,
+		1,1,0,0,0,0,0,0,0,0,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,
+		1,1,0,0,0,0,0,0,0,0,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,
+		1,1,0,0,0,0,0,0,0,0,3,3,0,0,0,0,0,0,0,2,2,0,0,0,0,0,0,0,0,1,1,1,
+		1,1,0,0,0,0,0,0,0,0,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,
+	};
 
 	// map texture
     if (!mapTexture.initialize(graphics,TEST_MAP_IMAGE))
@@ -39,6 +65,21 @@ void WichitaGame::initialize(HWND hwnd)
     // map image
     if (!map.initialize(graphics,0,0,0,&mapTexture))
         throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing map"));
+
+	// tile map texture
+	if (!tileMapTexture.initialize(graphics,TEST_TILE_MAP_IMAGE))
+        throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing tile map texture"));
+
+	for(int row = 0; row < MAP_HEIGHT/TILE_HEIGHT; row++) { // rows
+		for(int col = 0; col < MAP_WIDTH/TILE_WIDTH; col++) { // cols
+			if (!tileMap[row][col].initialize(this,TILE_WIDTH,TILE_HEIGHT,0,&tileMapTexture))
+				throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing tile"));
+			tileMap[row][col].setCurrentFrame(tileMapKey[row][col]);
+			tileMap[row][col].setY((float)TILE_HEIGHT*row);
+			tileMap[row][col].setX((float)TILE_WIDTH*col);
+		}
+	}
+
 
 	// character texture
 	if (!characterTexture.initialize(graphics,TEST_CHAR_IMAGE))
@@ -153,7 +194,12 @@ void WichitaGame::render()
     graphics->spriteBegin();                // begin drawing sprites
 
  //   menu.draw();
-	map.draw();
+//	map.draw();
+	for(int i = 0; i < MAP_HEIGHT/TILE_HEIGHT; i++) { // rows
+		for(int j = 0; j < MAP_WIDTH/TILE_WIDTH; j++) { // cols
+			tileMap[i][j].draw();
+		}
+	}
 	testChar.draw();
  //   dxFont->setFontColor(graphicsNS::ORANGE);
  //   dxFont->print(message,20,(int)messageY);
