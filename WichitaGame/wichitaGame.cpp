@@ -32,15 +32,25 @@ void WichitaGame::initialize(HWND hwnd)
 {
     Game::initialize(hwnd); // throws GameError
 
+	// map texture
+    if (!mapTexture.initialize(graphics,TEST_MAP_IMAGE))
+        throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing map texture"));
+
+    // map image
+    if (!map.initialize(graphics,0,0,0,&mapTexture))
+        throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing map"));
+
 	// character texture
 	if (!characterTexture.initialize(graphics,TEST_CHAR_IMAGE))
         throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing character texture"));
 
-	if (!testChar.initialize(this,0,0,0,&characterTexture))
+	if (!testChar.initialize(this,32,32,2,&characterTexture))
         throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing character"));
 
 	testChar.setX(200);
 	testChar.setY(200);
+	testChar.setFrames(0,1);
+	testChar.setFrameDelay(0.1f);
 
 	/* saved for reference only
 
@@ -110,6 +120,7 @@ void WichitaGame::update()
 	} else if( input->isKeyDown('S')) {
 		testChar.moveDown(frameTime);
 	}
+	testChar.update(frameTime);
 }
 
 //=============================================================================
@@ -132,6 +143,7 @@ void WichitaGame::render()
     graphics->spriteBegin();                // begin drawing sprites
 
  //   menu.draw();
+	map.draw();
 	testChar.draw();
  //   dxFont->setFontColor(graphicsNS::ORANGE);
  //   dxFont->print(message,20,(int)messageY);

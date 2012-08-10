@@ -25,6 +25,8 @@ private:
     Image   menu;               // menu image
 	TextureManager characterTexture;
 	Character testChar;
+	TextureManager mapTexture;
+	Image map;
     TextDX  *dxFont;            // DirectX font
     std::string  message;
     float messageY;

@@ -43,7 +43,8 @@ const float MAX_FRAME_TIME = 1.0f/MIN_FRAME_RATE; // maximum time used in calcul
 
 // graphic images
 const char MENU_IMAGE[] =     "pictures\\menu.png";      // menu texture
-const char TEST_CHAR_IMAGE[] = "pictures/ryuu-small.png";
+const char TEST_CHAR_IMAGE[] = "pictures/testcharacter01.png";
+const char TEST_MAP_IMAGE[] = "pictures/testmap01.png";
 
 
 // audio files required by audio.cpp
