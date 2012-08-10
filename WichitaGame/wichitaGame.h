@@ -3,8 +3,8 @@
 // Charles Kelly
 // spacewar.h v1.0
 
-#ifndef _CREATETHIS_H           // prevent multiple definitions if this 
-#define _CREATETHIS_H           // ..file is included in more than one place
+#ifndef _WICHITAGAME_H           // prevent multiple definitions if this 
+#define _WICHITAGAME_H           // ..file is included in more than one place
 #define WIN32_LEAN_AND_MEAN
 
 #include <string>
@@ -12,25 +12,28 @@
 #include "textureManager.h"
 #include "image.h"
 #include "textDX.h"
+#include "character.h"
 
 //=============================================================================
 // This class is the core of the game
 //=============================================================================
-class CreateThis : public Game
+class WichitaGame : public Game
 {
 private:
     // game items
     TextureManager menuTexture; // textures
     Image   menu;               // menu image
+	TextureManager characterTexture;
+	Character testChar;
     TextDX  *dxFont;            // DirectX font
     std::string  message;
     float messageY;
 
 public:
     // Constructor
-    CreateThis();
+    WichitaGame();
     // Destructor
-    virtual ~CreateThis();
+    virtual ~WichitaGame();
     // Initialize the game
     void initialize(HWND hwnd);
     void update();      // must override pure virtual from Game

@@ -28,11 +28,11 @@
 //                  Constants
 //-----------------------------------------------
 // window
-const char CLASS_NAME[] = "createThisClass";
-const char GAME_TITLE[] = "Game Engine Demo";
+const char CLASS_NAME[] = "WichitaGame";
+const char GAME_TITLE[] = "Wichita Game";
 const bool FULLSCREEN = false;              // windowed or fullscreen
-const UINT GAME_WIDTH =  640;               // width of game in pixels
-const UINT GAME_HEIGHT = 480;               // height of game in pixels
+const UINT GAME_WIDTH =  1024;               // width of game in pixels
+const UINT GAME_HEIGHT = 768;               // height of game in pixels
  
 // game
 const double PI = 3.14159265;
@@ -43,6 +43,8 @@ const float MAX_FRAME_TIME = 1.0f/MIN_FRAME_RATE; // maximum time used in calcul
 
 // graphic images
 const char MENU_IMAGE[] =     "pictures\\menu.png";      // menu texture
+const char TEST_CHAR_IMAGE[] = "pictures/ryuu-small.png";
+
 
 // audio files required by audio.cpp
 // WAVE_BANK must be location of .xwb file.

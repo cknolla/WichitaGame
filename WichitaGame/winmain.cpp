@@ -9,7 +9,7 @@
 #include <Windows.h>
 #include <stdlib.h>             // for detecting memory leaks
 #include <crtdbg.h>             // for detecting memory leaks
-#include "createThisClass.h"
+#include "wichitaGame.h"
 
 // Function prototypes
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int); 
@@ -17,7 +17,7 @@ bool CreateMainWindow(HWND &, HINSTANCE, int);
 LRESULT WINAPI WinProc(HWND, UINT, WPARAM, LPARAM); 
 
 // Game pointer
-CreateThis *game = NULL;
+WichitaGame *game = NULL;
 HWND hwnd = NULL;
 
 //=============================================================================
@@ -34,7 +34,7 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance,
     MSG msg;
 
     // Create the game, sets up message handler
-    game = new CreateThis;
+    game = new WichitaGame;
 
     // Create the window
     if (!CreateMainWindow(hwnd, hInstance, nCmdShow))

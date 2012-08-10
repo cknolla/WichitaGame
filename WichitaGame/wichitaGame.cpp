@@ -4,12 +4,12 @@
 // createThisClass.cpp v1.0
 // This class is the core of the game
 
-#include "createThisClass.h"
+#include "wichitaGame.h"
 
 //=============================================================================
 // Constructor
 //=============================================================================
-CreateThis::CreateThis()
+WichitaGame::WichitaGame()
 {
     dxFont = new TextDX();  // DirectX font
     messageY = 0;
@@ -18,7 +18,7 @@ CreateThis::CreateThis()
 //=============================================================================
 // Destructor
 //=============================================================================
-CreateThis::~CreateThis()
+WichitaGame::~WichitaGame()
 {
     releaseAll();           // call onLostDevice() for every graphics item
     SAFE_DELETE(dxFont);
@@ -28,11 +28,23 @@ CreateThis::~CreateThis()
 // Initializes the game
 // Throws GameError on error
 //=============================================================================
-void CreateThis::initialize(HWND hwnd)
+void WichitaGame::initialize(HWND hwnd)
 {
     Game::initialize(hwnd); // throws GameError
 
-    // menu texture
+	// character texture
+	if (!characterTexture.initialize(graphics,TEST_CHAR_IMAGE))
+        throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing character texture"));
+
+	if (!testChar.initialize(this,0,0,0,&characterTexture))
+        throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing character"));
+
+	testChar.setX(200);
+	testChar.setY(200);
+
+	/* saved for reference only
+
+	// menu texture
     if (!menuTexture.initialize(graphics,MENU_IMAGE))
         throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing menu texture"));
 
@@ -40,12 +52,12 @@ void CreateThis::initialize(HWND hwnd)
     if (!menu.initialize(graphics,0,0,0,&menuTexture))
         throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing menu"));
 
-    // initialize DirectX font
+	// initialize DirectX font
     // 18 pixel high Arial
     if(dxFont->initialize(graphics, 18, true, false, "Arial") == false)
         throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing DirectX font"));
 
-    menu.setDegrees(300);
+	menu.setDegrees(300);
     menu.setScale(0.002861f);
 
     message = "\n\n\nUtilizes Object Oriented C++ and DirectX\n\n";
@@ -59,15 +71,16 @@ void CreateThis::initialize(HWND hwnd)
     message += "Tile Based Graphics\n\n";
     message += "TCP/IP and UDP/IP Network Support\n\n";
     messageY = GAME_HEIGHT;
-
+*/
     return;
 }
 
 //=============================================================================
 // Update all game items
 //=============================================================================
-void CreateThis::update()
+void WichitaGame::update()
 {
+	/* saved for reference only
     if(menu.getDegrees() > 0)
     {
         menu.setDegrees(menu.getDegrees() - frameTime * 120);
@@ -86,30 +99,42 @@ void CreateThis::update()
         menu.setY(0);
         messageY = GAME_HEIGHT;
     }
+	*/
+
+	if(input->isKeyDown('D')) {
+		testChar.moveRight(frameTime);
+	} else if( input->isKeyDown('W')) {
+		testChar.moveUp(frameTime);
+	} else if( input->isKeyDown('A')) {
+		testChar.moveLeft(frameTime);
+	} else if( input->isKeyDown('S')) {
+		testChar.moveDown(frameTime);
+	}
 }
 
 //=============================================================================
 // Artificial Intelligence
 //=============================================================================
-void CreateThis::ai()
+void WichitaGame::ai()
 {}
 
 //=============================================================================
 // Handle collisions
 //=============================================================================
-void CreateThis::collisions()
+void WichitaGame::collisions()
 {}
 
 //=============================================================================
 // Render game items
 //=============================================================================
-void CreateThis::render()
+void WichitaGame::render()
 {
     graphics->spriteBegin();                // begin drawing sprites
 
-    menu.draw();
-    dxFont->setFontColor(graphicsNS::ORANGE);
-    dxFont->print(message,20,(int)messageY);
+ //   menu.draw();
+	testChar.draw();
+ //   dxFont->setFontColor(graphicsNS::ORANGE);
+ //   dxFont->print(message,20,(int)messageY);
 
     graphics->spriteEnd();                  // end drawing sprites
 }
@@ -118,10 +143,11 @@ void CreateThis::render()
 // The graphics device was lost.
 // Release all reserved video memory so graphics device may be reset.
 //=============================================================================
-void CreateThis::releaseAll()
+void WichitaGame::releaseAll()
 {
-    dxFont->onLostDevice();
-    menuTexture.onLostDevice();
+//    dxFont->onLostDevice();
+//    menuTexture.onLostDevice();
+	characterTexture.onLostDevice();
     Game::releaseAll();
     return;
 }
@@ -130,10 +156,11 @@ void CreateThis::releaseAll()
 // The grahics device has been reset.
 // Recreate all surfaces.
 //=============================================================================
-void CreateThis::resetAll()
+void WichitaGame::resetAll()
 {
-    menuTexture.onResetDevice();
-    dxFont->onResetDevice();
+//    menuTexture.onResetDevice();
+//    dxFont->onResetDevice();
+	characterTexture.onResetDevice();
     Game::resetAll();
     return;
 }
