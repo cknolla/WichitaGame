@@ -63,4 +63,9 @@ const UCHAR ESC_KEY      = VK_ESCAPE;   // escape key
 const UCHAR ALT_KEY      = VK_MENU;     // Alt key
 const UCHAR ENTER_KEY    = VK_RETURN;   // Enter key
 
+const UCHAR MOVE_UP_KEY    = 'W';
+const UCHAR MOVE_DOWN_KEY  = 'S';
+const UCHAR MOVE_LEFT_KEY  = 'A';
+const UCHAR MOVE_RIGHT_KEY = 'D';
+
 #endif

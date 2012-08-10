@@ -111,15 +111,24 @@ void WichitaGame::update()
     }
 	*/
 
-	if(input->isKeyDown('D')) {
+	// move right if left is not pressed or move right if left is not pressed
+	if(input->isKeyDown(MOVE_RIGHT_KEY) && !input->isKeyDown(MOVE_LEFT_KEY)) {
 		testChar.moveRight(frameTime);
-	} else if( input->isKeyDown('A')) {
+	} else if(input->isKeyDown(MOVE_LEFT_KEY) && !input->isKeyDown(MOVE_RIGHT_KEY)) {
 		testChar.moveLeft(frameTime);
 	}
-	if( input->isKeyDown('W')) {
+	// move up if down is not pressed or move down if up is not pressed
+	if( input->isKeyDown(MOVE_UP_KEY) && !input->isKeyDown(MOVE_DOWN_KEY)) {
 		testChar.moveUp(frameTime);
-	} else if( input->isKeyDown('S')) {
+	} else if( input->isKeyDown(MOVE_DOWN_KEY) && !input->isKeyDown(MOVE_UP_KEY)) {
 		testChar.moveDown(frameTime);
+	}
+	// if no movement keys are pressed, draw the ending frame for the direction he's currently facing and pause animation
+	if( !input->isKeyDown(MOVE_UP_KEY) && !input->isKeyDown(MOVE_DOWN_KEY) && !input->isKeyDown(MOVE_LEFT_KEY) && !input->isKeyDown(MOVE_RIGHT_KEY)) {
+		testChar.setCurrentFrame(testChar.getEndFrame());
+		testChar.setLoop(false);
+	} else {
+		testChar.setLoop(true);
 	}
 	testChar.update(frameTime);
 }
