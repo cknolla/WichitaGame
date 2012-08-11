@@ -35,36 +35,13 @@ WichitaGame::~WichitaGame()
 void WichitaGame::initialize(HWND hwnd)
 {
     Game::initialize(hwnd); // throws GameError
-/*	const int tileMapKey[MAP_HEIGHT/TILE_HEIGHT][MAP_WIDTH/TILE_WIDTH] = {
-		1,1,0,0,0,0,0,0,0,0,0,0,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,1,1,
-		1,0,0,0,0,0,0,0,0,0,0,0,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,1,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,2,2,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,2,2,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,2,3,3,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,1,0,1,0,0,0,0,0,3,3,3,2,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,1,0,0,0,0,0,0,3,3,3,2,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,1,0,1,0,0,0,0,0,3,3,3,3,3,3,3,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,3,3,3,3,3,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,3,3,3,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,1,1,1,1,0,0,0,0,0,0,0,1,
-		1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,1,1,1,1,1,0,0,0,0,0,1,1,
-		1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,1,1,1,1,1,1,0,0,0,1,1,1,
-		1,1,1,1,1,1,1,1,1,3,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,2,1,1,1,1,
-		1,1,1,1,1,1,1,1,1,3,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,2,1,1,1,1,
-		1,1,1,1,1,1,1,1,1,3,3,3,1,1,1,1,1,1,1,0,1,1,0,0,0,1,1,2,1,1,1,1,
-		1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,0,1,0,1,1,2,2,2,2,1,
-		1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,1,1,1,1,1,1,1,
-		1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-		1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-	};
-*/
 
+	// initialize map which will initialize a texture and lots of images inside it
 	if(!testMap.initialize(this, mapNS::TEST_TILE_MAP_IMAGE, mapNS::TEST_TILE_MAP_KEY))
 		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing map"));
+
+	// if changing maps, just reassign currentMap
+	currentMap = &testMap;
 
 	// character texture
 	if (!characterTexture.initialize(graphics,TEST_CHAR_IMAGE))
@@ -196,26 +173,23 @@ void WichitaGame::collisions()
 	bool Yoffender = false;
 	Entity* curTile;
 
-	
-	for(int row = 0; row < testMap.getHeight(); row++) { 
-		for(int col = 0; col < testMap.getWidth(); col++) { 
-			curTile = testMap.getTile(row, col);
+	for(int row = 0; row < currentMap->getHeight(); row++) { 
+		for(int col = 0; col < currentMap->getWidth(); col++) { 
+			curTile = currentMap->getTile(row, col);
 			if(testChar.collidesWith(*curTile, collisionVector)) {
-				// normalize the vector
-			//	Graphics::Vector2Normalize(&collisionVector);
 				// save the destination location
 				tempX = testChar.getX();
 				tempY = testChar.getY();
 				// place the character back on the X axis
 				testChar.setX(testChar.getPrevX());
 				if(testChar.collidesWith(*curTile, collisionVector)) {
-				//	testChar.setX(tempX); // if still colliding, it wasn't because of an X movement, so allow it
+					// if there is still collision after placing him back where he came from on the X axis, then Y axis is offending
 					Yoffender = true;
 				}
 				testChar.setX(tempX); // put him back to new position to check Y
-				testChar.setY(testChar.getPrevY());
+				testChar.setY(testChar.getPrevY()); // return him to previous Y to see if X is offending
 				if(testChar.collidesWith(*curTile, collisionVector)) {
-				//	testChar.setY(tempY); // if still colliding, Y was not the offender
+					// if there is still collision after placing him back where he came from on the Y axis, then X axis is offending
 					Xoffender = true;
 				}
 				testChar.setY(tempY); // put him in new position
@@ -227,8 +201,6 @@ void WichitaGame::collisions()
 					testChar.setX(testChar.getPrevX());
 					testChar.setY(testChar.getPrevY()); // don't allow movement in either direction (corner)
 				}
-				//testChar.setX(testChar.getX()+collisionVector.x);
-				//testChar.setY(testChar.getY()+collisionVector.y);
 			}
 
 		}

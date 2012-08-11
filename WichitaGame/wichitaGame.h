@@ -30,6 +30,7 @@ private:
 	TextureManager characterTexture;
 	Character testChar;
 	Map testMap;
+	Map* currentMap;
     TextDX  *dxFont;            // DirectX font
     std::string  message;
     float messageY;

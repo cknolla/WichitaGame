@@ -35,10 +35,14 @@ public:
 	~Map();
 	bool initialize(Game* gamePtr, const char* textureFile, const char* keyFile);
 
+	// get map width in tiles
 	int getWidth() { return width; }
+	// get map height in tiles
 	int getHeight() { return height; }
+	// pull a single tile from the map
 	Entity* getTile(int row, int col);
 
+	// handle texture if device lost
 	void onLostDevice();
 	void onResetDevice();
 };
