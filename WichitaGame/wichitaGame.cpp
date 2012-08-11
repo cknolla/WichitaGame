@@ -94,7 +94,7 @@ void WichitaGame::initialize(HWND hwnd)
 	if (!characterTexture.initialize(graphics,TEST_CHAR_IMAGE))
         throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing character texture"));
 
-	if (!testChar.initialize(this,32,32,2,&characterTexture))
+	if (!testChar.initialize(this,34,34,2,&characterTexture))
         throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing character"));
 
 	testChar.setX(200);
