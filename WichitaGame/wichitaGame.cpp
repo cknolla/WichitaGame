@@ -13,6 +13,9 @@ WichitaGame::WichitaGame()
 {
     dxFont = new TextDX();  // DirectX font
     messageY = 0;
+	debugFile.open("debugFile.txt");
+	if(!debugFile.is_open())
+		throw(GameError(gameErrorNS::FATAL_ERROR, "Error opening debug file"));
 }
 
 //=============================================================================
@@ -20,6 +23,7 @@ WichitaGame::WichitaGame()
 //=============================================================================
 WichitaGame::~WichitaGame()
 {
+	debugFile.close();
     releaseAll();           // call onLostDevice() for every graphics item
     SAFE_DELETE(dxFont);
 }
@@ -37,25 +41,25 @@ void WichitaGame::initialize(HWND hwnd)
 		0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,
 		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,
 		0,0,0,0,0,0,0,0,0,0,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,
-		1,1,0,0,0,0,0,0,0,2,2,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		1,1,0,0,0,0,0,0,2,2,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		1,1,0,0,0,0,0,0,2,3,3,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		1,1,0,0,0,0,0,0,0,3,3,3,2,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		1,1,0,0,0,0,0,0,0,3,3,3,2,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		1,1,0,0,0,0,0,0,0,3,3,3,3,3,3,3,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		1,1,0,0,0,0,0,0,0,0,3,3,3,3,3,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		1,1,0,0,0,0,0,0,0,0,0,3,3,3,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		1,1,0,0,0,0,0,0,0,0,0,0,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		1,1,0,0,0,0,0,0,0,0,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
-		1,1,0,0,0,0,0,0,0,0,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,
-		1,1,0,0,0,0,0,0,0,0,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,
-		1,1,0,0,0,0,0,0,0,0,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,
-		1,1,0,0,0,0,0,0,0,0,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,
-		1,1,0,0,0,0,0,0,0,0,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,
-		1,1,0,0,0,0,0,0,0,0,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,
-		1,1,0,0,0,0,0,0,0,0,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,
-		1,1,0,0,0,0,0,0,0,0,3,3,0,0,0,0,0,0,0,2,2,0,0,0,0,0,0,0,0,1,1,1,
-		1,1,0,0,0,0,0,0,0,0,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,
+		0,0,0,0,0,0,0,0,0,2,2,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,2,2,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,2,3,3,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,1,0,1,0,0,0,0,0,3,3,3,2,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,1,0,0,0,0,0,0,3,3,3,2,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,1,0,1,0,0,0,0,0,3,3,3,3,3,3,3,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,3,3,3,3,3,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,3,3,3,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,1,1,1,1,0,0,0,0,0,0,0,1,
+		1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,1,1,1,1,1,0,0,0,0,0,1,1,
+		1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,1,1,1,1,1,1,0,0,0,1,1,1,
+		1,1,1,1,1,1,1,1,1,3,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,2,1,1,1,1,
+		1,1,1,1,1,1,1,1,1,3,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,2,1,1,1,1,
+		1,1,1,1,1,1,1,1,1,3,3,3,1,1,1,1,1,1,1,0,1,1,0,0,0,1,1,2,1,1,1,1,
+		1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,0,1,0,1,1,2,2,2,2,1,
+		1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,1,1,1,1,1,1,1,
+		1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+		1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
 	};
 
 	// map texture
@@ -77,6 +81,11 @@ void WichitaGame::initialize(HWND hwnd)
 			tileMap[row][col].setCurrentFrame(tileMapKey[row][col]);
 			tileMap[row][col].setY((float)TILE_HEIGHT*row);
 			tileMap[row][col].setX((float)TILE_WIDTH*col);
+			if(tileMapKey[row][col] != 1 && tileMapKey[row][col] != 3) { // if not a water or mountain tile
+				tileMap[row][col].setActive(false);
+			}
+			tileMap[row][col].setCollisionType(entityNS::BOX);
+		//	tileMap[row][col].setCollisionRadius(15.0f);
 		}
 	}
 
@@ -92,6 +101,15 @@ void WichitaGame::initialize(HWND hwnd)
 	testChar.setY(200);
 	testChar.setFrames(0,1);
 	testChar.setFrameDelay(0.1f);
+//	testChar.setCollisionType(entityNS::BOX);
+	testChar.setCollisionRadius(31.0f);
+
+	// initialize DirectX font
+    // 18 pixel high Arial
+    if(dxFont->initialize(graphics, 12, true, false, "Arial") == false)
+        throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing DirectX font"));
+
+	messageY = GAME_HEIGHT-100.0f;
 
 	/* saved for reference only
 
@@ -103,10 +121,7 @@ void WichitaGame::initialize(HWND hwnd)
     if (!menu.initialize(graphics,0,0,0,&menuTexture))
         throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing menu"));
 
-	// initialize DirectX font
-    // 18 pixel high Arial
-    if(dxFont->initialize(graphics, 18, true, false, "Arial") == false)
-        throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing DirectX font"));
+	
 
 	menu.setDegrees(300);
     menu.setScale(0.002861f);
@@ -123,6 +138,7 @@ void WichitaGame::initialize(HWND hwnd)
     message += "TCP/IP and UDP/IP Network Support\n\n";
     messageY = GAME_HEIGHT;
 */
+	message = "DEBUG TEXT";
     return;
 }
 
@@ -158,20 +174,32 @@ void WichitaGame::update()
 	} else if(input->isKeyDown(MOVE_LEFT_KEY) && !input->isKeyDown(MOVE_RIGHT_KEY)) {
 		testChar.moveLeft(frameTime);
 	}
+
 	// move up if down is not pressed or move down if up is not pressed
 	if( input->isKeyDown(MOVE_UP_KEY) && !input->isKeyDown(MOVE_DOWN_KEY)) {
 		testChar.moveUp(frameTime);
 	} else if( input->isKeyDown(MOVE_DOWN_KEY) && !input->isKeyDown(MOVE_UP_KEY)) {
 		testChar.moveDown(frameTime);
 	}
+	// set velocity to 0 in x or y direction if neither key is pressed
+	if(!input->isKeyDown(MOVE_UP_KEY) && !input->isKeyDown(MOVE_DOWN_KEY)) {
+		testChar.stopY();
+	}
+	if(!input->isKeyDown(MOVE_LEFT_KEY) && !input->isKeyDown(MOVE_RIGHT_KEY)) {
+		testChar.stopX();
+	}
+	
 	// if no movement keys are pressed, draw the ending frame for the direction he's currently facing and pause animation
 	if( !input->isKeyDown(MOVE_UP_KEY) && !input->isKeyDown(MOVE_DOWN_KEY) && !input->isKeyDown(MOVE_LEFT_KEY) && !input->isKeyDown(MOVE_RIGHT_KEY)) {
 		testChar.setCurrentFrame(testChar.getEndFrame());
+		testChar.setVelocity(VECTOR2(0.0f, 0.0f));
 		testChar.setLoop(false);
 	} else {
 		testChar.setLoop(true);
 	}
 	testChar.update(frameTime);
+	sprintf_s(messageBuffer, "X: %.3f, Y: %.3f", testChar.getX(), testChar.getY());
+
 }
 
 //=============================================================================
@@ -184,7 +212,23 @@ void WichitaGame::ai()
 // Handle collisions
 //=============================================================================
 void WichitaGame::collisions()
-{}
+{
+	VECTOR2 collisionVector;
+	
+	for(int row = 0; row < MAP_HEIGHT/TILE_HEIGHT; row++) { 
+		for(int col = 0; col < MAP_WIDTH/TILE_WIDTH; col++) { 
+			if(testChar.collidesWith(tileMap[row][col], collisionVector)) {
+				// normalize the vector
+				Graphics::Vector2Normalize(&collisionVector);
+				// place the character back where he came from with minor padding
+				testChar.setX(testChar.getX()+collisionVector.x);
+				testChar.setY(testChar.getY()+collisionVector.y);
+			}
+
+		}
+	}
+	
+}
 
 //=============================================================================
 // Render game items
@@ -201,8 +245,9 @@ void WichitaGame::render()
 		}
 	}
 	testChar.draw();
- //   dxFont->setFontColor(graphicsNS::ORANGE);
+    dxFont->setFontColor(graphicsNS::WHITE);
  //   dxFont->print(message,20,(int)messageY);
+	dxFont->print(messageBuffer, 20,GAME_HEIGHT-100);
 
     graphics->spriteEnd();                  // end drawing sprites
 }

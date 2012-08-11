@@ -13,6 +13,8 @@
 #include "image.h"
 #include "textDX.h"
 #include "character.h"
+#include <iostream>
+#include <fstream>
 
 //=============================================================================
 // This class is the core of the game
@@ -32,6 +34,8 @@ private:
     TextDX  *dxFont;            // DirectX font
     std::string  message;
     float messageY;
+	char messageBuffer[1000];
+	std::ofstream debugFile;
 
 public:
     // Constructor

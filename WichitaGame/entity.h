@@ -142,6 +142,9 @@ class Entity : public Image
     // Set radius of collision circle.
     virtual void setCollisionRadius(float r)    {radius = r;}
 
+	// Change the collision type from the default Circle
+	virtual void setCollisionType(entityNS::COLLISION_TYPE newType) { collisionType = newType; }
+
     ////////////////////////////////////////
     //         Other functions            //
     ////////////////////////////////////////
