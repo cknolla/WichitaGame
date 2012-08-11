@@ -85,6 +85,7 @@ void WichitaGame::initialize(HWND hwnd)
 				tileMap[row][col].setActive(false);
 			}
 			tileMap[row][col].setCollisionType(entityNS::BOX);
+			tileMap[row][col].setEdge(TILE_COLLISION_BOX);
 		//	tileMap[row][col].setCollisionRadius(15.0f);
 		}
 	}
@@ -101,8 +102,8 @@ void WichitaGame::initialize(HWND hwnd)
 	testChar.setY(200);
 	testChar.setFrames(0,1);
 	testChar.setFrameDelay(0.1f);
-//	testChar.setCollisionType(entityNS::BOX);
-	testChar.setCollisionRadius(31.0f);
+	testChar.setCollisionType(entityNS::BOX);
+	testChar.setEdge(characterNS::COLLISION_BOX);
 
 	// initialize DirectX font
     // 18 pixel high Arial
@@ -214,15 +215,42 @@ void WichitaGame::ai()
 void WichitaGame::collisions()
 {
 	VECTOR2 collisionVector;
+	float tempX;
+	float tempY;
+	bool Xoffender = false;
+	bool Yoffender = false;
 	
 	for(int row = 0; row < MAP_HEIGHT/TILE_HEIGHT; row++) { 
 		for(int col = 0; col < MAP_WIDTH/TILE_WIDTH; col++) { 
 			if(testChar.collidesWith(tileMap[row][col], collisionVector)) {
 				// normalize the vector
-				Graphics::Vector2Normalize(&collisionVector);
-				// place the character back where he came from with minor padding
-				testChar.setX(testChar.getX()+collisionVector.x);
-				testChar.setY(testChar.getY()+collisionVector.y);
+			//	Graphics::Vector2Normalize(&collisionVector);
+				// save the destination location
+				tempX = testChar.getX();
+				tempY = testChar.getY();
+				// place the character back on the X axis
+				testChar.setX(testChar.getPrevX());
+				if(testChar.collidesWith(tileMap[row][col], collisionVector)) {
+				//	testChar.setX(tempX); // if still colliding, it wasn't because of an X movement, so allow it
+					Yoffender = true;
+				}
+				testChar.setX(tempX); // put him back to new position to check Y
+				testChar.setY(testChar.getPrevY());
+				if(testChar.collidesWith(tileMap[row][col], collisionVector)) {
+				//	testChar.setY(tempY); // if still colliding, Y was not the offender
+					Xoffender = true;
+				}
+				testChar.setY(tempY); // put him in new position
+				if(Xoffender && !Yoffender) {
+					testChar.setX(testChar.getPrevX()); // allow Y movement since Y didn't cause collision
+				} else if(Yoffender && !Xoffender) {
+					testChar.setY(testChar.getPrevY()); // allow X movement since X didn't cause collision
+				} else if(Xoffender && Yoffender) {
+					testChar.setX(testChar.getPrevX());
+					testChar.setY(testChar.getPrevY()); // don't allow movement in either direction (corner)
+				}
+				//testChar.setX(testChar.getX()+collisionVector.x);
+				//testChar.setY(testChar.getY()+collisionVector.y);
 			}
 
 		}

@@ -145,6 +145,9 @@ class Entity : public Image
 	// Change the collision type from the default Circle
 	virtual void setCollisionType(entityNS::COLLISION_TYPE newType) { collisionType = newType; }
 
+	// Set edge for box collision
+	virtual void setEdge(RECT e) { edge = e; }
+
     ////////////////////////////////////////
     //         Other functions            //
     ////////////////////////////////////////

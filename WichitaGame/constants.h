@@ -50,6 +50,7 @@ const int MAP_WIDTH = GAME_WIDTH;
 const int MAP_HEIGHT = GAME_HEIGHT;
 const int TILE_WIDTH = 32;
 const int TILE_HEIGHT = 32;
+const RECT TILE_COLLISION_BOX = {-TILE_WIDTH/2, -TILE_HEIGHT/2, TILE_WIDTH/2, TILE_HEIGHT/2};
 
 
 // audio files required by audio.cpp
