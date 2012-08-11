@@ -8,13 +8,15 @@
 #define WIN32_LEAN_AND_MEAN
 
 #include <string>
+#include <iostream>
+#include <fstream>
 #include "game.h"
 #include "textureManager.h"
 #include "image.h"
 #include "textDX.h"
 #include "character.h"
-#include <iostream>
-#include <fstream>
+#include "map.h"
+
 
 //=============================================================================
 // This class is the core of the game
@@ -27,10 +29,7 @@ private:
     Image   menu;               // menu image
 	TextureManager characterTexture;
 	Character testChar;
-	TextureManager mapTexture;
-	Image map;
-	TextureManager tileMapTexture;
-	Entity tileMap[MAP_HEIGHT/TILE_HEIGHT][MAP_WIDTH/TILE_WIDTH];
+	Map testMap;
     TextDX  *dxFont;            // DirectX font
     std::string  message;
     float messageY;

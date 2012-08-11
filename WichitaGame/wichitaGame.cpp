@@ -35,7 +35,7 @@ WichitaGame::~WichitaGame()
 void WichitaGame::initialize(HWND hwnd)
 {
     Game::initialize(hwnd); // throws GameError
-	const int tileMapKey[MAP_HEIGHT/TILE_HEIGHT][MAP_WIDTH/TILE_WIDTH] = {
+/*	const int tileMapKey[MAP_HEIGHT/TILE_HEIGHT][MAP_WIDTH/TILE_WIDTH] = {
 		1,1,0,0,0,0,0,0,0,0,0,0,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,1,1,
 		1,0,0,0,0,0,0,0,0,0,0,0,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,1,
 		0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -61,35 +61,10 @@ void WichitaGame::initialize(HWND hwnd)
 		1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
 		1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
 	};
+*/
 
-	// map texture
-    if (!mapTexture.initialize(graphics,TEST_MAP_IMAGE))
-        throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing map texture"));
-
-    // map image
-    if (!map.initialize(graphics,0,0,0,&mapTexture))
-        throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing map"));
-
-	// tile map texture
-	if (!tileMapTexture.initialize(graphics,TEST_TILE_MAP_IMAGE))
-        throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing tile map texture"));
-
-	for(int row = 0; row < MAP_HEIGHT/TILE_HEIGHT; row++) { // rows
-		for(int col = 0; col < MAP_WIDTH/TILE_WIDTH; col++) { // cols
-			if (!tileMap[row][col].initialize(this,TILE_WIDTH,TILE_HEIGHT,0,&tileMapTexture))
-				throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing tile"));
-			tileMap[row][col].setCurrentFrame(tileMapKey[row][col]);
-			tileMap[row][col].setY((float)TILE_HEIGHT*row);
-			tileMap[row][col].setX((float)TILE_WIDTH*col);
-			if(tileMapKey[row][col] != 1 && tileMapKey[row][col] != 3) { // if not a water or mountain tile
-				tileMap[row][col].setActive(false);
-			}
-			tileMap[row][col].setCollisionType(entityNS::BOX);
-			tileMap[row][col].setEdge(TILE_COLLISION_BOX);
-		//	tileMap[row][col].setCollisionRadius(15.0f);
-		}
-	}
-
+	if(!testMap.initialize(this, mapNS::TEST_TILE_MAP_IMAGE, mapNS::TEST_TILE_MAP_KEY))
+		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing map"));
 
 	// character texture
 	if (!characterTexture.initialize(graphics,TEST_CHAR_IMAGE))
@@ -102,7 +77,7 @@ void WichitaGame::initialize(HWND hwnd)
 	testChar.setY(200);
 	testChar.setFrames(0,1);
 	testChar.setFrameDelay(0.1f);
-	testChar.setCollisionType(entityNS::BOX);
+	testChar.setActive(true);
 	testChar.setEdge(characterNS::COLLISION_BOX);
 
 	// initialize DirectX font
@@ -219,10 +194,13 @@ void WichitaGame::collisions()
 	float tempY;
 	bool Xoffender = false;
 	bool Yoffender = false;
+	Entity* curTile;
+
 	
-	for(int row = 0; row < MAP_HEIGHT/TILE_HEIGHT; row++) { 
-		for(int col = 0; col < MAP_WIDTH/TILE_WIDTH; col++) { 
-			if(testChar.collidesWith(tileMap[row][col], collisionVector)) {
+	for(int row = 0; row < testMap.getHeight(); row++) { 
+		for(int col = 0; col < testMap.getWidth(); col++) { 
+			curTile = testMap.getTile(row, col);
+			if(testChar.collidesWith(*curTile, collisionVector)) {
 				// normalize the vector
 			//	Graphics::Vector2Normalize(&collisionVector);
 				// save the destination location
@@ -230,13 +208,13 @@ void WichitaGame::collisions()
 				tempY = testChar.getY();
 				// place the character back on the X axis
 				testChar.setX(testChar.getPrevX());
-				if(testChar.collidesWith(tileMap[row][col], collisionVector)) {
+				if(testChar.collidesWith(*curTile, collisionVector)) {
 				//	testChar.setX(tempX); // if still colliding, it wasn't because of an X movement, so allow it
 					Yoffender = true;
 				}
 				testChar.setX(tempX); // put him back to new position to check Y
 				testChar.setY(testChar.getPrevY());
-				if(testChar.collidesWith(tileMap[row][col], collisionVector)) {
+				if(testChar.collidesWith(*curTile, collisionVector)) {
 				//	testChar.setY(tempY); // if still colliding, Y was not the offender
 					Xoffender = true;
 				}
@@ -267,9 +245,9 @@ void WichitaGame::render()
 
  //   menu.draw();
 //	map.draw();
-	for(int i = 0; i < MAP_HEIGHT/TILE_HEIGHT; i++) { // rows
-		for(int j = 0; j < MAP_WIDTH/TILE_WIDTH; j++) { // cols
-			tileMap[i][j].draw();
+	for(int row = 0; row < testMap.getHeight(); row++) { 
+		for(int col = 0; col < testMap.getWidth(); col++) { 
+			testMap.getTile(row, col)->draw();
 		}
 	}
 	testChar.draw();
@@ -288,6 +266,7 @@ void WichitaGame::releaseAll()
 {
 //    dxFont->onLostDevice();
 //    menuTexture.onLostDevice();
+	testMap.onLostDevice();
 	characterTexture.onLostDevice();
     Game::releaseAll();
     return;
@@ -301,6 +280,7 @@ void WichitaGame::resetAll()
 {
 //    menuTexture.onResetDevice();
 //    dxFont->onResetDevice();
+	testMap.onResetDevice();
 	characterTexture.onResetDevice();
     Game::resetAll();
     return;

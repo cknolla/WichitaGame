@@ -20,9 +20,9 @@ Entity::Entity() : Image()
     velocity.y = 0.0;
     deltaV.x = 0.0;
     deltaV.y = 0.0;
-    active = true;                  // the entity is active
+    active = false;                  // the entity is inactive by default
     rotatedBoxReady = false;
-    collisionType = entityNS::CIRCLE;
+    collisionType = entityNS::BOX;
     health = 100;
     gravity = entityNS::GRAVITY;
 }
