@@ -20,7 +20,7 @@ bool Map::initialize(Game* gamePtr, const char* textureFile, const char* keyFile
 	char formatStr[30]; // used to verify map file format
 	char errorStr[200];
 	int curKey;
-	int* collidables;
+	int collidables;
 	int row, col;
 	int startXTile, startYTile;
 //	try {
@@ -106,8 +106,8 @@ bool Map::initialize(Game* gamePtr, const char* textureFile, const char* keyFile
 				// assign the approriate sprite for this tile using the key
 				tile[row][col].setCurrentFrame(curKey);
 				// place the tile where it belongs on screen
-				tile[row][col].setX((float)mapNS::TILE_WIDTH*col-xOffset);
-				tile[row][col].setY((float)mapNS::TILE_HEIGHT*row-yOffset);
+				tile[row][col].setX( (float)mapNS::TILE_WIDTH * col - xOffset);
+				tile[row][col].setY( (float)mapNS::TILE_HEIGHT * row - yOffset);
 				// need an array defining collidable
 				tile[row][col].setEdge(mapNS::TILE_COLLISION_BOX);
 			}
@@ -121,16 +121,14 @@ bool Map::initialize(Game* gamePtr, const char* textureFile, const char* keyFile
 			return false;
 		}
 		while(!key.eof()) {
-			collidables = (int*)malloc(sizeof(int));
-			key >> *collidables;
+			key >> collidables;
 			for(row = 0; row < height; row++) {
 				for(col = 0; col < width; col++) {
-					if(tile[row][col].getCurrentFrame() == *collidables) { // if it's in the list of collidables
+					if(tile[row][col].getCurrentFrame() == collidables) { // if it's in the list of collidables
 						tile[row][col].setActive(true);
 					}
 				}
 			}
-			free(collidables);
 		}
 		key.close();
 		debugFile.close();
@@ -144,45 +142,44 @@ bool Map::initialize(Game* gamePtr, const char* textureFile, const char* keyFile
 
 void Map::update(Character &player, float frameTime)
 {
-	float x = player.getX();
-	float y = player.getY();
 	int shiftLeft = 0;
 	int shiftRight = 0;
 	int shiftUp = 0;
 	int shiftDown = 0;
+	float playerCenterX = player.getX() + player.getWidth()/2;
+	float playerCenterY = player.getY() + player.getHeight()/2;
 
-	if(x < mapNS::CAMERA_TRIGGER) {
-		// if the player's position is 20% toward the screen's left, shift the map by the player's velocity
+	if(playerCenterX + player.getEdge().left < mapNS::CAMERA_TRIGGER) {
+		// if the player's collision box passes the 'trigger' point, scroll the map rather than the player
 		shiftLeft = 1;
-	} else if(x > GAME_WIDTH-mapNS::CAMERA_TRIGGER) {
-		// if the player's position is 80% toward the screen's right, shift the map right
+	} else if(playerCenterX + player.getEdge().right > GAME_WIDTH - mapNS::CAMERA_TRIGGER) {
 		shiftRight = 1;
 	}
-	if(y < mapNS::CAMERA_TRIGGER) {
+	if(playerCenterY + player.getEdge().top < mapNS::CAMERA_TRIGGER) {
 		shiftUp = 1;
-	} else if(y > GAME_HEIGHT-mapNS::CAMERA_TRIGGER) {
+	} else if(playerCenterY + player.getEdge().bottom > GAME_HEIGHT - mapNS::CAMERA_TRIGGER) {
 		shiftDown = 1;
 	}
 
 	for(int row = 0; row < height; row++) {
 		for(int col = 0; col < width; col++) {
 			// shift each direction only if the appropriate variable doesn't zero it out
-			tile[row][col].setX(tile[row][col].getX()+(frameTime*mapNS::CAMERA_MOVE_SPEED*shiftLeft));
+			tile[row][col].setX( tile[row][col].getX() + (frameTime * mapNS::CAMERA_MOVE_SPEED * shiftLeft));
 
-			tile[row][col].setX(tile[row][col].getX()-(frameTime*mapNS::CAMERA_MOVE_SPEED*shiftRight));
+			tile[row][col].setX( tile[row][col].getX() - (frameTime * mapNS::CAMERA_MOVE_SPEED * shiftRight));
 			
-			tile[row][col].setY(tile[row][col].getY()+(frameTime*mapNS::CAMERA_MOVE_SPEED*shiftUp));
+			tile[row][col].setY( tile[row][col].getY() + (frameTime * mapNS::CAMERA_MOVE_SPEED * shiftUp));
 			
-			tile[row][col].setY(tile[row][col].getY()-(frameTime*mapNS::CAMERA_MOVE_SPEED*shiftDown));
+			tile[row][col].setY( tile[row][col].getY() - (frameTime * mapNS::CAMERA_MOVE_SPEED * shiftDown));
 			
 		}
 	}
 
 	// push the player back by an equal amount that the camera moved. This keeps the player always on screen
-	player.setX(player.getX()+(frameTime*mapNS::CAMERA_MOVE_SPEED*shiftLeft));
-	player.setX(player.getX()-(frameTime*mapNS::CAMERA_MOVE_SPEED*shiftRight));
-	player.setY(player.getY()+(frameTime*mapNS::CAMERA_MOVE_SPEED*shiftUp));
-	player.setY(player.getY()-(frameTime*mapNS::CAMERA_MOVE_SPEED*shiftDown));
+	player.setX( player.getX() + (frameTime * mapNS::CAMERA_MOVE_SPEED * shiftLeft));
+	player.setX( player.getX() - (frameTime * mapNS::CAMERA_MOVE_SPEED * shiftRight));
+	player.setY( player.getY() + (frameTime * mapNS::CAMERA_MOVE_SPEED * shiftUp));
+	player.setY( player.getY() - (frameTime * mapNS::CAMERA_MOVE_SPEED * shiftDown));
 /* FAILING METHOD OF PUSHING THE PLAYER BACK
 	if(shiftLeft || shiftRight) {
 //		tempPrevX = player.getPrevX();
@@ -208,8 +205,8 @@ void Map::reset()
 	if(initialized) {
 		for(row = 0; row < height; row++) { 
 			for(col = 0; col < width; col++) {
-				tile[row][col].setX((float)mapNS::TILE_WIDTH*col-xOffset);
-				tile[row][col].setY((float)mapNS::TILE_HEIGHT*row-yOffset);
+				tile[row][col].setX( (float)mapNS::TILE_WIDTH * col - xOffset);
+				tile[row][col].setY( (float)mapNS::TILE_HEIGHT * row - yOffset);
 			}
 		}
 	}

@@ -68,7 +68,7 @@ void WichitaGame::initialize(HWND hwnd)
     if(dxFont->initialize(graphics, 12, true, false, "Arial") == false)
         throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing DirectX font"));
 
-	 if(debugLine->initialize(graphics, 12, true, false, "Arial") == false)
+	 if(debugLine->initialize(graphics, 16, true, false, "Arial") == false)
         throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing Debug Line"));
 
 	messageY = GAME_HEIGHT-100.0f;
@@ -131,6 +131,7 @@ void WichitaGame::update()
         messageY = GAME_HEIGHT;
     }
 	*/
+	sprintf_s(debugLineBuf, "Debug line - update me");
 
 	// move right if left is not pressed or move right if left is not pressed
 	if(input->isKeyDown(MOVE_RIGHT_KEY) && !input->isKeyDown(MOVE_LEFT_KEY)) {
@@ -174,7 +175,6 @@ void WichitaGame::update()
 	testChar.update(frameTime);
 
 	sprintf_s(messageBuffer, "X: %.3f, Y: %.3f", testChar.getX(), testChar.getY());
-	sprintf_s(debugLineBuf, "Debug line! Change me!");
 
 }
 
