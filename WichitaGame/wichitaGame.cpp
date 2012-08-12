@@ -12,10 +12,12 @@
 WichitaGame::WichitaGame()
 {
     dxFont = new TextDX();  // DirectX font
+	debugLine = new TextDX();
     messageY = 0;
 	debugFile.open("debugFile.txt");
 	if(!debugFile.is_open())
 		throw(GameError(gameErrorNS::FATAL_ERROR, "Error opening debug file"));
+	currentMap = NULL;
 }
 
 //=============================================================================
@@ -26,6 +28,7 @@ WichitaGame::~WichitaGame()
 	debugFile.close();
     releaseAll();           // call onLostDevice() for every graphics item
     SAFE_DELETE(dxFont);
+	SAFE_DELETE(debugLine);
 }
 
 //=============================================================================
@@ -38,6 +41,9 @@ void WichitaGame::initialize(HWND hwnd)
 
 	// initialize map which will initialize a texture and lots of images inside it
 	if(!testMap.initialize(this, mapNS::TEST_TILE_MAP_IMAGE, mapNS::TEST_TILE_MAP_KEY))
+		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing map"));
+
+	if(!testMap2.initialize(this, mapNS::TEST_TILE_MAP_IMAGE, mapNS::TEST_TILE_MAP_KEY2))
 		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing map"));
 
 	// if changing maps, just reassign currentMap
@@ -61,6 +67,9 @@ void WichitaGame::initialize(HWND hwnd)
     // 18 pixel high Arial
     if(dxFont->initialize(graphics, 12, true, false, "Arial") == false)
         throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing DirectX font"));
+
+	 if(debugLine->initialize(graphics, 12, true, false, "Arial") == false)
+        throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing Debug Line"));
 
 	messageY = GAME_HEIGHT-100.0f;
 
@@ -92,6 +101,8 @@ void WichitaGame::initialize(HWND hwnd)
     messageY = GAME_HEIGHT;
 */
 	message = "DEBUG TEXT";
+	if(!currentMap)
+		throw(GameError(gameErrorNS::FATAL_ERROR, "currentMap is NULL! Assign it to a map in WichitaGame::initialize!"));
     return;
 }
 
@@ -141,6 +152,13 @@ void WichitaGame::update()
 	if(!input->isKeyDown(MOVE_LEFT_KEY) && !input->isKeyDown(MOVE_RIGHT_KEY)) {
 		testChar.stopX();
 	}
+
+	if(input->wasKeyPressed('Z')) {
+		currentMap = &testMap2;
+	}
+	if(input->wasKeyPressed('X')) {
+		currentMap = &testMap;
+	}
 	
 	// if no movement keys are pressed, draw the ending frame for the direction he's currently facing and pause animation
 	if( !input->isKeyDown(MOVE_UP_KEY) && !input->isKeyDown(MOVE_DOWN_KEY) && !input->isKeyDown(MOVE_LEFT_KEY) && !input->isKeyDown(MOVE_RIGHT_KEY)) {
@@ -150,8 +168,12 @@ void WichitaGame::update()
 	} else {
 		testChar.setLoop(true);
 	}
+		// Update the map before the character since the map can stop the player's movement, but after input since the map can stop his velocity
+	currentMap->update(testChar, frameTime);
 	testChar.update(frameTime);
+
 	sprintf_s(messageBuffer, "X: %.3f, Y: %.3f", testChar.getX(), testChar.getY());
+	sprintf_s(debugLineBuf, "Debug line! Change me!");
 
 }
 
@@ -217,15 +239,17 @@ void WichitaGame::render()
 
  //   menu.draw();
 //	map.draw();
-	for(int row = 0; row < testMap.getHeight(); row++) { 
-		for(int col = 0; col < testMap.getWidth(); col++) { 
-			testMap.getTile(row, col)->draw();
+	for(int row = 0; row < currentMap->getHeight(); row++) { 
+		for(int col = 0; col < currentMap->getWidth(); col++) { 
+			currentMap->getTile(row, col)->draw();
 		}
 	}
 	testChar.draw();
     dxFont->setFontColor(graphicsNS::WHITE);
+	debugLine->setFontColor(graphicsNS::WHITE);
  //   dxFont->print(message,20,(int)messageY);
-	dxFont->print(messageBuffer, 20,GAME_HEIGHT-100);
+	dxFont->print(messageBuffer, 20,(int)messageY);
+	debugLine->print(debugLineBuf, 20, (int)messageY+20);
 
     graphics->spriteEnd();                  // end drawing sprites
 }
@@ -236,9 +260,11 @@ void WichitaGame::render()
 //=============================================================================
 void WichitaGame::releaseAll()
 {
-//    dxFont->onLostDevice();
+    dxFont->onLostDevice();
+	debugLine->onLostDevice();
 //    menuTexture.onLostDevice();
 	testMap.onLostDevice();
+	testMap2.onLostDevice();
 	characterTexture.onLostDevice();
     Game::releaseAll();
     return;
@@ -251,8 +277,11 @@ void WichitaGame::releaseAll()
 void WichitaGame::resetAll()
 {
 //    menuTexture.onResetDevice();
-//    dxFont->onResetDevice();
+    dxFont->onResetDevice();
+	debugLine->onResetDevice();
 	testMap.onResetDevice();
+	testMap2.onResetDevice();
+	currentMap->onResetDevice();
 	characterTexture.onResetDevice();
     Game::resetAll();
     return;

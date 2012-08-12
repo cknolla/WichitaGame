@@ -24,6 +24,8 @@ bool Map::initialize(Game* gamePtr, const char* textureFile, const char* keyFile
 //	int actualCollidables;
 	int row, col;
 	try {
+		startX = 0; // defaults
+		startY = 0;
 		// check if key file opened
 		sprintf_s(errorStr, "Could not open map file %s", keyFile);
 		if(!key.is_open())
@@ -87,6 +89,52 @@ bool Map::initialize(Game* gamePtr, const char* textureFile, const char* keyFile
 	}
 	initialized = true;
 	return initialized;
+}
+
+void Map::update(Character &player, float frameTime)
+{
+	float x = player.getX();
+	float y = player.getY();
+	int shiftLeft = 0;
+	int shiftRight = 0;
+	int shiftUp = 0;
+	int shiftDown = 0;
+
+	if(x < mapNS::CAMERA_TRIGGER) {
+		// if the player's position is 20% toward the screen's left, shift the map by the player's velocity
+		shiftLeft = 1;
+	} else if(x > GAME_WIDTH-mapNS::CAMERA_TRIGGER) {
+		// if the player's position is 80% toward the screen's right, shift the map right
+		shiftRight = 1;
+	}
+	if(y < mapNS::CAMERA_TRIGGER) {
+		shiftUp = 1;
+	} else if(y > GAME_HEIGHT-mapNS::CAMERA_TRIGGER) {
+		shiftDown = 1;
+	}
+
+	for(int row = 0; row < height; row++) {
+		for(int col = 0; col < width; col++) {
+			// shift each direction only if the appropriate variable doesn't zero it out
+			tile[row][col].setX(tile[row][col].getX()+(frameTime*mapNS::CAMERA_MOVE_SPEED*shiftLeft));
+
+			tile[row][col].setX(tile[row][col].getX()-(frameTime*mapNS::CAMERA_MOVE_SPEED*shiftRight));
+			
+			tile[row][col].setY(tile[row][col].getY()+(frameTime*mapNS::CAMERA_MOVE_SPEED*shiftUp));
+			
+			tile[row][col].setY(tile[row][col].getY()-(frameTime*mapNS::CAMERA_MOVE_SPEED*shiftDown));
+			
+		}
+	}
+
+	if(shiftLeft)
+		player.setVelocity(VECTOR2(characterNS::MOVE_SPEED, player.getVelocity().y));
+	if(shiftRight)
+		player.setVelocity(VECTOR2(-characterNS::MOVE_SPEED, player.getVelocity().y));
+	if(shiftUp)
+		player.setVelocity(VECTOR2(player.getVelocity().x, characterNS::MOVE_SPEED));
+	if(shiftDown)
+		player.setVelocity(VECTOR2(player.getVelocity().x, -characterNS::MOVE_SPEED));
 }
 
 Entity* Map::getTile(int row, int col)

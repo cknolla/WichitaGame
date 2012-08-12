@@ -8,7 +8,7 @@
 
 namespace characterNS 
 {
-	const float MOVE_SPEED = 150.0f;
+	const float MOVE_SPEED = 200.0f;
 	const RECT COLLISION_BOX = {-12, 0, 12, 14};
 }
 

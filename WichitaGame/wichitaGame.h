@@ -30,11 +30,14 @@ private:
 	TextureManager characterTexture;
 	Character testChar;
 	Map testMap;
+	Map testMap2;
 	Map* currentMap;
     TextDX  *dxFont;            // DirectX font
+	TextDX *debugLine;
     std::string  message;
     float messageY;
 	char messageBuffer[1000];
+	char debugLineBuf[1000];
 	std::ofstream debugFile;
 
 public:
