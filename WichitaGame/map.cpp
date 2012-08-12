@@ -127,22 +127,28 @@ void Map::update(Character &player, float frameTime)
 		}
 	}
 
+	// push the player back by an equal amount that the camera moved. This keeps the player always on screen
+	player.setX(player.getX()+(frameTime*mapNS::CAMERA_MOVE_SPEED*shiftLeft));
+	player.setX(player.getX()-(frameTime*mapNS::CAMERA_MOVE_SPEED*shiftRight));
+	player.setY(player.getY()+(frameTime*mapNS::CAMERA_MOVE_SPEED*shiftUp));
+	player.setY(player.getY()-(frameTime*mapNS::CAMERA_MOVE_SPEED*shiftDown));
+/* FAILING METHOD OF PUSHING THE PLAYER BACK
 	if(shiftLeft || shiftRight) {
-		player.setVelocity(VECTOR2(0, player.getVelocity().y));
-		player.setX(player.getPrevX());
-	}
-//	if(shiftRight) {
+//		tempPrevX = player.getPrevX();
+		player.setX(player.getX()-(frameTime*player.getVelocity().x*2));
+//		player.setPrevX(player.getPrevX()+player.getVelocity().x*frameTime);
 //		player.setVelocity(VECTOR2(0, player.getVelocity().y));
-//		player.setX(player.getPrevX());
-//	}
-	if(shiftUp || shiftDown) {
-		player.setVelocity(VECTOR2(player.getVelocity().x, 0));
-		player.setY(player.getPrevY());
+		
 	}
-//	if(shiftDown) {
-//		player.setVelocity(VECTOR2(player.getVelocity().x, -characterNS::MOVE_SPEED));
-//		player.setY(player.getY()-0.001f);
-//	}
+
+	if(shiftUp || shiftDown) {
+		player.setY(player.getY()-(frameTime*player.getVelocity().y*2));
+//		player.setPrevY(player.getPrevY()+player.getVelocity().y*frameTime);
+//		player.setVelocity(VECTOR2(player.getVelocity().x, 0));
+		
+	}
+
+*/
 }
 
 Entity* Map::getTile(int row, int col)

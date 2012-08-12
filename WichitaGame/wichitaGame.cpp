@@ -168,7 +168,8 @@ void WichitaGame::update()
 	} else {
 		testChar.setLoop(true);
 	}
-		// Update the map before the character since the map can stop the player's movement, but after input since the map can stop his velocity
+	
+	// Update the map BEFORE the character since it manipulates the player's position
 	currentMap->update(testChar, frameTime);
 	testChar.update(frameTime);
 
@@ -199,6 +200,7 @@ void WichitaGame::collisions()
 		for(int col = 0; col < currentMap->getWidth(); col++) { 
 			curTile = currentMap->getTile(row, col);
 			if(testChar.collidesWith(*curTile, collisionVector)) {
+				sprintf_s(debugLineBuf, "Collision!");
 				// save the destination location
 				tempX = testChar.getX();
 				tempY = testChar.getY();
