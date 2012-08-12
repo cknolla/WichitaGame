@@ -17,41 +17,83 @@ bool Map::initialize(Game* gamePtr, const char* textureFile, const char* keyFile
 {
 	std::ifstream key(keyFile);
 	std::ofstream debugFile("mapDebug.txt");
-	char errorStr[100];
+	char formatStr[30]; // used to verify map file format
+	char errorStr[200];
 	int curKey;
 	int* collidables;
-//	int collidablesSize;
-//	int actualCollidables;
 	int row, col;
 	int startXTile, startYTile;
-	try {
+//	try {
 		// check if key file opened
-		sprintf_s(errorStr, "Could not open map file %s", keyFile);
-		if(!key.is_open())
+		if(!key.is_open()) {
+			sprintf_s(errorStr, "Could not open map file %s", keyFile);
 			throw(GameError(gameErrorNS::FATAL_ERROR, errorStr));
+			return false;
+		}
 
-		if(!debugFile.is_open())
+		if(!debugFile.is_open()) {
 			throw(GameError(gameErrorNS::FATAL_ERROR, "Error opening map debug file"));
+			return false;
+		}
 
 		// file should be formatted as follows:
-		// playerStartX playerStartY
-		// width height
+		// StartingTile: playerStartX playerStartY
+		// WidthHeight: width height
 		// row1
 		// row2
 		// row(height)
-		// collidable1 collidable2 collidable(n)
+		// Collidables: collidable1 collidable2 collidable(n)
 
 		// tile map texture
 		sprintf_s(errorStr, "Error initializing map texture %s", textureFile);
-		if (!mapTexture.initialize(gamePtr->getGraphics(),textureFile))
+		if (!mapTexture.initialize(gamePtr->getGraphics(),textureFile)) {
 			throw(GameError(gameErrorNS::FATAL_ERROR, errorStr));
-
+			return false;
+		}
+		key >> formatStr;
+		debugFile << formatStr << "\n";
+		if(strcmp(formatStr, "StartingTile:")) { // strcmp returns non-zero (true) if there are any differences
+			sprintf_s(errorStr, "'StartingTile:' does not exist or is not correct at the start of %s! Can't load map", keyFile);
+			throw(GameError(gameErrorNS::FATAL_ERROR, errorStr));
+			return false;
+		}
 		key >> startXTile >> startYTile;
 		startX = (float)startXTile*mapNS::TILE_WIDTH;
 		startY = (float)startYTile*mapNS::TILE_HEIGHT;
-		debugFile << startXTile << startYTile << startX << startY;
 
+		key >> formatStr;
+		debugFile << formatStr << "\n";
+		if(strcmp(formatStr, "TopLeftTile:")) {
+			sprintf_s(errorStr, "The 'TopLeftTile:' string does not exist or does not match below StartingTile: in the map file %s! Can't load map", keyFile);
+			throw(GameError(gameErrorNS::FATAL_ERROR, errorStr));
+			return false;
+		}
+		key >> xOffset >> yOffset;
+		xOffset *= mapNS::TILE_WIDTH;
+		yOffset *= mapNS::TILE_HEIGHT;
+
+		startX -= xOffset;
+		startY -= yOffset;
+
+		key >> formatStr;
+		debugFile << formatStr << "\n";
+		if(strcmp(formatStr, "WidthHeight:")) {
+			sprintf_s(errorStr, "The 'WidthHeight:' string does not exist or does not match below TopLeftTile: in the map file %s! Can't load map", keyFile);
+			throw(GameError(gameErrorNS::FATAL_ERROR, errorStr));
+			return false;
+		}
 		key >> width >> height;
+		if(width > mapNS::MAX_MAP_WIDTH) {
+			sprintf_s(errorStr, "Width of map %s (%d) is larger than maximum allowed (%d)!", keyFile, width, mapNS::MAX_MAP_WIDTH);
+			throw(GameError(gameErrorNS::FATAL_ERROR, errorStr));
+			return false;
+		}
+		if(height > mapNS::MAX_MAP_HEIGHT) {
+			sprintf_s(errorStr, "Height of map %s (%d) is larger than maximum allowed (%d)!", keyFile, height, mapNS::MAX_MAP_HEIGHT);
+			throw(GameError(gameErrorNS::FATAL_ERROR, errorStr));
+			return false;
+		}
+
 //		debugFile << width << " " << height << "\n";
 
 		for(row = 0; row < height; row++) { 
@@ -64,16 +106,20 @@ bool Map::initialize(Game* gamePtr, const char* textureFile, const char* keyFile
 				// assign the approriate sprite for this tile using the key
 				tile[row][col].setCurrentFrame(curKey);
 				// place the tile where it belongs on screen
-				tile[row][col].setY((float)mapNS::TILE_HEIGHT*row);
-				tile[row][col].setX((float)mapNS::TILE_WIDTH*col);
+				tile[row][col].setX((float)mapNS::TILE_WIDTH*col-xOffset);
+				tile[row][col].setY((float)mapNS::TILE_HEIGHT*row-yOffset);
 				// need an array defining collidable
 				tile[row][col].setEdge(mapNS::TILE_COLLISION_BOX);
 			}
 //			debugFile << "\n";
 		}
-
+		key >> formatStr;
 		// make collidables large enough to hold every tile number in the texture
-
+		if(strcmp(formatStr, "Collidables:")) {
+			sprintf_s(errorStr, "The 'Collidables:' string does not exist or is not correct at the bottom of %s! Can't load map", keyFile);
+			throw(GameError(gameErrorNS::FATAL_ERROR, errorStr));
+			return false;
+		}
 		while(!key.eof()) {
 			collidables = (int*)malloc(sizeof(int));
 			key >> *collidables;
@@ -89,9 +135,9 @@ bool Map::initialize(Game* gamePtr, const char* textureFile, const char* keyFile
 		key.close();
 		debugFile.close();
 		
-	} catch(...) {
-		return false;
-	}
+//	} catch(...) {
+//		return false;
+//	}
 	initialized = true;
 	return initialized;
 }
@@ -159,11 +205,13 @@ void Map::update(Character &player, float frameTime)
 void Map::reset()
 {
 	int row, col;
-	for(row = 0; row < height; row++) { 
+	if(initialized) {
+		for(row = 0; row < height; row++) { 
 			for(col = 0; col < width; col++) {
-				tile[row][col].setY((float)mapNS::TILE_HEIGHT*row);
-				tile[row][col].setX((float)mapNS::TILE_WIDTH*col);
+				tile[row][col].setX((float)mapNS::TILE_WIDTH*col-xOffset);
+				tile[row][col].setY((float)mapNS::TILE_HEIGHT*row-yOffset);
 			}
+		}
 	}
 }
 

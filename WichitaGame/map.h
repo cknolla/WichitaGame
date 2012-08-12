@@ -19,7 +19,7 @@ namespace mapNS {
 	const int TILE_DRAW_HEIGHT = 34;
 	const int MAX_MAP_WIDTH = 256;
 	const int MAX_MAP_HEIGHT = 256; 
-	const float CAMERA_TRIGGER = 200.0f; // used to decide how far from the screen's edge before shifting the 'camera'
+	const float CAMERA_TRIGGER = 6*TILE_WIDTH-5.0f; // used to decide how far from the screen's edge before shifting the 'camera'
 	const float CAMERA_MOVE_SPEED = characterNS::MOVE_SPEED;
 //	const char TEST_TILE_MAP_IMAGE[] = "pictures/tileset34x34.png";
 	const char TEST_TILE_MAP_IMAGE[] = "pictures/tileset01.png";
@@ -39,6 +39,9 @@ private:
 	// player starting position
 	float startX;
 	float startY;
+	// offset from tile 0,0 to know which tile should be draw as the top left
+	float xOffset;
+	float yOffset;
 
 public:
 	Map();

@@ -195,6 +195,7 @@ std::string Console::getCommand()
 
     // check for scroll
     if (input->wasKeyPressed(VK_UP))            // if up arrow
+	//	input->setTextIn(inputStr); // set new text to previous text to repeat the same command (IN DEBUG)
         scrollAmount++;
     else if (input->wasKeyPressed(VK_DOWN))     // if down arrow
         scrollAmount--;

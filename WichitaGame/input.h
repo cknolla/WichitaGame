@@ -137,6 +137,9 @@ public:
     // Return last character entered
     char getCharIn()        {return charIn;}
 
+	// set next (IN DEBUG)
+	void setTextIn(std::string t) { textIn = t; }
+
     // Reads mouse screen position into mouseX, mouseY
     void mouseIn(LPARAM);
 

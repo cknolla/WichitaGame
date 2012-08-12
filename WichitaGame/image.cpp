@@ -60,6 +60,10 @@ bool Image::initialize(Graphics *g, int width, int height, int ncols,
         graphics = g;                               // the graphics object
         textureManager = textureM;                  // pointer to texture object
 
+		cols = ncols;
+        if (cols == 0)
+            cols = 1;
+
         spriteData.texture = textureManager->getTexture();
         if(width == 0)
             width = textureManager->getWidth();     // use full width of texture
@@ -67,9 +71,7 @@ bool Image::initialize(Graphics *g, int width, int height, int ncols,
         if(height == 0)
             height = textureManager->getHeight();   // use full height of texture
         spriteData.height = height;
-        cols = ncols;
-        if (cols == 0)
-            cols = 1;                               // if 0 cols use 1
+                                       // if 0 cols use 1
 
         // configure spriteData.rect to draw currentFrame
         spriteData.rect.left = (currentFrame % cols) * spriteData.width;

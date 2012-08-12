@@ -154,10 +154,10 @@ void WichitaGame::update()
 	}
 
 	if(input->wasKeyPressed('Z')) {
-		changeMap(testMap2);	
+		changeMap(testMap);	
 	}
 	if(input->wasKeyPressed('X')) {
-		changeMap(testMap);
+		changeMap(testMap2);
 	}
 	
 	// if no movement keys are pressed, draw the ending frame for the direction he's currently facing and pause animation
@@ -256,6 +256,9 @@ void WichitaGame::render()
     graphics->spriteEnd();                  // end drawing sprites
 }
 
+//=============================================================================
+// Console commands
+//=============================================================================
 void WichitaGame::consoleCommand()
 {
 
@@ -282,7 +285,7 @@ void WichitaGame::consoleCommand()
 
 	if(command == "noclip")
 	{
-		noclip = !noclip;
+		noclip = !noclip;               // toggle clipping
 		if(noclip)
 			console->print("Noclip on");
 		else
@@ -290,11 +293,14 @@ void WichitaGame::consoleCommand()
 	}
 }
 
+//=============================================================================
+// Cleanly change maps
+//=============================================================================
 void WichitaGame::changeMap(Map &newMap)
 {
-	currentMap->reset();
+	currentMap->reset(); // reset the old map
 	currentMap = &newMap;
-	testChar.setX(currentMap->getStartX());
+	testChar.setX(currentMap->getStartX()); // move the player where he belongs on the new map
 	testChar.setY(currentMap->getStartY());
 }
 
