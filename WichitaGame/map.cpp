@@ -127,14 +127,22 @@ void Map::update(Character &player, float frameTime)
 		}
 	}
 
-	if(shiftLeft)
+	if(shiftLeft) {
 		player.setVelocity(VECTOR2(characterNS::MOVE_SPEED, player.getVelocity().y));
-	if(shiftRight)
+//		player.setX(player.getX()+0.001f);
+	}
+	if(shiftRight) {
 		player.setVelocity(VECTOR2(-characterNS::MOVE_SPEED, player.getVelocity().y));
-	if(shiftUp)
+//		player.setX(player.getX()-0.001f);
+	}
+	if(shiftUp) {
 		player.setVelocity(VECTOR2(player.getVelocity().x, characterNS::MOVE_SPEED));
-	if(shiftDown)
+//		player.setY(player.getY()+0.001f);
+	}
+	if(shiftDown) {
 		player.setVelocity(VECTOR2(player.getVelocity().x, -characterNS::MOVE_SPEED));
+//		player.setY(player.getY()-0.001f);
+	}
 }
 
 Entity* Map::getTile(int row, int col)
