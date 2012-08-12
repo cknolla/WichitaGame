@@ -16,21 +16,22 @@ Map::~Map()
 bool Map::initialize(Game* gamePtr, const char* textureFile, const char* keyFile)
 {
 	std::ifstream key(keyFile);
-//	std::ofstream debugFile("mapDebug.txt");
+	std::ofstream debugFile("mapDebug.txt");
 	char errorStr[100];
 	int curKey;
 	int* collidables;
 //	int collidablesSize;
 //	int actualCollidables;
 	int row, col;
+	int startXTile, startYTile;
 	try {
 		// check if key file opened
 		sprintf_s(errorStr, "Could not open map file %s", keyFile);
 		if(!key.is_open())
 			throw(GameError(gameErrorNS::FATAL_ERROR, errorStr));
 
-//		if(!debugFile.is_open())
-//			throw(GameError(gameErrorNS::FATAL_ERROR, "Error opening map debug file"));
+		if(!debugFile.is_open())
+			throw(GameError(gameErrorNS::FATAL_ERROR, "Error opening map debug file"));
 
 		// file should be formatted as follows:
 		// playerStartX playerStartY
@@ -45,7 +46,10 @@ bool Map::initialize(Game* gamePtr, const char* textureFile, const char* keyFile
 		if (!mapTexture.initialize(gamePtr->getGraphics(),textureFile))
 			throw(GameError(gameErrorNS::FATAL_ERROR, errorStr));
 
-		key >> startX >> startY;
+		key >> startXTile >> startYTile;
+		startX = (float)startXTile*mapNS::TILE_WIDTH;
+		startY = (float)startYTile*mapNS::TILE_HEIGHT;
+		debugFile << startXTile << startYTile << startX << startY;
 
 		key >> width >> height;
 //		debugFile << width << " " << height << "\n";
@@ -83,7 +87,7 @@ bool Map::initialize(Game* gamePtr, const char* textureFile, const char* keyFile
 			free(collidables);
 		}
 		key.close();
-//		debugFile.close();
+		debugFile.close();
 		
 	} catch(...) {
 		return false;

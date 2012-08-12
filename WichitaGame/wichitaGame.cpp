@@ -18,6 +18,7 @@ WichitaGame::WichitaGame()
 	if(!debugFile.is_open())
 		throw(GameError(gameErrorNS::FATAL_ERROR, "Error opening debug file"));
 	currentMap = NULL;
+	noclip = false;
 }
 
 //=============================================================================
@@ -46,8 +47,9 @@ void WichitaGame::initialize(HWND hwnd)
 	if(!testMap2.initialize(this, mapNS::TEST_TILE_MAP_IMAGE, mapNS::TEST_TILE_MAP_KEY2))
 		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing map"));
 
-	// if changing maps, just reassign currentMap
+	// call changeMap() to change maps. Must assign currentMap to a map here
 	currentMap = &testMap;
+	changeMap(testMap2);
 
 	// character texture
 	if (!characterTexture.initialize(graphics,TEST_CHAR_IMAGE))
@@ -56,8 +58,6 @@ void WichitaGame::initialize(HWND hwnd)
 	if (!testChar.initialize(this,34,34,2,&characterTexture))
         throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing character"));
 
-	testChar.setX(200);
-	testChar.setY(200);
 	testChar.setFrames(0,1);
 	testChar.setFrameDelay(0.1f);
 	testChar.setActive(true);
@@ -154,8 +154,7 @@ void WichitaGame::update()
 	}
 
 	if(input->wasKeyPressed('Z')) {
-		changeMap(testMap2);
-		
+		changeMap(testMap2);	
 	}
 	if(input->wasKeyPressed('X')) {
 		changeMap(testMap);
@@ -197,40 +196,40 @@ void WichitaGame::collisions()
 	bool Yoffender = false;
 	Entity* curTile;
 
-	for(int row = 0; row < currentMap->getHeight(); row++) { 
-		for(int col = 0; col < currentMap->getWidth(); col++) { 
-			curTile = currentMap->getTile(row, col);
-			if(testChar.collidesWith(*curTile, collisionVector)) {
-				sprintf_s(debugLineBuf, "Collision!");
-				// save the destination location
-				tempX = testChar.getX();
-				tempY = testChar.getY();
-				// place the character back on the X axis
-				testChar.setX(testChar.getPrevX());
+	if(!noclip) {
+		for(int row = 0; row < currentMap->getHeight(); row++) { 
+			for(int col = 0; col < currentMap->getWidth(); col++) { 
+				curTile = currentMap->getTile(row, col);
 				if(testChar.collidesWith(*curTile, collisionVector)) {
-					// if there is still collision after placing him back where he came from on the X axis, then Y axis is offending
-					Yoffender = true;
-				}
-				testChar.setX(tempX); // put him back to new position to check Y
-				testChar.setY(testChar.getPrevY()); // return him to previous Y to see if X is offending
-				if(testChar.collidesWith(*curTile, collisionVector)) {
-					// if there is still collision after placing him back where he came from on the Y axis, then X axis is offending
-					Xoffender = true;
-				}
-				testChar.setY(tempY); // put him in new position
-				if(Xoffender && !Yoffender) {
-					testChar.setX(testChar.getPrevX()); // allow Y movement since Y didn't cause collision
-				} else if(Yoffender && !Xoffender) {
-					testChar.setY(testChar.getPrevY()); // allow X movement since X didn't cause collision
-				} else if(Xoffender && Yoffender) {
+					sprintf_s(debugLineBuf, "Collision!");
+					// save the destination location
+					tempX = testChar.getX();
+					tempY = testChar.getY();
+					// place the character back on the X axis
 					testChar.setX(testChar.getPrevX());
-					testChar.setY(testChar.getPrevY()); // don't allow movement in either direction (corner)
+					if(testChar.collidesWith(*curTile, collisionVector)) {
+						// if there is still collision after placing him back where he came from on the X axis, then Y axis is offending
+						Yoffender = true;
+					}
+					testChar.setX(tempX); // put him back to new position to check Y
+					testChar.setY(testChar.getPrevY()); // return him to previous Y to see if X is offending
+					if(testChar.collidesWith(*curTile, collisionVector)) {
+						// if there is still collision after placing him back where he came from on the Y axis, then X axis is offending
+						Xoffender = true;
+					}
+					testChar.setY(tempY); // put him in new position
+					if(Xoffender && !Yoffender) {
+						testChar.setX(testChar.getPrevX()); // allow Y movement since Y didn't cause collision
+					} else if(Yoffender && !Xoffender) {
+						testChar.setY(testChar.getPrevY()); // allow X movement since X didn't cause collision
+					} else if(Xoffender && Yoffender) {
+						testChar.setX(testChar.getPrevX());
+						testChar.setY(testChar.getPrevY()); // don't allow movement in either direction (corner)
+					}
 				}
 			}
-
 		}
 	}
-	
 }
 
 //=============================================================================
@@ -257,10 +256,44 @@ void WichitaGame::render()
     graphics->spriteEnd();                  // end drawing sprites
 }
 
+void WichitaGame::consoleCommand()
+{
+
+    command = console->getCommand();    // get command from console
+    if(command == "")                   // if no command
+        return;
+
+    if (command == "help")              // if "help" command
+    {
+        console->print("Console Commands:");
+        console->print("fps - toggle display of frames per second");
+		console->print("noclip - toggle clipping");
+        return;
+    }
+
+    if (command == "fps")
+    {
+        fpsOn = !fpsOn;                 // toggle display of fps
+        if(fpsOn)
+            console->print("fps On");
+        else
+            console->print("fps Off");
+    }
+
+	if(command == "noclip")
+	{
+		noclip = !noclip;
+		if(noclip)
+			console->print("Noclip on");
+		else
+			console->print("Noclip off");
+	}
+}
+
 void WichitaGame::changeMap(Map &newMap)
 {
 	currentMap->reset();
-	currentMap = &testMap2;
+	currentMap = &newMap;
 	testChar.setX(currentMap->getStartX());
 	testChar.setY(currentMap->getStartY());
 }

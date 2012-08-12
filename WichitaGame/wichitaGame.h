@@ -39,6 +39,7 @@ private:
 	char messageBuffer[1000];
 	char debugLineBuf[1000];
 	std::ofstream debugFile;
+	bool noclip;
 
 public:
     // Constructor
@@ -53,6 +54,8 @@ public:
     void render();      // "
     void releaseAll();
     void resetAll();
+
+	void consoleCommand();
 
 	void changeMap(Map &newMap);
 };
