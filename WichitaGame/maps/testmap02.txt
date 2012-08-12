@@ -1,7 +1,5 @@
 StartingTile: 20 10
 
-TopLeftTile: 1 1
-
 WidthHeight: 48 48
 
 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1

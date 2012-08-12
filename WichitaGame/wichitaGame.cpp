@@ -300,8 +300,8 @@ void WichitaGame::changeMap(Map &newMap)
 {
 	currentMap->reset(); // reset the old map
 	currentMap = &newMap;
-	testChar.setX(currentMap->getStartX()); // move the player where he belongs on the new map
-	testChar.setY(currentMap->getStartY());
+	testChar.setX(GAME_WIDTH/2); // move the player where he belongs on the new map
+	testChar.setY(GAME_HEIGHT/2);
 }
 
 //=============================================================================

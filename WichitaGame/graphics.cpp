@@ -97,6 +97,13 @@ void Graphics::initialize(HWND hw, int w, int h, bool full)
     device3d->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD);
     device3d->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
     device3d->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+
+//	device3d->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_WRAP);
+//	device3d->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_WRAP);
+//	device3d->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_POINT);
+//	device3d->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_ANISOTROPIC);
+//	device3d->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_ANISOTROPIC);
+//	device3d->SetSamplerState( 0, D3DSAMP_MAXANISOTROPY, 16);
 }
 
 //=============================================================================

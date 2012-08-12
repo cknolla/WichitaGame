@@ -61,19 +61,19 @@ bool Map::initialize(Game* gamePtr, const char* textureFile, const char* keyFile
 		startX = (float)startXTile*mapNS::TILE_WIDTH;
 		startY = (float)startYTile*mapNS::TILE_HEIGHT;
 
-		key >> formatStr;
-		debugFile << formatStr << "\n";
-		if(strcmp(formatStr, "TopLeftTile:")) {
-			sprintf_s(errorStr, "The 'TopLeftTile:' string does not exist or does not match below StartingTile: in the map file %s! Can't load map", keyFile);
-			throw(GameError(gameErrorNS::FATAL_ERROR, errorStr));
-			return false;
-		}
-		key >> xOffset >> yOffset;
-		xOffset *= mapNS::TILE_WIDTH;
-		yOffset *= mapNS::TILE_HEIGHT;
+//		key >> formatStr;
+//		debugFile << formatStr << "\n";
+//		if(strcmp(formatStr, "TopLeftTile:")) {
+//			sprintf_s(errorStr, "The 'TopLeftTile:' string does not exist or does not match below StartingTile: in the map file %s! Can't load map", keyFile);
+//			throw(GameError(gameErrorNS::FATAL_ERROR, errorStr));
+//			return false;
+//		}
+//		key >> xOffset >> yOffset;
+//		xOffset *= mapNS::TILE_WIDTH;
+//		yOffset *= mapNS::TILE_HEIGHT;
 
-		startX -= xOffset;
-		startY -= yOffset;
+//		startX -= xOffset;
+//		startY -= yOffset;
 
 		key >> formatStr;
 		debugFile << formatStr << "\n";
@@ -105,9 +105,9 @@ bool Map::initialize(Game* gamePtr, const char* textureFile, const char* keyFile
 //				debugFile << curKey << " ";
 				// assign the approriate sprite for this tile using the key
 				tile[row][col].setCurrentFrame(curKey);
-				// place the tile where it belongs on screen
-				tile[row][col].setX( (float)mapNS::TILE_WIDTH * col - xOffset);
-				tile[row][col].setY( (float)mapNS::TILE_HEIGHT * row - yOffset);
+				// place the tile where it belongs on screen - center the character
+				tile[row][col].setX( (float)mapNS::TILE_WIDTH * col - startX + GAME_WIDTH/2);
+				tile[row][col].setY( (float)mapNS::TILE_HEIGHT * row - startY + GAME_HEIGHT/2);
 				// need an array defining collidable
 				tile[row][col].setEdge(mapNS::TILE_COLLISION_BOX);
 			}
@@ -205,8 +205,8 @@ void Map::reset()
 	if(initialized) {
 		for(row = 0; row < height; row++) { 
 			for(col = 0; col < width; col++) {
-				tile[row][col].setX( (float)mapNS::TILE_WIDTH * col - xOffset);
-				tile[row][col].setY( (float)mapNS::TILE_HEIGHT * row - yOffset);
+				tile[row][col].setX( (float)mapNS::TILE_WIDTH * col - startX + GAME_WIDTH/2);
+				tile[row][col].setY( (float)mapNS::TILE_HEIGHT * row - startY + GAME_HEIGHT/2);
 			}
 		}
 	}
