@@ -16,7 +16,7 @@ Map::~Map()
 bool Map::initialize(Game* gamePtr, const char* textureFile, const char* keyFile)
 {
 	std::ifstream key(keyFile);
-	std::ofstream debugFile("mapDebug.txt");
+//	std::ofstream debugFile("mapDebug.txt");
 	char errorStr[100];
 	int curKey;
 	int* collidables;
@@ -24,17 +24,16 @@ bool Map::initialize(Game* gamePtr, const char* textureFile, const char* keyFile
 //	int actualCollidables;
 	int row, col;
 	try {
-		startX = 0; // defaults
-		startY = 0;
 		// check if key file opened
 		sprintf_s(errorStr, "Could not open map file %s", keyFile);
 		if(!key.is_open())
 			throw(GameError(gameErrorNS::FATAL_ERROR, errorStr));
 
-		if(!debugFile.is_open())
-			throw(GameError(gameErrorNS::FATAL_ERROR, "Error opening map debug file"));
+//		if(!debugFile.is_open())
+//			throw(GameError(gameErrorNS::FATAL_ERROR, "Error opening map debug file"));
 
 		// file should be formatted as follows:
+		// playerStartX playerStartY
 		// width height
 		// row1
 		// row2
@@ -46,16 +45,18 @@ bool Map::initialize(Game* gamePtr, const char* textureFile, const char* keyFile
 		if (!mapTexture.initialize(gamePtr->getGraphics(),textureFile))
 			throw(GameError(gameErrorNS::FATAL_ERROR, errorStr));
 
-		key >> width >> height;
-		debugFile << width << " " << height << "\n";
+		key >> startX >> startY;
 
-		for(row = 0; row < height; row++) { // rows
-			for(col = 0; col < width; col++) { // cols
+		key >> width >> height;
+//		debugFile << width << " " << height << "\n";
+
+		for(row = 0; row < height; row++) { 
+			for(col = 0; col < width; col++) {
 				// initialize image for each tile
 				if (!tile[row][col].initialize(gamePtr,mapNS::TILE_WIDTH,mapNS::TILE_HEIGHT,0,&mapTexture))
 					throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing tile"));
 				key >> curKey;
-				debugFile << curKey << " ";
+//				debugFile << curKey << " ";
 				// assign the approriate sprite for this tile using the key
 				tile[row][col].setCurrentFrame(curKey);
 				// place the tile where it belongs on screen
@@ -64,7 +65,7 @@ bool Map::initialize(Game* gamePtr, const char* textureFile, const char* keyFile
 				// need an array defining collidable
 				tile[row][col].setEdge(mapNS::TILE_COLLISION_BOX);
 			}
-			debugFile << "\n";
+//			debugFile << "\n";
 		}
 
 		// make collidables large enough to hold every tile number in the texture
@@ -82,7 +83,7 @@ bool Map::initialize(Game* gamePtr, const char* textureFile, const char* keyFile
 			free(collidables);
 		}
 		key.close();
-		debugFile.close();
+//		debugFile.close();
 		
 	} catch(...) {
 		return false;
@@ -149,6 +150,17 @@ void Map::update(Character &player, float frameTime)
 	}
 
 */
+}
+
+void Map::reset()
+{
+	int row, col;
+	for(row = 0; row < height; row++) { 
+			for(col = 0; col < width; col++) {
+				tile[row][col].setY((float)mapNS::TILE_HEIGHT*row);
+				tile[row][col].setX((float)mapNS::TILE_WIDTH*col);
+			}
+	}
 }
 
 Entity* Map::getTile(int row, int col)

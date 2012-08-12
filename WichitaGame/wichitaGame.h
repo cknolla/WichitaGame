@@ -53,6 +53,8 @@ public:
     void render();      // "
     void releaseAll();
     void resetAll();
+
+	void changeMap(Map &newMap);
 };
 
 #endif

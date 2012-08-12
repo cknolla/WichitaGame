@@ -60,6 +60,9 @@ public:
 	void setStartX(float x) { startX = x; }
 	void setStartY(float y) { startY = y; }
 
+	// reset tiles to their starting location - used when changing maps
+	void reset();
+
 	// handle texture if device lost
 	void onLostDevice();
 	void onResetDevice();

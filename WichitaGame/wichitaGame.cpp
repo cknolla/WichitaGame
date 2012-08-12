@@ -154,10 +154,11 @@ void WichitaGame::update()
 	}
 
 	if(input->wasKeyPressed('Z')) {
-		currentMap = &testMap2;
+		changeMap(testMap2);
+		
 	}
 	if(input->wasKeyPressed('X')) {
-		currentMap = &testMap;
+		changeMap(testMap);
 	}
 	
 	// if no movement keys are pressed, draw the ending frame for the direction he's currently facing and pause animation
@@ -254,6 +255,14 @@ void WichitaGame::render()
 	debugLine->print(debugLineBuf, 20, (int)messageY+20);
 
     graphics->spriteEnd();                  // end drawing sprites
+}
+
+void WichitaGame::changeMap(Map &newMap)
+{
+	currentMap->reset();
+	currentMap = &testMap2;
+	testChar.setX(currentMap->getStartX());
+	testChar.setY(currentMap->getStartY());
 }
 
 //=============================================================================
