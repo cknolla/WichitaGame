@@ -17,6 +17,10 @@
 #include "character.h"
 #include "map.h"
 
+#pragma comment(lib,"winmm.lib")
+#pragma comment(lib,"d3dx9.lib")
+#pragma comment(lib,"d3d9.lib")
+#pragma comment(lib,"xinput.lib")
 
 //=============================================================================
 // This class is the core of the game
