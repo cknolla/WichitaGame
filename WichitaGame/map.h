@@ -39,9 +39,6 @@ private:
 	// player starting position
 	float startX;
 	float startY;
-	// offset from tile 0,0 to know which tile should be draw as the top left
-	float xOffset;
-	float yOffset;
 
 public:
 	Map();
@@ -62,6 +59,8 @@ public:
 	// set player starting positions
 	void setStartX(float x) { startX = x; }
 	void setStartY(float y) { startY = y; }
+	// set player starting position based on tile grid position
+	void setStartingPos(int tileX, int tileY);
 
 	// reset tiles to their starting location - used when changing maps
 	void reset();
