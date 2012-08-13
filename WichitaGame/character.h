@@ -23,7 +23,7 @@ public:
 	Character();
 	virtual ~Character();
 
-	bool initialize(Game *gamePtr, int width, int height, int ncols,TextureManager *textureM);
+//	bool initialize(Game *gamePtr, int width, int height, int ncols, TextureManager *textureM);
 	void update(float frameTime);
 
 	void moveRight(float frameTime);

@@ -198,8 +198,8 @@ void Map::reset()
 
 void Map::setStartingPos(int tileX, int tileY)
 {
-	startX = tileX*mapNS::TILE_WIDTH;
-	startY = tileY*mapNS::TILE_HEIGHT;
+	startX = (float)tileX*mapNS::TILE_WIDTH;
+	startY = (float)tileY*mapNS::TILE_HEIGHT;
 }
 
 Entity* Map::getTile(int row, int col)

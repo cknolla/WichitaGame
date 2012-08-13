@@ -9,10 +9,10 @@ Character::~Character()
 {
 }
 
-bool Character::initialize(Game *gamePtr, int width, int height, int ncols, TextureManager *textureM)
-{
-	return (Entity::initialize(gamePtr, width, height, ncols, textureM));
-}
+//bool Character::initialize(Game *gamePtr, int width, int height, int ncols, TextureManager *textureM)
+//{
+//	return (Entity::initialize(gamePtr, width, height, ncols, textureM));
+//}
 
 void Character::update(float frameTime)
 {
