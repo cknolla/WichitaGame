@@ -220,18 +220,9 @@ void Map::setStartingPos(int tileX, int tileY)
 {
 	startX = (float)tileX*mapNS::TILE_WIDTH;
 	startY = (float)tileY*mapNS::TILE_HEIGHT;
-<<<<<<< HEAD
+
 }
 
-Entity* Map::getTile(int row, int col)
-{
-	if(initialized)
-		return &tile[row][col];
-	else
-		return NULL;
-=======
->>>>>>> Map rework complete! (new files)
-}
 
 void Map::onLostDevice()
 {
