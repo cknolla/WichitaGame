@@ -41,10 +41,10 @@ void WichitaGame::initialize(HWND hwnd)
     Game::initialize(hwnd); // throws GameError
 
 	// initialize map which will initialize a texture and lots of images inside it
-	if(!testMap.initialize(this, mapNS::TEST_TILE_MAP_IMAGE, mapNS::TEST_TILE_MAP_KEY))
+	if(!testMap.initialize(this, TEST_TILE_SET, mapNS::TEST_TILE_MAP_KEY))
 		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing map"));
 
-	if(!testMap2.initialize(this, mapNS::TEST_TILE_MAP_IMAGE, mapNS::TEST_TILE_MAP_KEY2))
+	if(!testMap2.initialize(this, TEST_TILE_SET, mapNS::TEST_TILE_MAP_KEY2))
 		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing map"));
 
 	// call changeMap() to change maps. Must assign currentMap to a map here
@@ -194,40 +194,39 @@ void WichitaGame::collisions()
 	float tempY;
 	bool Xoffender = false;
 	bool Yoffender = false;
-	Entity* curTile;
+	Tile* curTile;
 
 	if(!noclip) {
-		for(int row = 0; row < currentMap->getHeight(); row++) { 
-			for(int col = 0; col < currentMap->getWidth(); col++) { 
-				curTile = currentMap->getTile(row, col);
+		curTile = currentMap->getFirstTile(); 
+		while(curTile) {
+			if(testChar.collidesWith(*curTile, collisionVector)) {
+				sprintf_s(debugLineBuf, "Collision!");
+				// save the destination location
+				tempX = testChar.getX();
+				tempY = testChar.getY();
+				// place the character back on the X axis
+				testChar.setX(testChar.getPrevX());
 				if(testChar.collidesWith(*curTile, collisionVector)) {
-					sprintf_s(debugLineBuf, "Collision!");
-					// save the destination location
-					tempX = testChar.getX();
-					tempY = testChar.getY();
-					// place the character back on the X axis
-					testChar.setX(testChar.getPrevX());
-					if(testChar.collidesWith(*curTile, collisionVector)) {
-						// if there is still collision after placing him back where he came from on the X axis, then Y axis is offending
-						Yoffender = true;
-					}
-					testChar.setX(tempX); // put him back to new position to check Y
-					testChar.setY(testChar.getPrevY()); // return him to previous Y to see if X is offending
-					if(testChar.collidesWith(*curTile, collisionVector)) {
-						// if there is still collision after placing him back where he came from on the Y axis, then X axis is offending
-						Xoffender = true;
-					}
-					testChar.setY(tempY); // put him in new position
-					if(Xoffender && !Yoffender) {
-						testChar.setX(testChar.getPrevX()); // allow Y movement since Y didn't cause collision
-					} else if(Yoffender && !Xoffender) {
-						testChar.setY(testChar.getPrevY()); // allow X movement since X didn't cause collision
-					} else if(Xoffender && Yoffender) {
-						testChar.setX(testChar.getPrevX());
-						testChar.setY(testChar.getPrevY()); // don't allow movement in either direction (corner)
-					}
+					// if there is still collision after placing him back where he came from on the X axis, then Y axis is offending
+					Yoffender = true;
 				}
+				testChar.setX(tempX); // put him back to new position to check Y
+				testChar.setY(testChar.getPrevY()); // return him to previous Y to see if X is offending
+				if(testChar.collidesWith(*curTile, collisionVector)) {
+					// if there is still collision after placing him back where he came from on the Y axis, then X axis is offending
+					Xoffender = true;
+				}
+				testChar.setY(tempY); // put him in new position
+				if(Xoffender && !Yoffender) {
+					testChar.setX(testChar.getPrevX()); // allow Y movement since Y didn't cause collision
+				} else if(Yoffender && !Xoffender) {
+					testChar.setY(testChar.getPrevY()); // allow X movement since X didn't cause collision
+				} else if(Xoffender && Yoffender) {
+					testChar.setX(testChar.getPrevX());
+					testChar.setY(testChar.getPrevY()); // don't allow movement in either direction (corner)
+				}	
 			}
+			curTile = curTile->getNextTile();
 		}
 	}
 }
@@ -237,15 +236,24 @@ void WichitaGame::collisions()
 //=============================================================================
 void WichitaGame::render()
 {
+	Tile* curTile;
     graphics->spriteBegin();                // begin drawing sprites
 
  //   menu.draw();
 //	map.draw();
+	/*
 	for(int row = 0; row < currentMap->getHeight(); row++) { 
 		for(int col = 0; col < currentMap->getWidth(); col++) { 
 			currentMap->getTile(row, col)->draw();
 		}
 	}
+	*/
+	curTile = currentMap->getFirstTile();
+	while(curTile) {
+		curTile->draw();
+		curTile = curTile->getNextTile();
+	}
+
 	testChar.draw();
     dxFont->setFontColor(graphicsNS::WHITE);
 	debugLine->setFontColor(graphicsNS::WHITE);

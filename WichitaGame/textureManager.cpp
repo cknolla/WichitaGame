@@ -17,6 +17,7 @@ TextureManager::TextureManager()
     height = 0;
     file = NULL;
     graphics = NULL;
+	nextTexture = NULL;
     initialized = false;            // set true when successfully initialized
 }
 
@@ -26,6 +27,7 @@ TextureManager::TextureManager()
 TextureManager::~TextureManager()
 {
     SAFE_RELEASE(texture);
+	SAFE_DELETE(nextTexture);
 }
 
 //=============================================================================

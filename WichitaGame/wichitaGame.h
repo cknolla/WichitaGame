@@ -16,6 +16,7 @@
 #include "textDX.h"
 #include "character.h"
 #include "map.h"
+#include "tilesets.h"
 
 #pragma comment(lib,"winmm.lib")
 #pragma comment(lib,"d3dx9.lib")

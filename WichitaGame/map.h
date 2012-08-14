@@ -9,7 +9,7 @@
 #include <fstream>
 #include "game.h"
 #include "textureManager.h"
-#include "entity.h"
+#include "tile.h"
 #include "character.h"
 
 namespace mapNS {
@@ -17,8 +17,6 @@ namespace mapNS {
 	const int TILE_HEIGHT = 32;
 	const int TILE_DRAW_WIDTH = 34;
 	const int TILE_DRAW_HEIGHT = 34;
-	const int MAX_MAP_WIDTH = 256;
-	const int MAX_MAP_HEIGHT = 256; 
 	const float CAMERA_TRIGGER = 10*TILE_WIDTH; // used to decide how far from the screen's edge before shifting the 'camera'
 	const float CAMERA_MOVE_SPEED = characterNS::MOVE_SPEED;
 //	const char TEST_TILE_MAP_IMAGE[] = "pictures/tileset34x34.png";
@@ -31,8 +29,8 @@ namespace mapNS {
 
 class Map {
 private:
-	TextureManager mapTexture;
-	Entity tile[mapNS::MAX_MAP_HEIGHT][mapNS::MAX_MAP_WIDTH];
+	Tile* firstTile;
+	TextureManager* firstTexture;
 	bool initialized;
 	int width;
 	int height;
@@ -42,8 +40,8 @@ private:
 
 public:
 	Map();
-	~Map();
-	bool initialize(Game* gamePtr, const char* textureFile, const char* keyFile);
+	virtual ~Map();
+	bool initialize(Game* gamePtr, const char* tileSet[], const char* keyFile);
 	void update(Character& player, float frameTime);
 
 	// get map width in tiles
@@ -51,7 +49,7 @@ public:
 	// get map height in tiles
 	int getHeight() { return height; }
 	// pull a single tile from the map
-	Entity* getTile(int row, int col);
+//	Entity* getTile(int row, int col);
 	// get player's starting positions
 	float getStartX() { return startX; }
 	float getStartY() { return startY; }
@@ -61,6 +59,12 @@ public:
 	void setStartY(float y) { startY = y; }
 	// set player starting position based on tile grid position
 	void setStartingPos(int tileX, int tileY);
+
+	// Return first tile in the linked list
+	Tile* getFirstTile() { return firstTile; }
+
+	// Set first tile in the linked list
+	void setFirstTile(Tile* nt) { firstTile = nt; }
 
 	// reset tiles to their starting location - used when changing maps
 	void reset();

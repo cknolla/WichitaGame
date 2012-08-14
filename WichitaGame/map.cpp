@@ -6,14 +6,19 @@
 Map::Map()
 {
 	initialized = false;
+	firstTile = NULL;
+	firstTexture = NULL;
 }
 
 Map::~Map()
 {
 	onLostDevice();
+	// delete the full linked list of tiles via deconstructors
+	SAFE_DELETE(firstTile);
+	SAFE_DELETE(firstTexture);
 }
 
-bool Map::initialize(Game* gamePtr, const char* textureFile, const char* keyFile)
+bool Map::initialize(Game* gamePtr, const char* tileSet[], const char* keyFile)
 {
 	std::ifstream key(keyFile);
 	std::ofstream debugFile("mapDebug.txt");
@@ -23,6 +28,12 @@ bool Map::initialize(Game* gamePtr, const char* textureFile, const char* keyFile
 	int collidables;
 	int row, col;
 	int startXTile, startYTile;
+	int i;
+	TextureManager* curTexture = NULL;
+	TextureManager* prevTexture = NULL;
+	TextureManager* useTexture = NULL;
+	Tile* curTile = NULL;
+	Tile* prevTile = NULL;
 //	try {
 	// check if key file opened
 	if(!key.is_open()) {
@@ -42,14 +53,26 @@ bool Map::initialize(Game* gamePtr, const char* textureFile, const char* keyFile
 	// row1
 	// row2
 	// row(height)
-	// Collidables: collidable1 collidable2 collidable(n)
+	// Collidables: 
+	// row1
+	// row2
+	// row(height)
 
 	// tile map texture
-	sprintf_s(errorStr, "Error initializing map texture %s", textureFile);
-	if (!mapTexture.initialize(gamePtr->getGraphics(),textureFile)) {
-		throw(GameError(gameErrorNS::FATAL_ERROR, errorStr));
-		return false;
+	for(i = 0; i < sizeof(tileSet); i++) {
+		curTexture = new TextureManager;
+		if(!firstTexture)
+			firstTexture = curTexture;
+		if(prevTexture)
+			prevTexture->setNextTexture(curTexture);
+		sprintf_s(errorStr, "Error initializing map texture %s", tileSet[i]);
+		if (!curTexture->initialize(gamePtr->getGraphics(),tileSet[i])) {
+			throw(GameError(gameErrorNS::FATAL_ERROR, errorStr));
+			return false;
+		}
+		prevTexture = curTexture;
 	}
+	
 	key >> formatStr;
 //		debugFile << formatStr << "\n";
 	if(strcmp(formatStr, "StartingTile:")) { // strcmp returns non-zero (true) if there are any differences
@@ -61,20 +84,6 @@ bool Map::initialize(Game* gamePtr, const char* textureFile, const char* keyFile
 	startX = (float)startXTile*mapNS::TILE_WIDTH;
 	startY = (float)startYTile*mapNS::TILE_HEIGHT;
 
-//		key >> formatStr;
-//		debugFile << formatStr << "\n";
-//		if(strcmp(formatStr, "TopLeftTile:")) {
-//			sprintf_s(errorStr, "The 'TopLeftTile:' string does not exist or does not match below StartingTile: in the map file %s! Can't load map", keyFile);
-//			throw(GameError(gameErrorNS::FATAL_ERROR, errorStr));
-//			return false;
-//		}
-//		key >> xOffset >> yOffset;
-//		xOffset *= mapNS::TILE_WIDTH;
-//		yOffset *= mapNS::TILE_HEIGHT;
-
-//		startX -= xOffset;
-//		startY -= yOffset;
-
 	key >> formatStr;
 //		debugFile << formatStr << "\n";
 	if(strcmp(formatStr, "WidthHeight:")) {
@@ -83,33 +92,33 @@ bool Map::initialize(Game* gamePtr, const char* textureFile, const char* keyFile
 		return false;
 	}
 	key >> width >> height;
-	if(width > mapNS::MAX_MAP_WIDTH) {
-		sprintf_s(errorStr, "Width of map %s (%d) is larger than maximum allowed (%d)!", keyFile, width, mapNS::MAX_MAP_WIDTH);
-		throw(GameError(gameErrorNS::FATAL_ERROR, errorStr));
-		return false;
-	}
-	if(height > mapNS::MAX_MAP_HEIGHT) {
-		sprintf_s(errorStr, "Height of map %s (%d) is larger than maximum allowed (%d)!", keyFile, height, mapNS::MAX_MAP_HEIGHT);
-		throw(GameError(gameErrorNS::FATAL_ERROR, errorStr));
-		return false;
-	}
 
-//		debugFile << width << " " << height << "\n";
-
+	// create all the tiles, assign them a texture, and link them in a linked list
 	for(row = 0; row < height; row++) { 
 		for(col = 0; col < width; col++) {
-			// initialize image for each tile
-			if (!tile[row][col].initialize(gamePtr,mapNS::TILE_WIDTH,mapNS::TILE_HEIGHT,0,&mapTexture))
+			curTile = new Tile;
+			if(!firstTile)
+				firstTile = curTile;
+			if(prevTile)
+				prevTile->setNextTile(curTile);
+			key >> curKey; // grab the texture number to use for the new tile
+			useTexture = firstTexture;
+			// flip through the texture list to select the correct one for this tile
+			for(i = 0; i < curKey; i++)
+				useTexture = useTexture->getNextTexture();
+			// initialize each tile
+			if (!curTile->initialize(gamePtr,useTexture))
 				throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing tile"));
-			key >> curKey;
-//				debugFile << curKey << " ";
-			// assign the approriate sprite for this tile using the key
-			tile[row][col].setCurrentFrame(curKey);
+			// assign the approriate sprite for this tile using the key (always 0)
+			curTile->setCurrentFrame(0);
 			// place the tile where it belongs on screen - center the character
-			tile[row][col].setX( (float)mapNS::TILE_WIDTH * col - startX + GAME_WIDTH/2);
-			tile[row][col].setY( (float)mapNS::TILE_HEIGHT * row - startY + GAME_HEIGHT/2);
+			curTile->setX( (float)mapNS::TILE_WIDTH * col - startX + GAME_WIDTH/2);
+			curTile->setY( (float)mapNS::TILE_HEIGHT * row - startY + GAME_HEIGHT/2);
 
-			tile[row][col].setEdge(mapNS::TILE_COLLISION_BOX);
+			// give it full-box collision
+			curTile->setEdge(mapNS::TILE_COLLISION_BOX);
+
+			prevTile = curTile;
 		}
 //			debugFile << "\n";
 	}
@@ -120,15 +129,20 @@ bool Map::initialize(Game* gamePtr, const char* textureFile, const char* keyFile
 		throw(GameError(gameErrorNS::FATAL_ERROR, errorStr));
 		return false;
 	}
-	while(!key.eof()) {
-		key >> collidables;
-		for(row = 0; row < height; row++) {
-			for(col = 0; col < width; col++) {
-				if(tile[row][col].getCurrentFrame() == collidables) { // if it's in the list of collidables
-					tile[row][col].setActive(true);
-				}
-			}
+	
+	curTile = firstTile;
+	while(curTile) {
+		// pull in the collision map. If it's a non-zero number, that tile will be collidable (active)
+		if(key.eof()) {
+			sprintf_s(errorStr, "Warning: collision map size does match tile map size in %s!", keyFile);
+			throw(GameError(gameErrorNS::WARNING, errorStr));
 		}
+		key >> collidables;
+		if(collidables)
+			curTile->setActive(true);
+		else
+			curTile->setActive(false);
+		curTile = curTile->getNextTile();
 	}
 	key.close();
 	debugFile.close();
@@ -148,6 +162,7 @@ void Map::update(Character &player, float frameTime)
 	int shiftDown = 0;
 	float playerCenterX = player.getX() + player.getWidth()/2;
 	float playerCenterY = player.getY() + player.getHeight()/2;
+	Tile* curTile = NULL;
 
 	if(playerCenterX + player.getEdge().left < mapNS::CAMERA_TRIGGER) {
 		// if the player's collision box passes the 'trigger' point, scroll the map rather than the player
@@ -161,36 +176,41 @@ void Map::update(Character &player, float frameTime)
 		shiftDown = 1;
 	}
 
-	for(int row = 0; row < height; row++) {
-		for(int col = 0; col < width; col++) {
-			// shift each direction only if the appropriate variable doesn't zero it out
-			tile[row][col].setX( tile[row][col].getX() + (frameTime * mapNS::CAMERA_MOVE_SPEED * shiftLeft));
-
-			tile[row][col].setX( tile[row][col].getX() - (frameTime * mapNS::CAMERA_MOVE_SPEED * shiftRight));
-			
-			tile[row][col].setY( tile[row][col].getY() + (frameTime * mapNS::CAMERA_MOVE_SPEED * shiftUp));
-			
-			tile[row][col].setY( tile[row][col].getY() - (frameTime * mapNS::CAMERA_MOVE_SPEED * shiftDown));
-			
-		}
+	curTile = firstTile;
+	while(curTile) {
+		if(shiftLeft)
+			curTile->setX( curTile->getX() + (frameTime * mapNS::CAMERA_MOVE_SPEED));
+		if(shiftRight)
+			curTile->setX( curTile->getX() - (frameTime * mapNS::CAMERA_MOVE_SPEED));
+		if(shiftUp)
+			curTile->setY( curTile->getY() + (frameTime * mapNS::CAMERA_MOVE_SPEED));
+		if(shiftDown)
+			curTile->setY( curTile->getY() - (frameTime * mapNS::CAMERA_MOVE_SPEED));
+		curTile = curTile->getNextTile();
 	}
 
 	// push the player back by an equal amount that the camera moved. This keeps the player always on screen
-	player.setX( player.getX() + (frameTime * mapNS::CAMERA_MOVE_SPEED * shiftLeft));
-	player.setX( player.getX() - (frameTime * mapNS::CAMERA_MOVE_SPEED * shiftRight));
-	player.setY( player.getY() + (frameTime * mapNS::CAMERA_MOVE_SPEED * shiftUp));
-	player.setY( player.getY() - (frameTime * mapNS::CAMERA_MOVE_SPEED * shiftDown));
+	if(shiftLeft)
+		player.setX( player.getX() + (frameTime * mapNS::CAMERA_MOVE_SPEED));
+	if(shiftRight)
+		player.setX( player.getX() - (frameTime * mapNS::CAMERA_MOVE_SPEED));
+	if(shiftUp)
+		player.setY( player.getY() + (frameTime * mapNS::CAMERA_MOVE_SPEED));
+	if(shiftDown)
+		player.setY( player.getY() - (frameTime * mapNS::CAMERA_MOVE_SPEED));
 
 }
 
 void Map::reset()
 {
 	int row, col;
+	Tile* curTile = firstTile;
 	if(initialized) {
 		for(row = 0; row < height; row++) { 
 			for(col = 0; col < width; col++) {
-				tile[row][col].setX( (float)mapNS::TILE_WIDTH * col - startX + GAME_WIDTH/2);
-				tile[row][col].setY( (float)mapNS::TILE_HEIGHT * row - startY + GAME_HEIGHT/2);
+				curTile->setX( (float)mapNS::TILE_WIDTH * col - startX + GAME_WIDTH/2);
+				curTile->setY( (float)mapNS::TILE_HEIGHT * row - startY + GAME_HEIGHT/2);
+				curTile = curTile->getNextTile();
 			}
 		}
 	}
@@ -200,6 +220,7 @@ void Map::setStartingPos(int tileX, int tileY)
 {
 	startX = (float)tileX*mapNS::TILE_WIDTH;
 	startY = (float)tileY*mapNS::TILE_HEIGHT;
+<<<<<<< HEAD
 }
 
 Entity* Map::getTile(int row, int col)
@@ -208,16 +229,24 @@ Entity* Map::getTile(int row, int col)
 		return &tile[row][col];
 	else
 		return NULL;
+=======
+>>>>>>> Map rework complete! (new files)
 }
 
 void Map::onLostDevice()
 {
-	if(initialized)
-		mapTexture.onLostDevice();
+	TextureManager* curTexture = firstTexture;
+	while(curTexture) {
+		curTexture->onLostDevice();
+		curTexture = curTexture->getNextTexture();
+	}
 }
 
 void Map::onResetDevice()
 {
-	if(initialized)
-		mapTexture.onResetDevice();
+	TextureManager* curTexture = firstTexture;
+	while(curTexture) {
+		curTexture->onResetDevice();
+		curTexture = curTexture->getNextTexture();
+	}
 }

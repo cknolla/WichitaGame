@@ -21,6 +21,7 @@ class TextureManager
     Graphics *graphics;     // save pointer to graphics
     bool    initialized;    // true when successfully initialized
     HRESULT hr;             // standard return type
+	TextureManager* nextTexture;
 
   public:
     // Constructor
@@ -43,6 +44,12 @@ class TextureManager
     //      *file points to name of texture file to load
     // Post: The texture file is loaded
     virtual bool initialize(Graphics *g, const char *file);
+
+	// get next texture in a linked list
+	virtual TextureManager* getNextTexture() { return nextTexture; }
+
+	// set next texture in a linked list
+	virtual void setNextTexture(TextureManager* nt) { nextTexture = nt; }
 
     // Release resources
     virtual void onLostDevice();
