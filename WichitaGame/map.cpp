@@ -125,7 +125,7 @@ bool Map::initialize(Game* gamePtr, const char* tileSet[], const char* keyFile)
 	key >> formatStr;
 	// make collidables large enough to hold every tile number in the texture
 	if(strcmp(formatStr, "Collidables:")) {
-		sprintf_s(errorStr, "The 'Collidables:' string does not exist or is not correct at the bottom of %s! Can't load map", keyFile);
+		sprintf_s(errorStr, "The 'Collidables:' string does not exist, is not correct, or your map file's grid width and height aren't correct! Can't load map", keyFile);
 		throw(GameError(gameErrorNS::FATAL_ERROR, errorStr));
 		return false;
 	}
