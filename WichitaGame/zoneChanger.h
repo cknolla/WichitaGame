@@ -1,9 +1,10 @@
 // Zone changer
 
-#ifndef
-#define
+#ifndef _ZONECHANGER_H
+#define _ZONECHANGER_H
 
 #include "entity.h"
+#include "map.h"
 
 class ZoneChanger : public Entity
 {
@@ -13,8 +14,12 @@ public:
 	ZoneChanger();
 	~ZoneChanger();
 
-	void intitialize(Map* dest);
+	bool initialize(Map* dest, Game *gamePtr, int width, int height, int ncols, TextureManager *textureM);
+
+	Map* getDestination() { return destination; }
 
 };
+
+
 
 #endif

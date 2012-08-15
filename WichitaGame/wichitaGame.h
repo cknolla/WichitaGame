@@ -17,6 +17,14 @@
 #include "character.h"
 #include "map.h"
 #include "tilesets.h"
+#include "zoneChanger.h"
+
+//===============
+#include <stdio.h>
+#include <io.h>
+#include <fcntl.h>
+//#define CONSOLE
+//====================
 
 #pragma comment(lib,"winmm.lib")
 #pragma comment(lib,"d3dx9.lib")
@@ -33,10 +41,12 @@ private:
     TextureManager menuTexture; // textures
     Image   menu;               // menu image
 	TextureManager characterTexture;
+	TextureManager changerTexture;
 	Character testChar;
 	Map testMap;
 	Map testMap2;
 	Map* currentMap;
+	ZoneChanger testChanger;
     TextDX  *dxFont;            // DirectX font
 	TextDX *debugLine;
     std::string  message;

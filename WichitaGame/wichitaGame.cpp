@@ -40,6 +40,27 @@ void WichitaGame::initialize(HWND hwnd)
 {
     Game::initialize(hwnd); // throws GameError
 
+	//=============
+#ifdef CONSOLE
+	AllocConsole();
+
+    HANDLE handle_out = GetStdHandle(STD_OUTPUT_HANDLE);
+    int hCrt = _open_osfhandle((long) handle_out, _O_TEXT);
+    FILE* hf_out = _fdopen(hCrt, "w");
+    setvbuf(hf_out, NULL, _IONBF, 1);
+    *stdout = *hf_out;
+
+    HANDLE handle_in = GetStdHandle(STD_INPUT_HANDLE);
+    hCrt = _open_osfhandle((long) handle_in, _O_TEXT);
+    FILE* hf_in = _fdopen(hCrt, "r");
+    setvbuf(hf_in, NULL, _IONBF, 128);
+    *stdin = *hf_in;
+#endif
+	//=========================
+
+
+	printf("Test");
+
 	// initialize map which will initialize a texture and lots of images inside it
 	if(!testMap.initialize(this, TEST_TILE_SET, mapNS::TEST_TILE_MAP_KEY))
 		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing map"));
@@ -50,6 +71,15 @@ void WichitaGame::initialize(HWND hwnd)
 	// call changeMap() to change maps. Must assign currentMap to a map here
 	currentMap = &testMap;
 	changeMap(testMap2);
+
+	if(!changerTexture.initialize(graphics, "pictures/testSet003.png"))
+		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing changer texture"));
+
+	if(!testChanger.initialize(&testMap,this,0, 0, 0, &changerTexture))
+		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing changer"));
+
+	testChanger.setX(300.0f);
+	testChanger.setY(300.0f);
 
 	// character texture
 	if (!characterTexture.initialize(graphics,TEST_CHAR_IMAGE))
@@ -228,6 +258,11 @@ void WichitaGame::collisions()
 			}
 			curTile = curTile->getNextTile();
 		}
+		if(testChar.collidesWith(testChanger, collisionVector))
+		{
+			changeMap(*testChanger.getDestination());
+			sprintf_s(debugLineBuf, "Collision with ZoneChanger!");
+		}
 	}
 }
 
@@ -253,6 +288,8 @@ void WichitaGame::render()
 		curTile->draw();
 		curTile = curTile->getNextTile();
 	}
+
+	testChanger.draw();
 
 	testChar.draw();
     dxFont->setFontColor(graphicsNS::WHITE);
