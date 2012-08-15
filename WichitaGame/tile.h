@@ -10,6 +10,7 @@ class Tile : public Entity
 {
 private:
 	Tile* nextTile;
+	int count;
 public:
 	Tile();
 	virtual ~Tile();
@@ -21,8 +22,8 @@ public:
 	Tile* getNextTile() { return nextTile; }
 
 	// Set next tile in linked list
-	void setNextTile(Tile* nt) { nextTile = nt; }
-
+	void setNextTile(Tile* nt );
+	void setCount(int c) { count = c; }
 };
 
 #endif
