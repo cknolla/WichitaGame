@@ -45,6 +45,7 @@ private:
 	Character testChar;
 	Map testMap;
 	Map testMap2;
+	Map graveyard;
 	Map* currentMap;
 	ZoneChanger testChanger;
     TextDX  *dxFont;            // DirectX font

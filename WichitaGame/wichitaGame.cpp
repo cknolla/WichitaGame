@@ -68,9 +68,12 @@ void WichitaGame::initialize(HWND hwnd)
 	if(!testMap2.initialize(this, TEST_TILE_SET, mapNS::TEST_TILE_MAP_KEY2))
 		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing map"));
 
+	if(!graveyard.initialize(this, GRAVEYARD_SET, mapNS::GRAVEYARD_MAP_KEY))
+		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing map"));
+
 	// call changeMap() to change maps. Must assign currentMap to a map here
-	currentMap = &testMap;
-	changeMap(testMap2);
+	currentMap = &graveyard;
+	changeMap(graveyard);
 
 	if(!changerTexture.initialize(graphics, "pictures/Village01.png"))
 		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing changer texture"));
@@ -360,6 +363,7 @@ void WichitaGame::releaseAll()
 //    menuTexture.onLostDevice();
 	testMap.onLostDevice();
 	testMap2.onLostDevice();
+	graveyard.onLostDevice();
 	characterTexture.onLostDevice();
 	changerTexture.onLostDevice();
     Game::releaseAll();
@@ -377,6 +381,7 @@ void WichitaGame::resetAll()
 	debugLine->onResetDevice();
 	testMap.onResetDevice();
 	testMap2.onResetDevice();
+	graveyard.onResetDevice();
 	currentMap->onResetDevice();
 	characterTexture.onResetDevice();
 	changerTexture.onResetDevice();
