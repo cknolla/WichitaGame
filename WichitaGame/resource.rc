@@ -1,0 +1,5 @@
+#include "resource.h"
+//#include "afxres.h"
+#include "windows.h"
+
+IDI_ICON1 ICON "wg.ico"

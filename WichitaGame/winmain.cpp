@@ -14,6 +14,7 @@
 #include <stdlib.h>             // for detecting memory leaks
 #include <crtdbg.h>             // for detecting memory leaks
 #include "wichitaGame.h"
+#include "resource.h"
 
 // Function prototypes
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int); 
@@ -107,7 +108,7 @@ bool CreateMainWindow(HWND &hwnd, HINSTANCE hInstance, int nCmdShow)
     wcx.cbClsExtra = 0;                 // no extra class memory 
     wcx.cbWndExtra = 0;                 // no extra window memory 
     wcx.hInstance = hInstance;          // handle to instance 
-    wcx.hIcon = NULL; 
+    wcx.hIcon = LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_ICON1)); 
     wcx.hCursor = LoadCursor(NULL,IDC_ARROW);   // predefined arrow 
     wcx.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);    // black background 
     wcx.lpszMenuName =  NULL;           // name of menu resource 
