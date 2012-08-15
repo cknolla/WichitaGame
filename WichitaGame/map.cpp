@@ -205,7 +205,7 @@ void Map::reset()
 {
 	int row, col;
 	Tile* curTile = firstTile;
-	if(initialized) {
+	while(curTile) {
 		for(row = 0; row < height; row++) { 
 			for(col = 0; col < width; col++) {
 				curTile->setX( (float)mapNS::TILE_WIDTH * col - startX + GAME_WIDTH/2);

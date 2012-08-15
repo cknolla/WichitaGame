@@ -15,8 +15,6 @@
 namespace mapNS {
 	const int TILE_WIDTH = 32;
 	const int TILE_HEIGHT = 32;
-	const int TILE_DRAW_WIDTH = 34;
-	const int TILE_DRAW_HEIGHT = 34;
 	const float CAMERA_TRIGGER = 10*TILE_WIDTH; // used to decide how far from the screen's edge before shifting the 'camera'
 	const float CAMERA_MOVE_SPEED = characterNS::MOVE_SPEED;
 //	const char TEST_TILE_MAP_IMAGE[] = "pictures/tileset34x34.png";
