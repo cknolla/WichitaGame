@@ -18,13 +18,14 @@
 #include "map.h"
 #include "tilesets.h"
 #include "zoneChanger.h"
+#include <list>
+#include <iterator>
 
-//===============
-#include <stdio.h>
-#include <io.h>
-#include <fcntl.h>
-//#define CONSOLE
-//====================
+//#include "itemspawn.h"
+//forward declaration
+class ItemSpawn;
+
+using std::list;
 
 #pragma comment(lib,"winmm.lib")
 #pragma comment(lib,"d3dx9.lib")
@@ -42,6 +43,7 @@ private:
     Image   menu;               // menu image
 	TextureManager characterTexture;
 	TextureManager changerTexture;
+
 	Character testChar;
 	Map testMap;
 	Map testMap2;
@@ -51,6 +53,10 @@ private:
     TextDX  *dxFont;            // DirectX font
 	TextDX *debugLine;
     std::string  message;
+	TextureManager spawnTexture;
+	//ItemSpawn* itemSpawn;
+	list<ItemSpawn*> spawnList;
+	int spawnCount;
     float messageY;
 	char messageBuffer[1000];
 	char debugLineBuf[1000];
@@ -70,6 +76,10 @@ public:
     void render();      // "
     void releaseAll();
     void resetAll();
+	void createItemSpawn();
+	bool destroyItemSpawn();
+	//bool itemSpawnExists(){ if(itemSpawn != NULL) return true; return false; }
+	bool itemSpawnExists();
 
 	void consoleCommand();
 

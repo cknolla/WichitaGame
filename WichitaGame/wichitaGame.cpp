@@ -5,6 +5,10 @@
 // This class is the core of the game
 
 #include "wichitaGame.h"
+#include "itemspawn.h"
+
+//Comment out these lines if you do not want a console window defined
+
 
 //=============================================================================
 // Constructor
@@ -19,6 +23,9 @@ WichitaGame::WichitaGame()
 		throw(GameError(gameErrorNS::FATAL_ERROR, "Error opening debug file"));
 	currentMap = NULL;
 	noclip = false;
+	//itemSpawn = NULL;
+	
+	spawnCount = 0;
 }
 
 //=============================================================================
@@ -27,6 +34,7 @@ WichitaGame::WichitaGame()
 WichitaGame::~WichitaGame()
 {
 	debugFile.close();
+	destroyItemSpawn();
     releaseAll();           // call onLostDevice() for every graphics item
     SAFE_DELETE(dxFont);
 	SAFE_DELETE(debugLine);
@@ -40,26 +48,7 @@ void WichitaGame::initialize(HWND hwnd)
 {
     Game::initialize(hwnd); // throws GameError
 
-	//=============
-#ifdef CONSOLE
-	AllocConsole();
 
-    HANDLE handle_out = GetStdHandle(STD_OUTPUT_HANDLE);
-    int hCrt = _open_osfhandle((long) handle_out, _O_TEXT);
-    FILE* hf_out = _fdopen(hCrt, "w");
-    setvbuf(hf_out, NULL, _IONBF, 1);
-    *stdout = *hf_out;
-
-    HANDLE handle_in = GetStdHandle(STD_INPUT_HANDLE);
-    hCrt = _open_osfhandle((long) handle_in, _O_TEXT);
-    FILE* hf_in = _fdopen(hCrt, "r");
-    setvbuf(hf_in, NULL, _IONBF, 128);
-    *stdin = *hf_in;
-#endif
-	//=========================
-
-
-	printf("Test");
 
 	// initialize map which will initialize a texture and lots of images inside it
 	if(!testMap.initialize(this, TEST_TILE_SET, mapNS::TEST_TILE_MAP_KEY))
@@ -84,6 +73,21 @@ void WichitaGame::initialize(HWND hwnd)
 	testChanger.setX(300.0f);
 	testChanger.setY(300.0f);
 
+	TextureManager changer2Texture;
+	ZoneChanger zoneChanger;
+
+	if(!changer2Texture.initialize(graphics, "pictures/bomb.png"))
+		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing changer texture"));
+
+	if(!zoneChanger.initialize(&testMap,this,0, 0, 0, &changer2Texture))
+		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing changer"));
+
+	zoneChanger.setX(400.0f);
+	zoneChanger.setY(300.0f);
+
+
+
+
 	// character texture
 	if (!characterTexture.initialize(graphics,TEST_CHAR_IMAGE))
         throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing character texture"));
@@ -95,6 +99,11 @@ void WichitaGame::initialize(HWND hwnd)
 	testChar.setFrameDelay(0.1f);
 	testChar.setActive(true);
 	testChar.setEdge(characterNS::COLLISION_BOX);
+
+	//For spawn items
+	if(!spawnTexture.initialize(graphics, "pictures/bomb.png"))
+		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing changer texture"));
+
 
 	// initialize DirectX font
     // 18 pixel high Arial
@@ -193,6 +202,19 @@ void WichitaGame::update()
 	if(input->wasKeyPressed('X')) {
 		changeMap(testMap2);
 	}
+	if(input->wasKeyPressed('B')) {
+		createItemSpawn();
+	}
+	if(input->wasKeyPressed('N')) {
+		if(itemSpawnExists()){
+			//printf("ItemSpawnExists");
+			destroyItemSpawn();
+		}
+		//}else
+		//	printf("ItemSpawnDoesNoTExist");
+	}
+
+
 	
 	// if no movement keys are pressed, draw the ending frame for the direction he's currently facing and pause animation
 	if( !input->isKeyDown(MOVE_UP_KEY) && !input->isKeyDown(MOVE_DOWN_KEY) && !input->isKeyDown(MOVE_LEFT_KEY) && !input->isKeyDown(MOVE_RIGHT_KEY)) {
@@ -295,6 +317,15 @@ void WichitaGame::render()
 	testChanger.draw();
 
 	testChar.draw();
+
+	if(itemSpawnExists()){
+	//	itemSpawn->draw();
+		for(list<ItemSpawn*>::iterator i = spawnList.begin() ; i != spawnList.end() ; ++i ){
+			(*i)->draw();
+		}
+
+	}
+
     dxFont->setFontColor(graphicsNS::WHITE);
 	debugLine->setFontColor(graphicsNS::WHITE);
  //   dxFont->print(message,20,(int)messageY);
@@ -387,4 +418,80 @@ void WichitaGame::resetAll()
 	changerTexture.onResetDevice();
     Game::resetAll();
     return;
+}
+
+void WichitaGame::createItemSpawn(){
+//ItemSpawn createItemSpawn(){
+
+
+	//Temporary Setup Just to make sure there are not memory leaks
+	//if( itemSpawnExists() )
+	//	destroyItemSpawn();
+
+	//TextureManager* spawnTexture = new TextureManager();
+	ItemSpawn* rItemSpawn = new ItemSpawn();
+	float xPos = 0;
+	float yPos = 0;
+
+	int xTile = 0;
+	int yTile = 0;
+
+	//printf("Creating Item Spawn\n");	
+	//Avoid divide by zero
+	if( currentMap->getWidth() != 0 && currentMap->getHeight() != 0 ){
+		
+		xTile =  spawnCount % currentMap->getWidth();
+		yTile = spawnCount / currentMap->getHeight();
+	}
+	//printf("Map Tile Offset X: %d , Y %d\n" , xTile , yTile );	
+	currentMap->getXY(xPos , yPos , xTile , yTile );		
+	//printf("Map Pos Offset X: %f , Y %f\n" , xPos , yPos );	
+	rItemSpawn->setX( xPos );
+	rItemSpawn->setY( yPos );	
+	//printf("SpawnCount = %d" , spawnCount);
+	//printf("Map Title Width: %d , Tile Height %d\n" , mapNS::TILE_WIDTH ,  mapNS::TILE_HEIGHT);	
+
+
+	if(!rItemSpawn->initialize(&testMap,this,0, 0, 0, &spawnTexture))
+		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing changer"));
+
+	++spawnCount;
+	spawnList.push_back(rItemSpawn);
+	//spawnList.insert(spawnList.begin() , rItemSpawn);
+
+	//return rItemSpawn;
+	return;
+	
+
+}
+
+bool WichitaGame::destroyItemSpawn(){
+
+	if(spawnList.empty() ){
+		//printf("Empty");
+		return false;
+	}else{
+		while(!spawnList.empty()){
+			delete spawnList.front();
+			spawnList.pop_front();
+			--spawnCount;
+		}
+
+
+	}
+
+	/*if(itemSpawn != NULL ){
+		//printf("Deleting\n");
+		delete itemSpawn;
+		itemSpawn = NULL;
+		//printf("PostDelete\n");
+		--spawnCount;
+		return true;
+	}*/
+
+	return true;
+}
+
+bool WichitaGame::itemSpawnExists(){
+	return !spawnList.empty();
 }

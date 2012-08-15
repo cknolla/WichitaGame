@@ -11,7 +11,7 @@ Tile::Tile()
 
 Tile::~Tile()
 {
-	printf("Deleting %d\n" , count );
+	//printf("Deleting %d\n" , count );
 	//SAFE_DELETE(nextTile);
 	//nextTile = NULL;
 }

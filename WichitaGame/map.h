@@ -58,6 +58,8 @@ public:
 	void setStartY(float y) { startY = y; }
 	// set player starting position based on tile grid position
 	void setStartingPos(int tileX, int tileY);
+	
+	void getXY(float & x , float & y , int tileX  = 0 , int tileY = 0 );
 
 	// Return first tile in the linked list
 	Tile* getFirstTile() { return firstTile; }

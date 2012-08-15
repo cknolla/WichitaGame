@@ -25,6 +25,24 @@ LRESULT WINAPI WinProc(HWND, UINT, WPARAM, LPARAM);
 WichitaGame *game = NULL;
 HWND hwnd = NULL;
 
+
+//===============
+#ifndef CONSOLE
+
+//Comment out this line to remove the console window
+#define CONSOLE
+
+
+#ifdef CONSOLE
+#include <stdio.h>
+#include <io.h>
+#include <fcntl.h>
+#endif
+
+#endif
+//====================
+
+
 //=============================================================================
 // Starting point for a Windows application
 //=============================================================================
@@ -40,6 +58,24 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
     // Create the game, sets up message handler
     game = new WichitaGame;
+
+	//==============
+	#ifdef CONSOLE
+	AllocConsole();
+
+    HANDLE handle_out = GetStdHandle(STD_OUTPUT_HANDLE);
+    int hCrt = _open_osfhandle((long) handle_out, _O_TEXT);
+    FILE* hf_out = _fdopen(hCrt, "w");
+    setvbuf(hf_out, NULL, _IONBF, 1);
+    *stdout = *hf_out;
+
+    HANDLE handle_in = GetStdHandle(STD_INPUT_HANDLE);
+    hCrt = _open_osfhandle((long) handle_in, _O_TEXT);
+    FILE* hf_in = _fdopen(hCrt, "r");
+    setvbuf(hf_in, NULL, _IONBF, 128);
+    *stdin = *hf_in;
+	#endif
+	//===================
 
     // Create the window
     if (!CreateMainWindow(hwnd, hInstance, nCmdShow))

@@ -234,8 +234,13 @@ void Map::reset()
 void Map::setStartingPos(int tileX, int tileY)
 {
 	startX = (float)tileX*mapNS::TILE_WIDTH;
-	startY = (float)tileY*mapNS::TILE_HEIGHT;
+	startY = (float)tileY*mapNS::TILE_HEIGHT;    
 
+}
+
+void Map::getXY(float & x , float & y , int tileX , int tileY ){
+	x = (float)tileX*mapNS::TILE_WIDTH;
+	y = (float)tileY*mapNS::TILE_HEIGHT;  
 }
 
 
