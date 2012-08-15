@@ -13,8 +13,6 @@ Tile::~Tile()
 {
 	printf("Deleting %d\n" , count );
 	//SAFE_DELETE(nextTile);
-	if(nextTile != NULL )
-		delete nextTile;
 	//nextTile = NULL;
 }
 

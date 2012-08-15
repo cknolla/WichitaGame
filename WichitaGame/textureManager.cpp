@@ -27,7 +27,7 @@ TextureManager::TextureManager()
 TextureManager::~TextureManager()
 {
     SAFE_RELEASE(texture);
-	SAFE_DELETE(nextTexture);
+//	SAFE_DELETE(nextTexture);
 }
 
 //=============================================================================

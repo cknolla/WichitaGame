@@ -12,10 +12,25 @@ Map::Map()
 
 Map::~Map()
 {
+	Tile* curTile = firstTile;
+	TextureManager* curTexture = firstTexture;
+	Tile* nextTile;
+	TextureManager* nextTexture;
+
 	onLostDevice();
-	// delete the full linked list of tiles via deconstructors
-	SAFE_DELETE(firstTile);
-	SAFE_DELETE(firstTexture);
+	// delete the full linked list of tiles and textures
+	while(curTile) {
+		nextTile = curTile->getNextTile();
+		SAFE_DELETE(curTile);
+		curTile = nextTile;
+	}
+	while(curTexture) {
+		nextTexture = curTexture->getNextTexture();
+		SAFE_DELETE(curTexture);
+		curTexture = nextTexture;
+	}
+//	SAFE_DELETE(firstTile);
+//	SAFE_DELETE(firstTexture);
 }
 
 bool Map::initialize(Game* gamePtr, const char* tileSet[], const char* keyFile)
