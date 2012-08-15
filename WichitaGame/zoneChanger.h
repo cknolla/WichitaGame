@@ -14,6 +14,7 @@ public:
 	ZoneChanger();
 	~ZoneChanger();
 
+	// only need destination for zoneChanger, but also have to initialize entity and image parents
 	bool initialize(Map* dest, Game *gamePtr, int width, int height, int ncols, TextureManager *textureM);
 
 	Map* getDestination() { return destination; }

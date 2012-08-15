@@ -361,6 +361,7 @@ void WichitaGame::releaseAll()
 	testMap.onLostDevice();
 	testMap2.onLostDevice();
 	characterTexture.onLostDevice();
+	changerTexture.onLostDevice();
     Game::releaseAll();
     return;
 }
@@ -378,6 +379,7 @@ void WichitaGame::resetAll()
 	testMap2.onResetDevice();
 	currentMap->onResetDevice();
 	characterTexture.onResetDevice();
+	changerTexture.onResetDevice();
     Game::resetAll();
     return;
 }
