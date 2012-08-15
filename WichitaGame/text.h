@@ -4,6 +4,10 @@
 // text.h v1.0
 // Sprite based font
 
+//////////////////////////////////////////////////////////////////////
+///////////// CORE ENGINE FILE - DO NOT MODIFY ///////////////////////
+//////////////////////////////////////////////////////////////////////
+
 #ifndef _text_h                 // prevent multiple definitions if this 
 #define _text_h                 // ..file is included in more than one place
 #define WIN32_LEAN_AND_MEAN

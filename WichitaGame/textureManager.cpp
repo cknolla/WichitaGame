@@ -5,6 +5,10 @@
 // A TextureManager object loads and maintains one texture file. 
 // Create a TextureManager object for each texture file in the game.
 
+//////////////////////////////////////////////////////////////////////
+///////////// CORE ENGINE FILE - DO NOT MODIFY ///////////////////////
+//////////////////////////////////////////////////////////////////////
+
 #include "textureManager.h"
 
 //=============================================================================

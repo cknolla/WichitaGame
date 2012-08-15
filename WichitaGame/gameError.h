@@ -4,6 +4,10 @@
 // gameError.h v1.0
 // Error class thrown by game engine.
 
+//////////////////////////////////////////////////////////////////////
+///////////// CORE ENGINE FILE - DO NOT MODIFY ///////////////////////
+//////////////////////////////////////////////////////////////////////
+
 #ifndef _GAMEERROR_H            // prevent multiple definitions if this 
 #define _GAMEERROR_H            // ..file is included in more than one place
 #define WIN32_LEAN_AND_MEAN

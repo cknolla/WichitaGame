@@ -3,6 +3,10 @@
 // Charles Kelly
 // console.h v1.0
 
+//////////////////////////////////////////////////////////////////////
+///////////// CORE ENGINE FILE - DO NOT MODIFY ///////////////////////
+//////////////////////////////////////////////////////////////////////
+
 #ifndef _CONSOLE_H              // prevent multiple definitions if this 
 #define _CONSOLE_H              // ..file is included in more than one place
 #define WIN32_LEAN_AND_MEAN
