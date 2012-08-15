@@ -72,7 +72,7 @@ void WichitaGame::initialize(HWND hwnd)
 	currentMap = &testMap;
 	changeMap(testMap2);
 
-	if(!changerTexture.initialize(graphics, "pictures/testSet003.png"))
+	if(!changerTexture.initialize(graphics, "pictures/Village01.png"))
 		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing changer texture"));
 
 	if(!testChanger.initialize(&testMap,this,0, 0, 0, &changerTexture))
