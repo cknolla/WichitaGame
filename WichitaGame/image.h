@@ -12,6 +12,7 @@
 #define WIN32_LEAN_AND_MEAN
 
 #include "textureManager.h"
+//#include "map.h"
 #include "constants.h"
 
 class Image
@@ -120,6 +121,9 @@ class Image
 
     // Set starting Y location.
     virtual void setStartY(float newY)   {spriteData.startY = newY;}
+
+	// Set starting location using tile count
+	virtual void setStartingPos(int tileX, int tileY);
 
     // Set scale.
     virtual void setScale(float s)  {spriteData.scale = s;}

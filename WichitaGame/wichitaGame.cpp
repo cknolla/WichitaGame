@@ -64,11 +64,14 @@ void WichitaGame::initialize(HWND hwnd)
 	if(!changerTexture.initialize(graphics, "pictures/Village01.png"))
 		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing changer texture"));
 
-	if(!testChanger.initialize(&testMap,this,0, 0, 0, &changerTexture))
-		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing changer"));
+	if(!graveyardChanger1.initialize(&testMap,this,0, 0, 0, &changerTexture))
+		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing changer 1"));
 
-	testChanger.setStartX(300.0f);
-	testChanger.setStartY(300.0f);
+	if(!graveyardChanger2.initialize(&testMap2,this,0, 0, 0, &changerTexture))
+		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing changer 2"));
+
+	graveyardChanger1.setStartingPos(8,0); // top center of graveyard
+	graveyardChanger2.setStartingPos(8,16); // bottom center of graveyard
 
 	TextureManager changer2Texture;
 	ZoneChanger zoneChanger;
@@ -82,8 +85,9 @@ void WichitaGame::initialize(HWND hwnd)
 	zoneChanger.setX(400.0f);
 	zoneChanger.setY(300.0f);
 
-	// add test changer to current map's objects so that it moves along with it
-	mapObjects.push_back(&testChanger);
+	// add zone changers to current map's objects so that it moves along with it
+	mapObjects.push_back(&graveyardChanger1);
+	mapObjects.push_back(&graveyardChanger2);
 	currentMap->setObjects(&mapObjects);
 
 	// character texture
@@ -260,10 +264,13 @@ void WichitaGame::collisions()
 			}
 			curTile = curTile->getNextTile();
 		}
-		if(testChar.collidesWith(testChanger, collisionVector))
+		if(testChar.collidesWith(graveyardChanger1, collisionVector))
 		{
-			changeMap(*testChanger.getDestination());
-			sprintf_s(debugLineBuf, "Collision with ZoneChanger!");
+			changeMap(*graveyardChanger1.getDestination());
+		}
+		if(testChar.collidesWith(graveyardChanger2, collisionVector))
+		{
+			changeMap(*graveyardChanger2.getDestination());
 		}
 	}
 }

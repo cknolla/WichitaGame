@@ -246,8 +246,8 @@ void Map::reset()
 		}
 		// reset map objects to starting location
 		for(std::list<Entity*>::iterator curObject = mapObjects.begin(); curObject != mapObjects.end(); curObject++) {
-			(*curObject)->setX((*curObject)->getStartX());
-			(*curObject)->setY((*curObject)->getStartY());
+			(*curObject)->setX((*curObject)->getStartX() - startX + GAME_WIDTH/2);
+			(*curObject)->setY((*curObject)->getStartY() - startY + GAME_HEIGHT/2);
 		}
 	}
 }

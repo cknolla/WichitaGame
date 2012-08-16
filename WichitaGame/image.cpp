@@ -186,3 +186,10 @@ inline void Image::setRect()
     spriteData.rect.bottom = spriteData.rect.top + spriteData.height;       
 }
 
+void Image::setStartingPos(int tileX, int tileY)
+{
+	spriteData.startX = (float)tileX*TILE_WIDTH;
+	spriteData.startY = (float)tileY*TILE_HEIGHT;    
+
+}
+

@@ -47,6 +47,8 @@ const char TEST_CHAR_IMAGE[] = "pictures/testcharacter01.png";
 
 const int MAP_WIDTH = GAME_WIDTH;
 const int MAP_HEIGHT = GAME_HEIGHT;
+const int TILE_WIDTH = 32;
+const int TILE_HEIGHT = 32;
 
 
 
