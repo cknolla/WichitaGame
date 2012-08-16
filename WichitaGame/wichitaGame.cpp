@@ -48,8 +48,6 @@ void WichitaGame::initialize(HWND hwnd)
 {
     Game::initialize(hwnd); // throws GameError
 
-
-
 	// initialize map which will initialize a texture and lots of images inside it
 	if(!testMap.initialize(this, TEST_TILE_SET, mapNS::TEST_TILE_MAP_KEY))
 		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing map"));
@@ -85,8 +83,9 @@ void WichitaGame::initialize(HWND hwnd)
 	zoneChanger.setX(400.0f);
 	zoneChanger.setY(300.0f);
 
-
-
+	// add test changer to current map's objects so that it moves along with it
+	mapObjects.push_back(&testChanger);
+	currentMap->setObjects(&mapObjects);
 
 	// character texture
 	if (!characterTexture.initialize(graphics,TEST_CHAR_IMAGE))
@@ -314,7 +313,9 @@ void WichitaGame::render()
 		curTile = curTile->getNextTile();
 	}
 
-	testChanger.draw();
+	for(std::list<Entity*>::iterator curObject = currentMap->getObjects()->begin(); curObject != currentMap->getObjects()->end(); curObject++) {
+			(*curObject)->draw();
+	}
 
 	testChar.draw();
 

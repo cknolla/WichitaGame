@@ -191,6 +191,7 @@ void Map::update(Character &player, float frameTime)
 		shiftDown = 1;
 	}
 
+	// move each tile rather than the player to scroll the map
 	curTile = firstTile;
 	while(curTile) {
 		if(shiftLeft)
@@ -202,6 +203,18 @@ void Map::update(Character &player, float frameTime)
 		if(shiftDown)
 			curTile->setY( curTile->getY() - (frameTime * mapNS::CAMERA_MOVE_SPEED));
 		curTile = curTile->getNextTile();
+	}
+
+	// move each object on the map
+	for(std::list<Entity*>::iterator curObject = mapObjects.begin(); curObject != mapObjects.end(); curObject++) {
+		if(shiftLeft)
+			(*curObject)->setX( (*curObject)->getX() + (frameTime * mapNS::CAMERA_MOVE_SPEED));
+		if(shiftRight)
+			(*curObject)->setX( (*curObject)->getX() - (frameTime * mapNS::CAMERA_MOVE_SPEED));
+		if(shiftUp)
+			(*curObject)->setY( (*curObject)->getY() + (frameTime * mapNS::CAMERA_MOVE_SPEED));
+		if(shiftDown)
+			(*curObject)->setY( (*curObject)->getY() - (frameTime * mapNS::CAMERA_MOVE_SPEED));
 	}
 
 	// push the player back by an equal amount that the camera moved. This keeps the player always on screen
@@ -228,6 +241,13 @@ void Map::reset()
 				curTile = curTile->getNextTile();
 			}
 		}
+	}
+}
+
+void Map::setObjects(std::list<Entity*>* objects)
+{
+	for(std::list<Entity*>::iterator curObject = objects->begin(); curObject != objects->end(); curObject++) {
+		mapObjects.push_back(*curObject);
 	}
 }
 

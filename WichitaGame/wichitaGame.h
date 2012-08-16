@@ -49,6 +49,7 @@ private:
 	Map testMap2;
 	Map graveyard;
 	Map* currentMap;
+	list<Entity*> mapObjects;
 	ZoneChanger testChanger;
     TextDX  *dxFont;            // DirectX font
 	TextDX *debugLine;

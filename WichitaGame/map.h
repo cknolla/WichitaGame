@@ -11,6 +11,8 @@
 #include "textureManager.h"
 #include "tile.h"
 #include "character.h"
+#include <list>
+#include <iterator>
 
 namespace mapNS {
 	const int TILE_WIDTH = 32;
@@ -30,6 +32,7 @@ class Map {
 private:
 	Tile* firstTile;
 	TextureManager* firstTexture;
+	std::list<Entity*> mapObjects;
 	bool initialized;
 	int width;
 	int height;
@@ -58,7 +61,13 @@ public:
 	void setStartY(float y) { startY = y; }
 	// set player starting position based on tile grid position
 	void setStartingPos(int tileX, int tileY);
+
+	// 'attach' entities to the map
+	void setObjects(std::list<Entity*>* objects);
+
+	std::list<Entity*>* getObjects() { return &mapObjects; }
 	
+	// convert x and y tile position to absolute x and y position
 	void getXY(float & x , float & y , int tileX  = 0 , int tileY = 0 );
 
 	// Return first tile in the linked list
