@@ -299,7 +299,7 @@ void WichitaGame::render()
 	}
 
 	for(std::list<Entity*>::iterator curObject = currentMap->getObjects()->begin(); curObject != currentMap->getObjects()->end(); curObject++) {
-			(*curObject)->draw();
+		(*curObject)->draw();
 	}
 
 	testChar.draw();
