@@ -58,9 +58,8 @@ void WichitaGame::initialize(HWND hwnd)
 	if(!graveyard.initialize(this, GRAVEYARD_SET, mapNS::GRAVEYARD_MAP_KEY))
 		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing map"));
 
-	// call changeMap() to change maps. Must assign currentMap to a map here
+	// Must assign currentMap to a map here
 	currentMap = &graveyard;
-	changeMap(graveyard);
 
 	if(!changerTexture.initialize(graphics, "pictures/Village01.png"))
 		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing changer texture"));
@@ -68,8 +67,8 @@ void WichitaGame::initialize(HWND hwnd)
 	if(!testChanger.initialize(&testMap,this,0, 0, 0, &changerTexture))
 		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing changer"));
 
-	testChanger.setX(300.0f);
-	testChanger.setY(300.0f);
+	testChanger.setStartX(300.0f);
+	testChanger.setStartY(300.0f);
 
 	TextureManager changer2Texture;
 	ZoneChanger zoneChanger;
@@ -114,33 +113,9 @@ void WichitaGame::initialize(HWND hwnd)
 
 	messageY = GAME_HEIGHT-100.0f;
 
-	/* saved for reference only
+	// load the current map
+	changeMap(*currentMap);
 
-	// menu texture
-    if (!menuTexture.initialize(graphics,MENU_IMAGE))
-        throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing menu texture"));
-
-    // menu image
-    if (!menu.initialize(graphics,0,0,0,&menuTexture))
-        throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing menu"));
-
-	
-
-	menu.setDegrees(300);
-    menu.setScale(0.002861f);
-
-    message = "\n\n\nUtilizes Object Oriented C++ and DirectX\n\n";
-    message += "Sprites with Transparency\n\n";
-    message += "Three types of Collision Detection:\n";
-    message += "     - Circular (Distance)\n";
-    message += "     - Oriented Box\n";
-    message += "     - Rotated Box\n\n";
-    message += "XACT Audio\n\n";
-    message += "Sprite and DirectX Text\n\n";
-    message += "Tile Based Graphics\n\n";
-    message += "TCP/IP and UDP/IP Network Support\n\n";
-    messageY = GAME_HEIGHT;
-*/
 	message = "DEBUG TEXT";
 	if(!currentMap)
 		throw(GameError(gameErrorNS::FATAL_ERROR, "currentMap is NULL! Assign it to a map in WichitaGame::initialize!"));
@@ -200,6 +175,9 @@ void WichitaGame::update()
 	}
 	if(input->wasKeyPressed('X')) {
 		changeMap(testMap2);
+	}
+	if(input->wasKeyPressed('C')) {
+		changeMap(graveyard);
 	}
 	if(input->wasKeyPressed('B')) {
 		createItemSpawn();

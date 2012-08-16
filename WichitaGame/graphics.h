@@ -85,6 +85,8 @@ struct SpriteData
     int         height;     // height of sprite in pixels
     float       x;          // screen location (top left corner of sprite)
     float       y;
+	float       startX;     // starting location for object when map loads
+	float       startY;     
     float       scale;      // <1 smaller, >1 bigger
     float       angle;      // rotation angle in radians
     RECT        rect;       // used to select an image from a larger texture

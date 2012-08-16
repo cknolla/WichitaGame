@@ -233,13 +233,21 @@ void Map::reset()
 {
 	int row, col;
 	Tile* curTile = firstTile;
-	while(curTile) {
-		for(row = 0; row < height; row++) { 
-			for(col = 0; col < width; col++) {
-				curTile->setX( (float)mapNS::TILE_WIDTH * col - startX + GAME_WIDTH/2);
-				curTile->setY( (float)mapNS::TILE_HEIGHT * row - startY + GAME_HEIGHT/2);
-				curTile = curTile->getNextTile();
+	if(initialized) {
+		// reset tiles to starting location
+		while(curTile) {
+			for(row = 0; row < height; row++) { 
+				for(col = 0; col < width; col++) {
+					curTile->setX( (float)mapNS::TILE_WIDTH * col - startX + GAME_WIDTH/2);
+					curTile->setY( (float)mapNS::TILE_HEIGHT * row - startY + GAME_HEIGHT/2);
+					curTile = curTile->getNextTile();
+				}
 			}
+		}
+		// reset map objects to starting location
+		for(std::list<Entity*>::iterator curObject = mapObjects.begin(); curObject != mapObjects.end(); curObject++) {
+			(*curObject)->setX((*curObject)->getStartX());
+			(*curObject)->setY((*curObject)->getStartY());
 		}
 	}
 }
