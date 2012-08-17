@@ -252,13 +252,6 @@ void Map::reset()
 	}
 }
 
-void Map::setObjects(std::list<Entity*>* objects)
-{
-	for(std::list<Entity*>::iterator curObject = objects->begin(); curObject != objects->end(); curObject++) {
-		mapObjects.push_back(*curObject);
-	}
-}
-
 void Map::setStartingPos(int tileX, int tileY)
 {
 	startX = (float)tileX*mapNS::TILE_WIDTH;

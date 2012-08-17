@@ -62,8 +62,8 @@ public:
 	// set player starting position based on tile grid position
 	void setStartingPos(int tileX, int tileY);
 
-	// 'attach' entities to the map
-	void setObjects(std::list<Entity*>* objects);
+	// 'attach' an entity to the map
+	void addObject(Entity &newObject) { mapObjects.push_back(&newObject); }
 
 	std::list<Entity*>* getObjects() { return &mapObjects; }
 	

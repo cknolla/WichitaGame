@@ -49,9 +49,10 @@ private:
 	Map testMap2;
 	Map graveyard;
 	Map* currentMap;
-	list<Entity*> mapObjects;
 	ZoneChanger graveyardChanger1;
 	ZoneChanger graveyardChanger2;
+	ZoneChanger testMapChanger;
+	ZoneChanger testMap2Changer;
     TextDX  *dxFont;            // DirectX font
 	TextDX *debugLine;
     std::string  message;
