@@ -86,7 +86,10 @@ public:
 
 	void consoleCommand();
 
+	// switch to new map, draw character
 	void changeMap(Map &newMap);
+	// unload previous map from memory, load a new one
+	bool loadMap(const char* newMap);
 };
 
 #endif

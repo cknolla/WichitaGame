@@ -38,6 +38,7 @@ WichitaGame::~WichitaGame()
     releaseAll();           // call onLostDevice() for every graphics item
     SAFE_DELETE(dxFont);
 	SAFE_DELETE(debugLine);
+	SAFE_DELETE(currentMap);
 }
 
 //=============================================================================
@@ -54,7 +55,7 @@ void WichitaGame::initialize(HWND hwnd)
 
 	if(!testMap2.initialize(this, TEST_TILE_SET, mapNS::TEST_TILE_MAP_KEY2))
 		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing map"));
-
+/*
 	if(!graveyard.initialize(this, GRAVEYARD_SET, mapNS::GRAVEYARD_MAP_KEY))
 		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing map"));
 
@@ -77,7 +78,7 @@ void WichitaGame::initialize(HWND hwnd)
 
 	graveyardChanger1.setStartingPos(8,0); // top center of graveyard
 	graveyardChanger2.setStartingPos(8,16); // bottom center of graveyard
-	testMapChanger.setStartingPos(18,10);
+*/	testMapChanger.setStartingPos(18,10);
 	testMap2Changer.setStartingPos(10,13);
 
 	TextureManager changer2Texture;
@@ -131,7 +132,8 @@ void WichitaGame::initialize(HWND hwnd)
 	messageY = GAME_HEIGHT-100.0f;
 
 	// load the current map
-	changeMap(*currentMap);
+//	changeMap(*currentMap);
+	loadMap("graveyard");
 
 	message = "DEBUG TEXT";
 	if(!currentMap)
@@ -262,6 +264,7 @@ void WichitaGame::collisions()
 			}
 			curTile = curTile->getNextTile();
 		}
+		// need to make entities inactive rather than checking for currentMap for loadMap()
 		if(currentMap == &graveyard) {
 			if(testChar.collidesWith(graveyardChanger1, collisionVector))
 			{
@@ -382,6 +385,55 @@ void WichitaGame::changeMap(Map &newMap)
 	currentMap->reset(); // reset the old map
 	testChar.setX(GAME_WIDTH/2); // move the player where he belongs on the new map
 	testChar.setY(GAME_HEIGHT/2);
+}
+
+//=============================================================================
+// Unload current map, load a new map
+//=============================================================================
+
+bool WichitaGame::loadMap(const char* newMapName)
+{
+	char errorStr[200];
+	sprintf_s(errorStr, "Error initializing %s", newMapName);
+	// delete current map from memory if it exists
+	SAFE_DELETE(currentMap);
+	currentMap = new Map;
+	// strcmp returns 0 if they match, so this statement is "if graveyard"
+	if(!strcmp(newMapName, "graveyard")) {
+		if(!currentMap->initialize(this, GRAVEYARD_SET, mapNS::GRAVEYARD_MAP_KEY))
+			throw(GameError(gameErrorNS::FATAL_ERROR, errorStr));
+		else { // initialize map objects
+			if(!changerTexture.initialize(graphics, "pictures/Village01.png"))
+				throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing changer texture"));
+
+			if(!graveyardChanger1.initialize(&testMap,this,0, 0, 0, &changerTexture))
+				throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing changer 1"));
+
+			if(!graveyardChanger2.initialize(&testMap2,this,0, 0, 0, &changerTexture))
+				throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing changer 2"));
+
+			graveyardChanger1.setStartingPos(8,0); // top center of graveyard
+			graveyardChanger2.setStartingPos(8,16); // bottom center of graveyard
+
+			// add zone changers to current map's objects so that it moves along with it
+			currentMap->addObject(graveyardChanger1);
+			currentMap->addObject(graveyardChanger2);
+		}
+	} else if(!strcmp(newMapName, "testMap")) {
+		if(!currentMap->initialize(this, TEST_TILE_SET, mapNS::TEST_TILE_MAP_KEY))
+			throw(GameError(gameErrorNS::FATAL_ERROR, errorStr));
+	} else if(!strcmp(newMapName, "testMap2")) {
+		if(!currentMap->initialize(this, TEST_TILE_SET, mapNS::TEST_TILE_MAP_KEY2)) 
+			throw(GameError(gameErrorNS::FATAL_ERROR, errorStr));
+	} else {
+		sprintf_s(errorStr, "Map not found: %s", newMapName);
+		throw(GameError(gameErrorNS::FATAL_ERROR, errorStr));
+		return false;
+	}
+	currentMap->reset();
+	testChar.setX(GAME_WIDTH/2); // move the player where he belongs on the new map
+	testChar.setY(GAME_HEIGHT/2);
+	return true;
 }
 
 //=============================================================================
