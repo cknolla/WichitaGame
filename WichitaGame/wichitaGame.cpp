@@ -141,26 +141,7 @@ void WichitaGame::initialize(HWND hwnd)
 //=============================================================================
 void WichitaGame::update()
 {
-	/* saved for reference only
-    if(menu.getDegrees() > 0)
-    {
-        menu.setDegrees(menu.getDegrees() - frameTime * 120);
-        menu.setScale(menu.getScale() + frameTime * 0.4f);
-    }
-    else if(messageY > -400)
-    {
-        menu.setDegrees(0);
-        menu.setY(menu.getY() - frameTime * 50);
-        messageY -= frameTime * 50;
-    }
-    else    // start over
-    {
-        menu.setDegrees(300);
-        menu.setScale(0.002861f);
-        menu.setY(0);
-        messageY = GAME_HEIGHT;
-    }
-	*/
+
 	sprintf_s(debugLineBuf, "Debug line - update me");
 
 	// move right if left is not pressed or move right if left is not pressed
