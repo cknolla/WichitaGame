@@ -4,8 +4,7 @@
 #define _MAP_H
 #define WIN32_LEAN_AND_MEAN
 
-#include <istream>
-#include <ostream>
+#include <iostream>
 #include <fstream>
 #include "game.h"
 #include "textureManager.h"
@@ -19,7 +18,6 @@ namespace mapNS {
 	const int TILE_HEIGHT = 32;
 	const float CAMERA_TRIGGER = 10*TILE_WIDTH; // used to decide how far from the screen's edge before shifting the 'camera'
 	const float CAMERA_MOVE_SPEED = characterNS::MOVE_SPEED;
-//	const char TEST_TILE_MAP_IMAGE[] = "pictures/tileset34x34.png";
 	const char TEST_TILE_MAP_IMAGE[] = "pictures/tileset01.png";
 	const char TEST_TILE_MAP_KEY[] = "maps/testMap01.txt";
 	const char TEST_TILE_MAP_KEY2[] = "maps/testMap02.txt";

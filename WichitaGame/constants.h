@@ -42,8 +42,8 @@ const float MIN_FRAME_TIME = 1.0f/FRAME_RATE;   // minimum desired time for 1 fr
 const float MAX_FRAME_TIME = 1.0f/MIN_FRAME_RATE; // maximum time used in calculations
 
 // graphic images
-const char MENU_IMAGE[] =     "pictures\\menu.png";      // menu texture
 const char TEST_CHAR_IMAGE[] = "pictures/testcharacter01.png";
+const char RED_TEST_CHAR_IMAGE[] = "pictures/testcharacter02.png";
 
 const int MAP_WIDTH = GAME_WIDTH;
 const int MAP_HEIGHT = GAME_HEIGHT;

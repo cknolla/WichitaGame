@@ -40,8 +40,8 @@ class WichitaGame : public Game
 private:
     // game items
     TextureManager menuTexture; // textures
-    Image   menu;               // menu image
 	TextureManager characterTexture;
+	TextureManager redCharTexture;
 	TextureManager changerTexture;
 
 	Character testChar;

@@ -153,10 +153,11 @@ bool Map::initialize(Game* gamePtr, const char* tileSet[], const char* keyFile)
 			throw(GameError(gameErrorNS::WARNING, errorStr));
 		}
 		key >> collidables;
-		if(collidables)
+		if(collidables == 1)
 			curTile->setActive(true);
 		else
 			curTile->setActive(false);
+		curTile->setLayer(collidables);
 		curTile = curTile->getNextTile();
 	}
 	key.close();

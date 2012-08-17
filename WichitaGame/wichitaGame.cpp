@@ -104,6 +104,9 @@ void WichitaGame::initialize(HWND hwnd)
 	if (!characterTexture.initialize(graphics,TEST_CHAR_IMAGE))
         throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing character texture"));
 
+	if (!redCharTexture.initialize(graphics,RED_TEST_CHAR_IMAGE))
+        throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing red character texture"));
+
 	if (!testChar.initialize(this,34,34,2,&characterTexture))
         throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing character"));
 
@@ -141,8 +144,9 @@ void WichitaGame::initialize(HWND hwnd)
 //=============================================================================
 void WichitaGame::update()
 {
+	static bool isBlue = true;
 
-	sprintf_s(debugLineBuf, "Debug line - update me");
+	sprintf_s(debugLineBuf, "OMG Press C to change character color");
 
 	// move right if left is not pressed or move right if left is not pressed
 	if(input->isKeyDown(MOVE_RIGHT_KEY) && !input->isKeyDown(MOVE_LEFT_KEY)) {
@@ -165,6 +169,18 @@ void WichitaGame::update()
 		testChar.stopX();
 	}
 
+
+	if(input->wasKeyPressed('C')) {
+		if(isBlue) {
+			if (!testChar.initialize(this,34,34,2,&redCharTexture))
+				throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing character"));
+			isBlue = false;
+		} else {
+			if (!testChar.initialize(this,34,34,2,&characterTexture))
+				throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing character"));
+			isBlue = true;
+		}
+	}
 	if(input->wasKeyPressed('B')) {
 		createItemSpawn();
 	}
@@ -281,7 +297,8 @@ void WichitaGame::render()
 	while(curTile) {
 		// only draw the tile if it's on screen
 		if(curTile->getX() > -TILE_WIDTH && curTile->getX() < GAME_WIDTH && curTile->getY() > -TILE_HEIGHT && curTile->getY() < GAME_HEIGHT) {
-			curTile->draw();
+			if(curTile->getLayer() <= 1)
+				curTile->draw();
 		}
 		curTile = curTile->getNextTile();
 	}
@@ -291,6 +308,16 @@ void WichitaGame::render()
 	}
 
 	testChar.draw();
+
+	curTile = currentMap->getFirstTile();
+	while(curTile) {
+		// only draw the tile if it's on screen
+		if(curTile->getX() > -TILE_WIDTH && curTile->getX() < GAME_WIDTH && curTile->getY() > -TILE_HEIGHT && curTile->getY() < GAME_HEIGHT) {
+			if(curTile->getLayer() > 1)
+				curTile->draw();
+		}
+		curTile = curTile->getNextTile();
+	}
 
 	if(itemSpawnExists()){
 	//	itemSpawn->draw();
