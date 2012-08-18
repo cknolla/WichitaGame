@@ -31,6 +31,7 @@ namespace mapNS {
 class Map {
 private:
 	Tile* firstTile;
+	Tile* layer2firstTile;
 	TextureManager* firstTexture;
 	ZoneChanger* firstChanger;
 	NPC* firstNPC;
@@ -87,6 +88,12 @@ public:
 
 	// Set first tile in the linked list
 	void setFirstTile(Tile* nt) { firstTile = nt; }
+
+	// Return first tile in the linked list
+	Tile* getLayer2FirstTile() { return layer2firstTile; }
+
+	// Set first tile in the linked list
+	void setLayer2FirstTile(Tile* nt) { layer2firstTile = nt; }
 
 	// Return first ZoneChanger in linked list
 	ZoneChanger* getFirstChanger() { return firstChanger; }

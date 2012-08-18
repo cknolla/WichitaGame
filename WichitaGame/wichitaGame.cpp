@@ -257,10 +257,10 @@ void WichitaGame::render()
 
 	// Draw from bottom to top
 
+	// draw bottom map layer
 	while(curTile) {
 		// only draw the tile if it's on screen
 		if(onScreen(curTile)) {
-			if(curTile->getLayer() <= 1)
 				curTile->draw();
 		}
 		curTile = curTile->getNextTile();
@@ -278,12 +278,12 @@ void WichitaGame::render()
 	}
 
 	player.draw();
-
-	curTile = currentMap->getFirstTile();
-	while(curTile) {
+	
+	// draw map layer 2
+	curTile = currentMap->getLayer2FirstTile();
+		while(curTile) {
 		// only draw the tile if it's on screen
 		if(onScreen(curTile)) {
-			if(curTile->getLayer() > 1)
 				curTile->draw();
 		}
 		curTile = curTile->getNextTile();

@@ -7,6 +7,7 @@ Map::Map()
 {
 	initialized = false;
 	firstTile = NULL;
+	layer2firstTile = NULL;
 	firstTexture = NULL;
 	firstChanger = NULL;
 	firstNPC = NULL;
@@ -26,6 +27,7 @@ bool Map::initialize(Game* gamePtr, const char* tileSet[], const char* keyFile)
 	int curKey;
 	int collidables;
 	int row, col;
+	int layers;
 //	int startXTile, startYTile;
 	int i;
 	TextureManager* curTexture = NULL;
@@ -84,9 +86,24 @@ bool Map::initialize(Game* gamePtr, const char* tileSet[], const char* keyFile)
 	startY = (float)startYTile*mapNS::TILE_HEIGHT;
 */
 	key >> formatStr;
+//	debugFile << formatStr << "\n";
+	if(strcmp(formatStr, "Layers:")) {
+		sprintf_s(errorStr, "The 'Layers:' string does not exist or does not match at the top of map file %s! Can't load map", keyFile);
+		throw(GameError(gameErrorNS::FATAL_ERROR, errorStr));
+		return false;
+	}
+
+	key >> layers;
+	if(layers < 1 || layers > 3)
+	{
+		sprintf_s(errorStr, "Layer count (%d) out of range in map file %s! Must be 1 to 3. Can't load map", layers, keyFile);
+		throw(GameError(gameErrorNS::FATAL_ERROR, errorStr));
+		return false;
+	}
+	key >> formatStr;
 //		debugFile << formatStr << "\n";
 	if(strcmp(formatStr, "WidthHeight:")) {
-		sprintf_s(errorStr, "The 'WidthHeight:' string does not exist or does not match below TopLeftTile: in the map file %s! Can't load map", keyFile);
+		sprintf_s(errorStr, "The 'WidthHeight:' string does not exist or does not match below Layers: in the map file %s! Can't load map", keyFile);
 		throw(GameError(gameErrorNS::FATAL_ERROR, errorStr));
 		return false;
 	}
@@ -107,7 +124,7 @@ bool Map::initialize(Game* gamePtr, const char* tileSet[], const char* keyFile)
 				useTexture = useTexture->getNextTexture();
 			// initialize each tile
 			if (!curTile->initialize(gamePtr,useTexture))
-				throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing tile"));
+				throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing layer 1 tile"));
 			// assign the approriate sprite for this tile using the key (always 0)
 			curTile->setCurrentFrame(0);
 			// place the tile where it belongs on screen - center the character
@@ -120,6 +137,45 @@ bool Map::initialize(Game* gamePtr, const char* tileSet[], const char* keyFile)
 			prevTile = curTile;
 		}
 //			debugFile << "\n";
+	}
+	prevTile = NULL;
+	if(layers > 1)
+	{
+		key >> formatStr;
+	//		debugFile << formatStr << "\n";
+		if(strcmp(formatStr, "Layer2:")) {
+			sprintf_s(errorStr, "'Layer2:' string not found above the second layer tile grid in map file %s! Can't load map", keyFile);
+			throw(GameError(gameErrorNS::FATAL_ERROR, errorStr));
+			return false;
+		}
+		for(row = 0; row < height; row++) { 
+			for(col = 0; col < width; col++) {
+				curTile = new Tile;
+				if(!layer2firstTile)
+					layer2firstTile = curTile;
+				if(prevTile)
+					prevTile->setNextTile(curTile);
+				key >> curKey; // grab the texture number to use for the new tile
+				useTexture = firstTexture;
+				// flip through the texture list to select the correct one for this tile
+				for(i = 0; i < curKey; i++)
+					useTexture = useTexture->getNextTexture();
+				// initialize each tile
+				if (!curTile->initialize(gamePtr,useTexture))
+					throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing layer 2 tile"));
+				// assign the approriate sprite for this tile using the key (always 0)
+				curTile->setCurrentFrame(0);
+				// place the tile where it belongs on screen - center the character
+				curTile->setX( (float)mapNS::TILE_WIDTH * col - startX + GAME_WIDTH/2);
+				curTile->setY( (float)mapNS::TILE_HEIGHT * row - startY + GAME_HEIGHT/2);
+
+				// give it full-box collision
+				curTile->setEdge(mapNS::TILE_COLLISION_BOX);
+
+				prevTile = curTile;
+			}
+	//			debugFile << "\n";
+		}
 	}
 	key >> formatStr;
 	// make collidables large enough to hold every tile number in the texture
@@ -137,11 +193,10 @@ bool Map::initialize(Game* gamePtr, const char* tileSet[], const char* keyFile)
 			throw(GameError(gameErrorNS::WARNING, errorStr));
 		}
 		key >> collidables;
-		if(collidables == 1)
-			curTile->setActive(true);
-		else
+		if(collidables == 0)
 			curTile->setActive(false);
-		curTile->setLayer(collidables);
+		else
+			curTile->setActive(true);
 		curTile = curTile->getNextTile();
 	}
 	key.close();
@@ -179,6 +234,18 @@ void Map::update(Character &player, float frameTime)
 	}
 
 	// move each tile rather than the player to scroll the map
+	while(curTile) {
+		if(shiftLeft)
+			curTile->setX( curTile->getX() + (frameTime * mapNS::CAMERA_MOVE_SPEED));
+		if(shiftRight)
+			curTile->setX( curTile->getX() - (frameTime * mapNS::CAMERA_MOVE_SPEED));
+		if(shiftUp)
+			curTile->setY( curTile->getY() + (frameTime * mapNS::CAMERA_MOVE_SPEED));
+		if(shiftDown)
+			curTile->setY( curTile->getY() - (frameTime * mapNS::CAMERA_MOVE_SPEED));
+		curTile = curTile->getNextTile();
+	}
+	curTile = layer2firstTile;
 	while(curTile) {
 		if(shiftLeft)
 			curTile->setX( curTile->getX() + (frameTime * mapNS::CAMERA_MOVE_SPEED));
@@ -285,6 +352,16 @@ void Map::reset()
 				}
 			}
 		}
+		curTile = layer2firstTile;
+		while(curTile) {
+			for(row = 0; row < height; row++) { 
+				for(col = 0; col < width; col++) {
+					curTile->setX( (float)mapNS::TILE_WIDTH * col - startX + GAME_WIDTH/2);
+					curTile->setY( (float)mapNS::TILE_HEIGHT * row - startY + GAME_HEIGHT/2);
+					curTile = curTile->getNextTile();
+				}
+			}
+		}
 		// reset map objects to starting location
 		while(curChanger) {
 			curChanger->setX(curChanger->getStartX() - startX + GAME_WIDTH/2);
@@ -379,6 +456,12 @@ void Map::unload()
 
 	onLostDevice();
 	// delete the full linked list of tiles and textures
+	while(curTile) {
+		nextTile = curTile->getNextTile();
+		SAFE_DELETE(curTile);
+		curTile = nextTile;
+	}
+	curTile = layer2firstTile;
 	while(curTile) {
 		nextTile = curTile->getNextTile();
 		SAFE_DELETE(curTile);
