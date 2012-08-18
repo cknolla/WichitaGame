@@ -8,6 +8,7 @@ Map::Map()
 	initialized = false;
 	firstTile = NULL;
 	layer2firstTile = NULL;
+	layer3firstTile = NULL;
 	firstTexture = NULL;
 	firstChanger = NULL;
 	firstNPC = NULL;
@@ -18,7 +19,7 @@ Map::~Map()
 	unload();
 }
 
-bool Map::initialize(Game* gamePtr, const char* tileSet[], const char* keyFile)
+bool Map::initialize(Game* gamePtr, const char* tileSet[], int tileSetSize, const char* keyFile)
 {
 	std::ifstream key(keyFile);
 	std::ofstream debugFile("mapDebug.txt");
@@ -60,7 +61,7 @@ bool Map::initialize(Game* gamePtr, const char* tileSet[], const char* keyFile)
 	// row(height)
 
 	// tile map texture
-	for(i = 0; i < sizeof(tileSet); i++) {
+	for(i = 0; i < tileSetSize; i++) {
 		curTexture = new TextureManager;
 		if(!firstTexture)
 			firstTexture = curTexture;
@@ -177,6 +178,45 @@ bool Map::initialize(Game* gamePtr, const char* tileSet[], const char* keyFile)
 	//			debugFile << "\n";
 		}
 	}
+	prevTile = NULL;
+	if(layers > 2)
+	{
+		key >> formatStr;
+	//		debugFile << formatStr << "\n";
+		if(strcmp(formatStr, "Layer3:")) {
+			sprintf_s(errorStr, "'Layer3:' string not found above the second layer tile grid in map file %s! Can't load map", keyFile);
+			throw(GameError(gameErrorNS::FATAL_ERROR, errorStr));
+			return false;
+		}
+		for(row = 0; row < height; row++) { 
+			for(col = 0; col < width; col++) {
+				curTile = new Tile;
+				if(!layer3firstTile)
+					layer3firstTile = curTile;
+				if(prevTile)
+					prevTile->setNextTile(curTile);
+				key >> curKey; // grab the texture number to use for the new tile
+				useTexture = firstTexture;
+				// flip through the texture list to select the correct one for this tile
+				for(i = 0; i < curKey; i++)
+					useTexture = useTexture->getNextTexture();
+				// initialize each tile
+				if (!curTile->initialize(gamePtr,useTexture))
+					throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing layer 3 tile"));
+				// assign the approriate sprite for this tile using the key (always 0)
+				curTile->setCurrentFrame(0);
+				// place the tile where it belongs on screen - center the character
+				curTile->setX( (float)mapNS::TILE_WIDTH * col - startX + GAME_WIDTH/2);
+				curTile->setY( (float)mapNS::TILE_HEIGHT * row - startY + GAME_HEIGHT/2);
+
+				// give it full-box collision
+				curTile->setEdge(mapNS::TILE_COLLISION_BOX);
+
+				prevTile = curTile;
+			}
+	//			debugFile << "\n";
+		}
+	}
 	key >> formatStr;
 	// make collidables large enough to hold every tile number in the texture
 	if(strcmp(formatStr, "Collidables:")) {
@@ -215,6 +255,7 @@ void Map::update(Character &player, float frameTime)
 	int shiftRight = 0;
 	int shiftUp = 0;
 	int shiftDown = 0;
+	int layer;
 	float playerCenterX = player.getX() + player.getWidth()/2;
 	float playerCenterY = player.getY() + player.getHeight()/2;
 	Tile* curTile = firstTile;
@@ -234,28 +275,24 @@ void Map::update(Character &player, float frameTime)
 	}
 
 	// move each tile rather than the player to scroll the map
-	while(curTile) {
-		if(shiftLeft)
-			curTile->setX( curTile->getX() + (frameTime * mapNS::CAMERA_MOVE_SPEED));
-		if(shiftRight)
-			curTile->setX( curTile->getX() - (frameTime * mapNS::CAMERA_MOVE_SPEED));
-		if(shiftUp)
-			curTile->setY( curTile->getY() + (frameTime * mapNS::CAMERA_MOVE_SPEED));
-		if(shiftDown)
-			curTile->setY( curTile->getY() - (frameTime * mapNS::CAMERA_MOVE_SPEED));
-		curTile = curTile->getNextTile();
-	}
-	curTile = layer2firstTile;
-	while(curTile) {
-		if(shiftLeft)
-			curTile->setX( curTile->getX() + (frameTime * mapNS::CAMERA_MOVE_SPEED));
-		if(shiftRight)
-			curTile->setX( curTile->getX() - (frameTime * mapNS::CAMERA_MOVE_SPEED));
-		if(shiftUp)
-			curTile->setY( curTile->getY() + (frameTime * mapNS::CAMERA_MOVE_SPEED));
-		if(shiftDown)
-			curTile->setY( curTile->getY() - (frameTime * mapNS::CAMERA_MOVE_SPEED));
-		curTile = curTile->getNextTile();
+	for(layer = 1; layer <= mapNS::MAX_LAYERS; layer++) {
+		if(layer == 1)
+			curTile = firstTile;
+		if(layer == 2)
+			curTile = layer2firstTile;
+		if(layer == 3)
+			curTile = layer3firstTile;
+		while(curTile) {
+			if(shiftLeft)
+				curTile->setX( curTile->getX() + (frameTime * mapNS::CAMERA_MOVE_SPEED));
+			if(shiftRight)
+				curTile->setX( curTile->getX() - (frameTime * mapNS::CAMERA_MOVE_SPEED));
+			if(shiftUp)
+				curTile->setY( curTile->getY() + (frameTime * mapNS::CAMERA_MOVE_SPEED));
+			if(shiftDown)
+				curTile->setY( curTile->getY() - (frameTime * mapNS::CAMERA_MOVE_SPEED));
+			curTile = curTile->getNextTile();
+		}
 	}
 
 	// move each object on the map
@@ -338,27 +375,26 @@ void Map::collisions(Character& player)
 void Map::reset()
 {
 	int row, col;
+	int layer;
 	Tile* curTile = firstTile;
 	ZoneChanger* curChanger = firstChanger;
 	NPC* curNPC = firstNPC;
 	if(initialized) {
 		// reset tiles to starting location
-		while(curTile) {
-			for(row = 0; row < height; row++) { 
-				for(col = 0; col < width; col++) {
-					curTile->setX( (float)mapNS::TILE_WIDTH * col - startX + GAME_WIDTH/2);
-					curTile->setY( (float)mapNS::TILE_HEIGHT * row - startY + GAME_HEIGHT/2);
-					curTile = curTile->getNextTile();
-				}
-			}
-		}
-		curTile = layer2firstTile;
-		while(curTile) {
-			for(row = 0; row < height; row++) { 
-				for(col = 0; col < width; col++) {
-					curTile->setX( (float)mapNS::TILE_WIDTH * col - startX + GAME_WIDTH/2);
-					curTile->setY( (float)mapNS::TILE_HEIGHT * row - startY + GAME_HEIGHT/2);
-					curTile = curTile->getNextTile();
+		for(layer = 1; layer <= mapNS::MAX_LAYERS; layer++) {
+			if(layer == 1)
+				curTile = firstTile;
+			if(layer == 2)
+				curTile = layer2firstTile;
+			if(layer == 3)
+				curTile = layer3firstTile;
+			while(curTile) {
+				for(row = 0; row < height; row++) { 
+					for(col = 0; col < width; col++) {
+						curTile->setX( (float)mapNS::TILE_WIDTH * col - startX + GAME_WIDTH/2);
+						curTile->setY( (float)mapNS::TILE_HEIGHT * row - startY + GAME_HEIGHT/2);
+						curTile = curTile->getNextTile();
+					}
 				}
 			}
 		}
@@ -462,6 +498,12 @@ void Map::unload()
 		curTile = nextTile;
 	}
 	curTile = layer2firstTile;
+	while(curTile) {
+		nextTile = curTile->getNextTile();
+		SAFE_DELETE(curTile);
+		curTile = nextTile;
+	}
+	curTile = layer3firstTile;
 	while(curTile) {
 		nextTile = curTile->getNextTile();
 		SAFE_DELETE(curTile);

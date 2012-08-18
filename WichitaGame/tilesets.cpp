@@ -11,6 +11,7 @@ const char GRAVEYARD_0[] = "pictures/graveyard/graveyard00.png";
 const char GRAVEYARD_1[] = "pictures/graveyard/graveyard01.png";
 const char GRAVEYARD_2[] = "pictures/graveyard/graveyard02.png";
 const char GRAVEYARD_3[] = "pictures/graveyard/graveyard03.png";
+const char GRAVEYARD_FOG[] = "pictures/graveyard/fog.png";
 
 const char* TEST_TILE_SET[] = {
 	TEST_TILE_0,
@@ -23,5 +24,6 @@ const char* GRAVEYARD_SET[] = {
 	GRAVEYARD_0,
 	GRAVEYARD_1,
 	GRAVEYARD_2,
-	GRAVEYARD_3
+	GRAVEYARD_3,
+	GRAVEYARD_FOG
 };

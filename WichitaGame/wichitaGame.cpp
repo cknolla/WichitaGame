@@ -289,6 +289,16 @@ void WichitaGame::render()
 		curTile = curTile->getNextTile();
 	}
 
+	// draw map layer 3
+	curTile = currentMap->getLayer3FirstTile();
+		while(curTile) {
+		// only draw the tile if it's on screen
+		if(onScreen(curTile)) {
+				curTile->draw();
+		}
+		curTile = curTile->getNextTile();
+	}
+
 	if(itemSpawnExists()){
 	//	itemSpawn->draw();
 		for(list<ItemSpawn*>::iterator i = spawnList.begin() ; i != spawnList.end() ; ++i ){
@@ -357,7 +367,7 @@ bool WichitaGame::loadMap(MAP_LIST newMap, float startX, float startY)
 	currentMap = new Map;
 	// strcmp returns 0 if they match, so this statement is "if graveyard"
 	if(newMap == GRAVEYARD) {
-		if(!currentMap->initialize(this, GRAVEYARD_SET, mapNS::GRAVEYARD_MAP_KEY))
+		if(!currentMap->initialize(this, GRAVEYARD_SET, GRAVEYARD_SET_SIZE, mapNS::GRAVEYARD_MAP_KEY))
 			throw(GameError(gameErrorNS::FATAL_ERROR, errorStr));
 		else { // initialize map objects
 			ZoneChanger* topChanger = currentMap->addChanger();
@@ -384,7 +394,7 @@ bool WichitaGame::loadMap(MAP_LIST newMap, float startX, float startY)
 	} 
 	//////////////////// TESTMAP /////////////////////////////////////////////////////////////
 	else if(newMap == TEST_MAP) {
-		if(!currentMap->initialize(this, TEST_TILE_SET, mapNS::TEST_TILE_MAP_KEY))
+		if(!currentMap->initialize(this, TEST_TILE_SET, TEST_SET_SIZE, mapNS::TEST_TILE_MAP_KEY))
 			throw(GameError(gameErrorNS::FATAL_ERROR, errorStr));
 		else {
 			ZoneChanger* graveyardChanger = currentMap->addChanger();
@@ -397,7 +407,7 @@ bool WichitaGame::loadMap(MAP_LIST newMap, float startX, float startY)
 	} 
 	//////////////////// TESTMAP2 /////////////////////////////////////////////////////////////
 	else if(TEST_MAP2) {
-		if(!currentMap->initialize(this, TEST_TILE_SET, mapNS::TEST_TILE_MAP_KEY2)) 
+		if(!currentMap->initialize(this, TEST_TILE_SET, TEST_SET_SIZE, mapNS::TEST_TILE_MAP_KEY2)) 
 			throw(GameError(gameErrorNS::FATAL_ERROR, errorStr));
 		else {
 			ZoneChanger* graveyardChanger = currentMap->addChanger();

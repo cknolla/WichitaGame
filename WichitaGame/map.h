@@ -18,6 +18,7 @@
 namespace mapNS {
 	const int TILE_WIDTH = 32;
 	const int TILE_HEIGHT = 32;
+	const int MAX_LAYERS = 3;
 	const float CAMERA_TRIGGER = 10*TILE_WIDTH; // used to decide how far from the screen's edge before shifting the 'camera'
 	const float CAMERA_MOVE_SPEED = characterNS::MOVE_SPEED;
 	const char TEST_TILE_MAP_IMAGE[] = "pictures/tileset01.png";
@@ -32,6 +33,7 @@ class Map {
 private:
 	Tile* firstTile;
 	Tile* layer2firstTile;
+	Tile* layer3firstTile;
 	TextureManager* firstTexture;
 	ZoneChanger* firstChanger;
 	NPC* firstNPC;
@@ -53,7 +55,7 @@ private:
 public:
 	Map();
 	virtual ~Map();
-	bool initialize(Game* gamePtr, const char* tileSet[], const char* keyFile);
+	bool initialize(Game* gamePtr, const char* tileSet[], int tileSetSize, const char* keyFile);
 	// scroll map when necessary
 	void update(Character& player, float frameTime);
 	// process collisions with player
@@ -94,6 +96,12 @@ public:
 
 	// Set first tile in the linked list
 	void setLayer2FirstTile(Tile* nt) { layer2firstTile = nt; }
+
+	// Return first tile in the linked list
+	Tile* getLayer3FirstTile() { return layer3firstTile; }
+
+	// Set first tile in the linked list
+	void setLayer3FirstTile(Tile* nt) { layer3firstTile = nt; }
 
 	// Return first ZoneChanger in linked list
 	ZoneChanger* getFirstChanger() { return firstChanger; }
