@@ -203,6 +203,7 @@ void WichitaGame::update()
 		changeMap(testMap2);
 	}
 	if(input->wasKeyPressed('B')) {
+		printf("BOMBz");
 		createItemSpawn();
 	}
 	if(input->wasKeyPressed('N')) {
@@ -213,7 +214,10 @@ void WichitaGame::update()
 		//}else
 		//	printf("ItemSpawnDoesNoTExist");
 	}
-
+	//Press [ to start a battle
+	if(input->wasKeyPressed('H')) {
+		battleStart("pictures/battle/FordBack.jpg");
+	}
 
 	
 	// if no movement keys are pressed, draw the ending frame for the direction he's currently facing and pause animation
@@ -324,6 +328,11 @@ void WichitaGame::render()
 			(*i)->draw();
 		}
 
+	}
+
+	//Draw new Items if in a battle
+	if(battle.getBattleOn()){
+		battle.getBackground().draw();
 	}
 
     dxFont->setFontColor(graphicsNS::WHITE);
@@ -494,4 +503,19 @@ bool WichitaGame::destroyItemSpawn(){
 
 bool WichitaGame::itemSpawnExists(){
 	return !spawnList.empty();
+}
+
+//=============================================================================
+// The grahics device has been reset.
+// Recreate all surfaces.
+//=============================================================================
+void WichitaGame::battleStart(const char* backgroundPic)
+{
+	printf("Battle Started\n");
+	battle.setBattleOn();
+	//Initialize the background texture
+	battleBackgroundTexture.initialize(graphics,backgroundPic);
+	//Initialize the battle
+	battle.initialize(graphics,&battleBackgroundTexture);
+	return;
 }
