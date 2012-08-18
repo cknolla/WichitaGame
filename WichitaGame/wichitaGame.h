@@ -18,6 +18,7 @@
 #include "map.h"
 #include "tilesets.h"
 #include "zoneChanger.h"
+#include "npc.h"
 #include <list>
 #include <iterator>
 

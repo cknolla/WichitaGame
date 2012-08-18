@@ -13,6 +13,7 @@
 #include "tile.h"
 #include "zoneChanger.h"
 #include "character.h"
+#include "npc.h"
 
 namespace mapNS {
 	const int TILE_WIDTH = 32;
@@ -32,13 +33,15 @@ private:
 	Tile* firstTile;
 	TextureManager* firstTexture;
 	ZoneChanger* firstChanger;
+	NPC* firstNPC;
 	// adding a new object list? It must be accounted for in these places:
-	// update
-	// collisions
-	// set/get functions
-	// unload
-	// reset
-	// game's render function
+	// map's update()
+	// game's collisions()
+	// set/get functions in map
+	// map's unload()
+	// map's reset()
+	// game's render()
+	// set the new 'first' pointer to NULL in map's constructor
 	bool initialized;
 	int width;
 	int height;
@@ -90,6 +93,9 @@ public:
 
 	// add a ZoneChanger to the changer list
 	ZoneChanger* addChanger();
+
+	NPC* getFirstNPC() { return firstNPC; }
+	NPC* addNPC();
 
 	// reset tiles to their starting location
 	void reset();

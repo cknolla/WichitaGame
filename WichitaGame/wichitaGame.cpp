@@ -252,6 +252,7 @@ void WichitaGame::render()
 {
 	Tile* curTile = currentMap->getFirstTile();
 	ZoneChanger* curChanger = currentMap->getFirstChanger();
+	NPC* curNPC = currentMap->getFirstNPC();
     graphics->spriteBegin();                // begin drawing sprites
 
 	// Draw from bottom to top
@@ -269,6 +270,11 @@ void WichitaGame::render()
 		if(onScreen(curChanger))
 			curChanger->draw();
 		curChanger = curChanger->getNextChanger();
+	}
+	while(curNPC) {
+		if(onScreen(curNPC))
+			curNPC->draw();
+		curNPC = curNPC->getNextNPC();
 	}
 
 	player.draw();

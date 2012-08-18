@@ -9,6 +9,7 @@ Map::Map()
 	firstTile = NULL;
 	firstTexture = NULL;
 	firstChanger = NULL;
+	firstNPC = NULL;
 }
 
 Map::~Map()
@@ -163,6 +164,7 @@ void Map::update(Character &player, float frameTime)
 	float playerCenterY = player.getY() + player.getHeight()/2;
 	Tile* curTile = firstTile;
 	ZoneChanger* curChanger = firstChanger;
+	NPC* curNPC = firstNPC;
 
 	if(playerCenterX + player.getEdge().left < mapNS::CAMERA_TRIGGER) {
 		// if the player's collision box passes the 'trigger' point, scroll the map rather than the player
@@ -200,6 +202,17 @@ void Map::update(Character &player, float frameTime)
 		if(shiftDown)
 			curChanger->setY( curChanger->getY() - (frameTime * mapNS::CAMERA_MOVE_SPEED));
 		curChanger = curChanger->getNextChanger();
+	}
+	while(curNPC) {
+		if(shiftLeft)
+			curNPC->setX( curNPC->getX() + (frameTime * mapNS::CAMERA_MOVE_SPEED));
+		if(shiftRight)
+			curNPC->setX( curNPC->getX() - (frameTime * mapNS::CAMERA_MOVE_SPEED));
+		if(shiftUp)
+			curNPC->setY( curNPC->getY() + (frameTime * mapNS::CAMERA_MOVE_SPEED));
+		if(shiftDown)
+			curNPC->setY( curNPC->getY() - (frameTime * mapNS::CAMERA_MOVE_SPEED));
+		curNPC = curNPC->getNextNPC();
 	}
 
 	// push the player back by an equal amount that the camera moved. This keeps the player always on screen
@@ -260,6 +273,7 @@ void Map::reset()
 	int row, col;
 	Tile* curTile = firstTile;
 	ZoneChanger* curChanger = firstChanger;
+	NPC* curNPC = firstNPC;
 	if(initialized) {
 		// reset tiles to starting location
 		while(curTile) {
@@ -276,6 +290,11 @@ void Map::reset()
 			curChanger->setX(curChanger->getStartX() - startX + GAME_WIDTH/2);
 			curChanger->setY(curChanger->getStartY() - startY + GAME_HEIGHT/2);
 			curChanger = curChanger->getNextChanger();
+		}
+		while(curNPC) {
+			curNPC->setX(curNPC->getStartX() - startX + GAME_WIDTH/2);
+			curNPC->setY(curNPC->getStartY() - startY + GAME_HEIGHT/2);
+			curNPC = curNPC->getNextNPC();
 		}
 	}
 }
@@ -310,6 +329,24 @@ ZoneChanger* Map::addChanger()
 	return newChanger;
 }
 
+NPC* Map::addNPC()
+{
+	NPC* newNPC = new NPC;
+	NPC* curNPC = firstNPC;
+	NPC* prevNPC = NULL;
+	if(!firstNPC)
+		firstNPC = newNPC;
+	else {
+		while(curNPC) {
+			prevNPC = curNPC;
+			curNPC = curNPC->getNextNPC();
+		}
+		if(prevNPC)
+			prevNPC->setNextNPC(newNPC);
+	}
+	return newNPC;
+}
+
 
 void Map::onLostDevice()
 {
@@ -332,11 +369,13 @@ void Map::onResetDevice()
 void Map::unload()
 {
 	Tile* curTile = firstTile;
-	TextureManager* curTexture = firstTexture;
-	ZoneChanger* curChanger = firstChanger;
 	Tile* nextTile;
+	TextureManager* curTexture = firstTexture;
 	TextureManager* nextTexture;
+	ZoneChanger* curChanger = firstChanger;
 	ZoneChanger* nextChanger;
+	NPC* curNPC = firstNPC;
+	NPC* nextNPC;
 
 	onLostDevice();
 	// delete the full linked list of tiles and textures
@@ -354,5 +393,10 @@ void Map::unload()
 		nextChanger = curChanger->getNextChanger();
 		SAFE_DELETE(curChanger);
 		curChanger = nextChanger;
+	}
+	while(curNPC) {
+		nextNPC = curNPC->getNextNPC();
+		SAFE_DELETE(curNPC);
+		curNPC = nextNPC;
 	}
 }
