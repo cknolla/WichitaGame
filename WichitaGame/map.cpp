@@ -26,7 +26,7 @@ bool Map::initialize(Game* gamePtr, const char* tileSet[], const char* keyFile)
 	int curKey;
 	int collidables;
 	int row, col;
-	int startXTile, startYTile;
+//	int startXTile, startYTile;
 	int i;
 	TextureManager* curTexture = NULL;
 	TextureManager* prevTexture = NULL;
@@ -71,7 +71,7 @@ bool Map::initialize(Game* gamePtr, const char* tileSet[], const char* keyFile)
 		}
 		prevTexture = curTexture;
 	}
-	
+/*	STARTING TILE IS NOW HANDLED BY ZONECHANGER
 	key >> formatStr;
 //		debugFile << formatStr << "\n";
 	if(strcmp(formatStr, "StartingTile:")) { // strcmp returns non-zero (true) if there are any differences
@@ -82,7 +82,7 @@ bool Map::initialize(Game* gamePtr, const char* tileSet[], const char* keyFile)
 	key >> startXTile >> startYTile;
 	startX = (float)startXTile*mapNS::TILE_WIDTH;
 	startY = (float)startYTile*mapNS::TILE_HEIGHT;
-
+*/
 	key >> formatStr;
 //		debugFile << formatStr << "\n";
 	if(strcmp(formatStr, "WidthHeight:")) {
