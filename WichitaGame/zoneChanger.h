@@ -8,16 +8,16 @@
 class ZoneChanger : public Entity
 {
 private:
-	char destination[50];
+	MAP_LIST destination;
 	ZoneChanger* nextChanger;
 public:
 	ZoneChanger();
 	~ZoneChanger();
 
 	// only need destination for zoneChanger, but also have to initialize entity and image parents
-	bool initialize(const char* dest, Game *gamePtr, int width, int height, int ncols, TextureManager *textureM);
+	bool initialize(MAP_LIST dest, Game *gamePtr, int width, int height, int ncols, TextureManager *textureM);
 
-	const char* getDestination() { return destination; }
+	MAP_LIST getDestination() { return destination; }
 
 	// return next zone changer in linked list
 	ZoneChanger* getNextChanger() { return nextChanger; }

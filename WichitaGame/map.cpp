@@ -214,18 +214,15 @@ void Map::update(Character &player, float frameTime)
 
 }
 
-void Map::collisions(Character& player, char* newMap)
+void Map::collisions(Character& player)
 {
 	VECTOR2 collisionVector;
 	float tempX;
 	float tempY;
 	bool Xoffender = false;
 	bool Yoffender = false;
-	Tile* curTile;
-	ZoneChanger* curChanger;
+	Tile* curTile = firstTile;
 
-	curTile = firstTile; 
-	curChanger = firstChanger;
 	while(curTile) {
 		if(player.collidesWith(*curTile, collisionVector)) {
 		//	sprintf_s(debugLineBuf, "Collision!");
@@ -255,12 +252,6 @@ void Map::collisions(Character& player, char* newMap)
 			}	
 		}
 		curTile = curTile->getNextTile();
-	}
-	while(curChanger) {
-		if(player.collidesWith(*curChanger, collisionVector)) {
-			strcpy(newMap, curChanger->getDestination());
-		}
-		curChanger = curChanger->getNextChanger();
 	}
 }
 

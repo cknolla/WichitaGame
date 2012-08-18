@@ -53,7 +53,7 @@ public:
 	// scroll map when necessary
 	void update(Character& player, float frameTime);
 	// process collisions with player
-	void collisions(Character& player, char newMap[50]);
+	void collisions(Character& player);
 
 	// get map width in tiles
 	int getWidth() { return width; }

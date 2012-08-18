@@ -44,7 +44,7 @@ private:
 	TextureManager redCharTexture;
 	TextureManager changerTexture;
 
-	Character testChar;
+	Character player;
 
 	Map* currentMap;
 	Map testMap;
@@ -87,7 +87,7 @@ public:
 	// switch to new map, draw character
 	void changeMap(Map &newMap);
 	// unload previous map from memory, load a new one
-	bool loadMap(const char* newMap);
+	bool loadMap(MAP_LIST newMap);
 };
 
 #endif
