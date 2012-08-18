@@ -5,6 +5,8 @@
 ZoneChanger::ZoneChanger()
 {
 	nextChanger = NULL;
+	destStartX = 0.0;
+	destStartY = 0.0;
 }
 
 ZoneChanger::~ZoneChanger()
@@ -25,5 +27,12 @@ bool ZoneChanger::initialize(MAP_LIST dest, Game* gamePtr, int width, int height
 	edge.bottom = spriteData.height/2;
 	// initialize parent classes
 	return result;
+}
+
+void ZoneChanger::setDestinationStartingPos(int tileX, int tileY)
+{
+	destStartX = (float)tileX*TILE_WIDTH;
+	destStartY = (float)tileY*TILE_HEIGHT;    
+
 }
 

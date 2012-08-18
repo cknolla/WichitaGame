@@ -87,8 +87,8 @@ public:
 
 	// switch to new map, draw character
 	void changeMap(Map &newMap);
-	// unload previous map from memory, load a new one
-	bool loadMap(MAP_LIST newMap);
+	// unload previous map from memory, load a new one, and place character at startX, startY
+	bool loadMap(MAP_LIST newMap, float startX, float startY);
 };
 
 #endif

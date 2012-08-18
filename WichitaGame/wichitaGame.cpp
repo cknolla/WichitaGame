@@ -135,7 +135,7 @@ void WichitaGame::initialize(HWND hwnd)
 
 	// load the current map
 //	changeMap(*currentMap);
-	loadMap(GRAVEYARD);
+	loadMap(GRAVEYARD, 100.0, 200.0);
 
 	message = "DEBUG TEXT";
 	if(!currentMap)
@@ -237,7 +237,7 @@ void WichitaGame::collisions()
 		while(curChanger) {
 			if(player.collidesWith((*curChanger), collisionVector)) {
 				// loadMap destroys the currentMap, so be cautious of the fact that anything referenced from currentMap won't exist when you get back from it
-				loadMap(curChanger->getDestination());
+				loadMap(curChanger->getDestination(), curChanger->getDestinationStartX(), curChanger->getDestinationStartY());
 				break; // after the new map is loaded, this zonechanger list doesn't exist anymore. Break to avoid access violations
 			}
 			curChanger = curChanger->getNextChanger();
@@ -347,7 +347,7 @@ void WichitaGame::consoleCommand()
 // Unload current map, load a new map
 //=============================================================================
 
-bool WichitaGame::loadMap(MAP_LIST newMap)
+bool WichitaGame::loadMap(MAP_LIST newMap, float startX, float startY)
 {
 	char errorStr[200];
 	sprintf_s(errorStr, "Error initializing map");
@@ -362,14 +362,23 @@ bool WichitaGame::loadMap(MAP_LIST newMap)
 		else { // initialize map objects
 			ZoneChanger* topChanger = currentMap->addChanger();
 			ZoneChanger* bottomChanger = currentMap->addChanger();
+			NPC* redGuy = currentMap->addNPC();
+
 			if(!topChanger->initialize(TEST_MAP,this,0, 0, 0, &changerTexture))
 				throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing graveyard changer 1"));
 
 			if(!bottomChanger->initialize(TEST_MAP2,this,0, 0, 0, &changerTexture))
 				throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing graveyard changer 2"));
 
+			if(!redGuy->initialize(this,34,34,2,&redCharTexture))
+				throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing redGuy"));
+
 			topChanger->setStartingPos(8,0); // top center of graveyard
+			topChanger->setDestinationStartingPos(3,5);
 			bottomChanger->setStartingPos(8,16); // bottom center of graveyard
+			bottomChanger->setDestinationStartingPos(6,6);
+			redGuy->setStartingPos(8,7);
+			redGuy->setCurrentFrame(0);
 
 		}
 	} 
@@ -383,6 +392,7 @@ bool WichitaGame::loadMap(MAP_LIST newMap)
 				throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing testMap changer"));
 
 			graveyardChanger->setStartingPos(18,10);
+			graveyardChanger->setDestinationStartingPos(8,2);
 		}
 	} 
 	//////////////////// TESTMAP2 /////////////////////////////////////////////////////////////
@@ -395,6 +405,7 @@ bool WichitaGame::loadMap(MAP_LIST newMap)
 				throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing testMap2 changer"));
 
 			graveyardChanger->setStartingPos(10,13);
+			graveyardChanger->setDestinationStartingPos(8,13);
 		}
 	} 
 	// ERROR
@@ -404,6 +415,8 @@ bool WichitaGame::loadMap(MAP_LIST newMap)
 		throw(GameError(gameErrorNS::FATAL_ERROR, errorStr));
 		return false;
 	}
+	currentMap->setStartX(startX);
+	currentMap->setStartY(startY);
 	currentMap->reset();
 	player.setX(GAME_WIDTH/2); // move the player where he belongs on the new map
 	player.setY(GAME_HEIGHT/2);

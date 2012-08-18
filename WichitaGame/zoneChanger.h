@@ -10,6 +10,8 @@ class ZoneChanger : public Entity
 private:
 	MAP_LIST destination;
 	ZoneChanger* nextChanger;
+	float destStartX;
+	float destStartY;
 public:
 	ZoneChanger();
 	~ZoneChanger();
@@ -24,6 +26,12 @@ public:
 
 	// set next zone changer in ZC list
 	void setNextChanger(ZoneChanger* nz) { nextChanger = nz; }
+
+	// When exiting the current map, get/set where to start the character on the next map
+	float getDestinationStartX() { return destStartX; }
+	float getDestinationStartY() { return destStartY; }
+	
+	void setDestinationStartingPos(int tileX, int tileY);
 
 };
 
