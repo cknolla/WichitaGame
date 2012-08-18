@@ -45,14 +45,9 @@ private:
 	TextureManager changerTexture;
 
 	Character testChar;
-	Map testMap;
-	Map testMap2;
-	Map graveyard;
+
 	Map* currentMap;
-	ZoneChanger graveyardChanger1;
-	ZoneChanger graveyardChanger2;
-	ZoneChanger testMapChanger;
-	ZoneChanger testMap2Changer;
+	Map testMap;
     TextDX  *dxFont;            // DirectX font
 	TextDX *debugLine;
     std::string  message;
@@ -83,6 +78,9 @@ public:
 	bool destroyItemSpawn();
 	//bool itemSpawnExists(){ if(itemSpawn != NULL) return true; return false; }
 	bool itemSpawnExists();
+
+	// check if object's position makes it visible on screen
+	inline bool onScreen(Image* object);
 
 	void consoleCommand();
 

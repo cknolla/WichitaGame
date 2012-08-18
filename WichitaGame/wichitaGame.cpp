@@ -50,11 +50,14 @@ void WichitaGame::initialize(HWND hwnd)
     Game::initialize(hwnd); // throws GameError
 
 	// initialize map which will initialize a texture and lots of images inside it
-	if(!testMap.initialize(this, TEST_TILE_SET, mapNS::TEST_TILE_MAP_KEY))
-		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing map"));
+//	if(!testMap.initialize(this, TEST_TILE_SET, mapNS::TEST_TILE_MAP_KEY))
+//		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing map"));
 
-	if(!testMap2.initialize(this, TEST_TILE_SET, mapNS::TEST_TILE_MAP_KEY2))
-		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing map"));
+//	if(!testMap2.initialize(this, TEST_TILE_SET, mapNS::TEST_TILE_MAP_KEY2))
+//		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing map"));
+
+	if(!changerTexture.initialize(graphics, "pictures/Village01.png"))
+			throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing changer texture"));
 /*
 	if(!graveyard.initialize(this, GRAVEYARD_SET, mapNS::GRAVEYARD_MAP_KEY))
 		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing map"));
@@ -78,28 +81,27 @@ void WichitaGame::initialize(HWND hwnd)
 
 	graveyardChanger1.setStartingPos(8,0); // top center of graveyard
 	graveyardChanger2.setStartingPos(8,16); // bottom center of graveyard
-*/	testMapChanger.setStartingPos(18,10);
-	testMap2Changer.setStartingPos(10,13);
+*/	
 
 	TextureManager changer2Texture;
-	ZoneChanger zoneChanger;
+//	ZoneChanger zoneChanger;
 
 	if(!changer2Texture.initialize(graphics, "pictures/bomb.png"))
 		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing changer texture"));
+	
+//	if(!zoneChanger.initialize(&testMap,this,0, 0, 0, &changer2Texture))
+//		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing changer"));
 
-	if(!zoneChanger.initialize(&testMap,this,0, 0, 0, &changer2Texture))
-		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing changer"));
-
-	zoneChanger.setX(400.0f);
-	zoneChanger.setY(300.0f);
+//	zoneChanger.setX(400.0f);
+//	zoneChanger.setY(300.0f);
 
 	// add zone changers to current map's objects so that it moves along with it
-	graveyard.addObject(graveyardChanger1);
-	graveyard.addObject(graveyardChanger2);
+//	graveyard.addObject(graveyardChanger1);
+//	graveyard.addObject(graveyardChanger2);
 
-	testMap.addObject(testMapChanger);
+//	testMap.addObject(testMapChanger);
 
-	testMap2.addObject(testMap2Changer);
+//	testMap2.addObject(testMap2Changer);
 
 	// character texture
 	if (!characterTexture.initialize(graphics,TEST_CHAR_IMAGE))
@@ -225,65 +227,13 @@ void WichitaGame::ai()
 //=============================================================================
 void WichitaGame::collisions()
 {
-	VECTOR2 collisionVector;
-	float tempX;
-	float tempY;
-	bool Xoffender = false;
-	bool Yoffender = false;
-	Tile* curTile;
+	char newMap[50] = "none";
 
 	if(!noclip) {
-		curTile = currentMap->getFirstTile(); 
-		while(curTile) {
-			if(testChar.collidesWith(*curTile, collisionVector)) {
-				sprintf_s(debugLineBuf, "Collision!");
-				// save the destination location
-				tempX = testChar.getX();
-				tempY = testChar.getY();
-				// place the character back on the X axis
-				testChar.setX(testChar.getPrevX());
-				if(testChar.collidesWith(*curTile, collisionVector)) {
-					// if there is still collision after placing him back where he came from on the X axis, then Y axis is offending
-					Yoffender = true;
-				}
-				testChar.setX(tempX); // put him back to new position to check Y
-				testChar.setY(testChar.getPrevY()); // return him to previous Y to see if X is offending
-				if(testChar.collidesWith(*curTile, collisionVector)) {
-					// if there is still collision after placing him back where he came from on the Y axis, then X axis is offending
-					Xoffender = true;
-				}
-				testChar.setY(tempY); // put him in new position
-				if(Xoffender && !Yoffender) {
-					testChar.setX(testChar.getPrevX()); // allow Y movement since Y didn't cause collision
-				} else if(Yoffender && !Xoffender) {
-					testChar.setY(testChar.getPrevY()); // allow X movement since X didn't cause collision
-				} else if(Xoffender && Yoffender) {
-					testChar.setX(testChar.getPrevX());
-					testChar.setY(testChar.getPrevY()); // don't allow movement in either direction (corner)
-				}	
-			}
-			curTile = curTile->getNextTile();
-		}
-		// need to make entities inactive rather than checking for currentMap for loadMap()
-		if(currentMap == &graveyard) {
-			if(testChar.collidesWith(graveyardChanger1, collisionVector))
-			{
-				changeMap(*graveyardChanger1.getDestination());
-			}
-			if(testChar.collidesWith(graveyardChanger2, collisionVector))
-			{
-				changeMap(*graveyardChanger2.getDestination());
-			}
-		}
-		if(currentMap == &testMap) {
-			if(testChar.collidesWith(testMapChanger, collisionVector))
-				changeMap(*testMapChanger.getDestination());
-		}
-		if(currentMap == &testMap2) {
-			if(testChar.collidesWith(testMap2Changer, collisionVector))
-				changeMap(*testMap2Changer.getDestination());
-		}
+		currentMap->collisions(testChar,newMap);
 	}
+	if(strcmp(newMap,"none"))
+		loadMap(newMap);
 }
 
 //=============================================================================
@@ -291,23 +241,25 @@ void WichitaGame::collisions()
 //=============================================================================
 void WichitaGame::render()
 {
-	Tile* curTile;
+	Tile* curTile = currentMap->getFirstTile();
+	ZoneChanger* curChanger = currentMap->getFirstChanger();
     graphics->spriteBegin();                // begin drawing sprites
 
 	// Draw from bottom to top
 
-	curTile = currentMap->getFirstTile();
 	while(curTile) {
 		// only draw the tile if it's on screen
-		if(curTile->getX() > -TILE_WIDTH && curTile->getX() < GAME_WIDTH && curTile->getY() > -TILE_HEIGHT && curTile->getY() < GAME_HEIGHT) {
+		if(onScreen(curTile)) {
 			if(curTile->getLayer() <= 1)
 				curTile->draw();
 		}
 		curTile = curTile->getNextTile();
 	}
 
-	for(std::list<Entity*>::iterator curObject = currentMap->getObjects()->begin(); curObject != currentMap->getObjects()->end(); curObject++) {
-		(*curObject)->draw();
+	while(curChanger) {
+		if(onScreen(curChanger))
+			curChanger->draw();
+		curChanger = curChanger->getNextChanger();
 	}
 
 	testChar.draw();
@@ -315,7 +267,7 @@ void WichitaGame::render()
 	curTile = currentMap->getFirstTile();
 	while(curTile) {
 		// only draw the tile if it's on screen
-		if(curTile->getX() > -TILE_WIDTH && curTile->getX() < GAME_WIDTH && curTile->getY() > -TILE_HEIGHT && curTile->getY() < GAME_HEIGHT) {
+		if(onScreen(curTile)) {
 			if(curTile->getLayer() > 1)
 				curTile->draw();
 		}
@@ -377,7 +329,7 @@ void WichitaGame::consoleCommand()
 }
 
 //=============================================================================
-// Cleanly change maps
+// Cleanly change maps - deprecated
 //=============================================================================
 void WichitaGame::changeMap(Map &newMap)
 {
@@ -395,7 +347,8 @@ bool WichitaGame::loadMap(const char* newMapName)
 {
 	char errorStr[200];
 	sprintf_s(errorStr, "Error initializing %s", newMapName);
-	// delete current map from memory if it exists
+	
+	// delete current map and its objects from memory if it exists
 	SAFE_DELETE(currentMap);
 	currentMap = new Map;
 	// strcmp returns 0 if they match, so this statement is "if graveyard"
@@ -403,29 +356,45 @@ bool WichitaGame::loadMap(const char* newMapName)
 		if(!currentMap->initialize(this, GRAVEYARD_SET, mapNS::GRAVEYARD_MAP_KEY))
 			throw(GameError(gameErrorNS::FATAL_ERROR, errorStr));
 		else { // initialize map objects
-			if(!changerTexture.initialize(graphics, "pictures/Village01.png"))
-				throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing changer texture"));
+			ZoneChanger* topChanger = currentMap->addChanger();
+			ZoneChanger* bottomChanger = currentMap->addChanger();
+			if(!topChanger->initialize("testMap",this,0, 0, 0, &changerTexture))
+				throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing graveyard changer 1"));
 
-			if(!graveyardChanger1.initialize(&testMap,this,0, 0, 0, &changerTexture))
-				throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing changer 1"));
+			if(!bottomChanger->initialize("testMap2",this,0, 0, 0, &changerTexture))
+				throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing graveyard changer 2"));
 
-			if(!graveyardChanger2.initialize(&testMap2,this,0, 0, 0, &changerTexture))
-				throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing changer 2"));
+			topChanger->setStartingPos(8,0); // top center of graveyard
+			bottomChanger->setStartingPos(8,16); // bottom center of graveyard
 
-			graveyardChanger1.setStartingPos(8,0); // top center of graveyard
-			graveyardChanger2.setStartingPos(8,16); // bottom center of graveyard
-
-			// add zone changers to current map's objects so that it moves along with it
-			currentMap->addObject(graveyardChanger1);
-			currentMap->addObject(graveyardChanger2);
 		}
-	} else if(!strcmp(newMapName, "testMap")) {
+	} 
+	//////////////////// TESTMAP /////////////////////////////////////////////////////////////
+	else if(!strcmp(newMapName, "testMap")) {
 		if(!currentMap->initialize(this, TEST_TILE_SET, mapNS::TEST_TILE_MAP_KEY))
 			throw(GameError(gameErrorNS::FATAL_ERROR, errorStr));
-	} else if(!strcmp(newMapName, "testMap2")) {
+		else {
+			ZoneChanger* graveyardChanger = currentMap->addChanger();
+			if(!graveyardChanger->initialize("graveyard",this,0, 0, 0, &changerTexture))
+				throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing testMap changer"));
+
+			graveyardChanger->setStartingPos(18,10);
+		}
+	} 
+	//////////////////// TESTMAP2 /////////////////////////////////////////////////////////////
+	else if(!strcmp(newMapName, "testMap2")) {
 		if(!currentMap->initialize(this, TEST_TILE_SET, mapNS::TEST_TILE_MAP_KEY2)) 
 			throw(GameError(gameErrorNS::FATAL_ERROR, errorStr));
-	} else {
+		else {
+			ZoneChanger* graveyardChanger = currentMap->addChanger();
+			if(!graveyardChanger->initialize("graveyard",this,0, 0, 0, &changerTexture))
+				throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing testMap2 changer"));
+
+			graveyardChanger->setStartingPos(10,13);
+		}
+	} 
+	// ERROR
+	else {
 		sprintf_s(errorStr, "Map not found: %s", newMapName);
 		throw(GameError(gameErrorNS::FATAL_ERROR, errorStr));
 		return false;
@@ -445,9 +414,6 @@ void WichitaGame::releaseAll()
     dxFont->onLostDevice();
 	debugLine->onLostDevice();
 //    menuTexture.onLostDevice();
-	testMap.onLostDevice();
-	testMap2.onLostDevice();
-	graveyard.onLostDevice();
 	characterTexture.onLostDevice();
 	changerTexture.onLostDevice();
     Game::releaseAll();
@@ -463,9 +429,6 @@ void WichitaGame::resetAll()
 //    menuTexture.onResetDevice();
     dxFont->onResetDevice();
 	debugLine->onResetDevice();
-	testMap.onResetDevice();
-	testMap2.onResetDevice();
-	graveyard.onResetDevice();
 	currentMap->onResetDevice();
 	characterTexture.onResetDevice();
 	changerTexture.onResetDevice();
@@ -516,6 +479,14 @@ void WichitaGame::createItemSpawn(){
 	return;
 	
 
+}
+
+inline bool WichitaGame::onScreen(Image* object)
+{
+	if(object->getX() > -TILE_WIDTH && object->getX() < GAME_WIDTH && object->getY() > -TILE_HEIGHT && object->getY() < GAME_HEIGHT)
+		return true;
+	else
+		return false;
 }
 
 bool WichitaGame::destroyItemSpawn(){

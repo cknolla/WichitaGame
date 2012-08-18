@@ -3,15 +3,16 @@
 #ifndef _MAP_H
 #define _MAP_H
 #define WIN32_LEAN_AND_MEAN
+// stupid strcpy warning
+#define _CRT_SECURE_NO_WARNINGS
 
 #include <iostream>
 #include <fstream>
 #include "game.h"
 #include "textureManager.h"
 #include "tile.h"
+#include "zoneChanger.h"
 #include "character.h"
-#include <list>
-#include <iterator>
 
 namespace mapNS {
 	const int TILE_WIDTH = 32;
@@ -30,7 +31,14 @@ class Map {
 private:
 	Tile* firstTile;
 	TextureManager* firstTexture;
-	std::list<Entity*> mapObjects;
+	ZoneChanger* firstChanger;
+	// adding a new object list? It must be accounted for in these places:
+	// update
+	// collisions
+	// set/get functions
+	// unload
+	// reset
+	// game's render function
 	bool initialized;
 	int width;
 	int height;
@@ -42,7 +50,10 @@ public:
 	Map();
 	virtual ~Map();
 	bool initialize(Game* gamePtr, const char* tileSet[], const char* keyFile);
+	// scroll map when necessary
 	void update(Character& player, float frameTime);
+	// process collisions with player
+	void collisions(Character& player, char newMap[50]);
 
 	// get map width in tiles
 	int getWidth() { return width; }
@@ -61,9 +72,9 @@ public:
 	void setStartingPos(int tileX, int tileY);
 
 	// 'attach' an entity to the map
-	void addObject(Entity &newObject) { mapObjects.push_back(&newObject); }
+//	void addObject(Entity &newObject) { mapObjects.push_back(&newObject); }
 
-	std::list<Entity*>* getObjects() { return &mapObjects; }
+//	std::list<Entity*>* getObjects() { return &mapObjects; }
 	
 	// convert x and y tile position to absolute x and y position
 	void getXY(float & x , float & y , int tileX  = 0 , int tileY = 0 );
@@ -74,8 +85,17 @@ public:
 	// Set first tile in the linked list
 	void setFirstTile(Tile* nt) { firstTile = nt; }
 
-	// reset tiles to their starting location - used when changing maps
+	// Return first ZoneChanger in linked list
+	ZoneChanger* getFirstChanger() { return firstChanger; }
+
+	// add a ZoneChanger to the changer list
+	ZoneChanger* addChanger();
+
+	// reset tiles to their starting location
 	void reset();
+
+	// free all linked list memory
+	void unload();
 
 	// handle texture if device lost
 	void onLostDevice();

@@ -8,29 +8,12 @@ Map::Map()
 	initialized = false;
 	firstTile = NULL;
 	firstTexture = NULL;
+	firstChanger = NULL;
 }
 
 Map::~Map()
 {
-	Tile* curTile = firstTile;
-	TextureManager* curTexture = firstTexture;
-	Tile* nextTile;
-	TextureManager* nextTexture;
-
-	onLostDevice();
-	// delete the full linked list of tiles and textures
-	while(curTile) {
-		nextTile = curTile->getNextTile();
-		SAFE_DELETE(curTile);
-		curTile = nextTile;
-	}
-	while(curTexture) {
-		nextTexture = curTexture->getNextTexture();
-		SAFE_DELETE(curTexture);
-		curTexture = nextTexture;
-	}
-//	SAFE_DELETE(firstTile);
-//	SAFE_DELETE(firstTexture);
+	unload();
 }
 
 bool Map::initialize(Game* gamePtr, const char* tileSet[], const char* keyFile)
@@ -178,7 +161,8 @@ void Map::update(Character &player, float frameTime)
 	int shiftDown = 0;
 	float playerCenterX = player.getX() + player.getWidth()/2;
 	float playerCenterY = player.getY() + player.getHeight()/2;
-	Tile* curTile = NULL;
+	Tile* curTile = firstTile;
+	ZoneChanger* curChanger = firstChanger;
 
 	if(playerCenterX + player.getEdge().left < mapNS::CAMERA_TRIGGER) {
 		// if the player's collision box passes the 'trigger' point, scroll the map rather than the player
@@ -193,7 +177,6 @@ void Map::update(Character &player, float frameTime)
 	}
 
 	// move each tile rather than the player to scroll the map
-	curTile = firstTile;
 	while(curTile) {
 		if(shiftLeft)
 			curTile->setX( curTile->getX() + (frameTime * mapNS::CAMERA_MOVE_SPEED));
@@ -207,15 +190,16 @@ void Map::update(Character &player, float frameTime)
 	}
 
 	// move each object on the map
-	for(std::list<Entity*>::iterator curObject = mapObjects.begin(); curObject != mapObjects.end(); curObject++) {
+	while(curChanger) {
 		if(shiftLeft)
-			(*curObject)->setX( (*curObject)->getX() + (frameTime * mapNS::CAMERA_MOVE_SPEED));
+			curChanger->setX( curChanger->getX() + (frameTime * mapNS::CAMERA_MOVE_SPEED));
 		if(shiftRight)
-			(*curObject)->setX( (*curObject)->getX() - (frameTime * mapNS::CAMERA_MOVE_SPEED));
+			curChanger->setX( curChanger->getX() - (frameTime * mapNS::CAMERA_MOVE_SPEED));
 		if(shiftUp)
-			(*curObject)->setY( (*curObject)->getY() + (frameTime * mapNS::CAMERA_MOVE_SPEED));
+			curChanger->setY( curChanger->getY() + (frameTime * mapNS::CAMERA_MOVE_SPEED));
 		if(shiftDown)
-			(*curObject)->setY( (*curObject)->getY() - (frameTime * mapNS::CAMERA_MOVE_SPEED));
+			curChanger->setY( curChanger->getY() - (frameTime * mapNS::CAMERA_MOVE_SPEED));
+		curChanger = curChanger->getNextChanger();
 	}
 
 	// push the player back by an equal amount that the camera moved. This keeps the player always on screen
@@ -230,10 +214,61 @@ void Map::update(Character &player, float frameTime)
 
 }
 
+void Map::collisions(Character& player, char* newMap)
+{
+	VECTOR2 collisionVector;
+	float tempX;
+	float tempY;
+	bool Xoffender = false;
+	bool Yoffender = false;
+	Tile* curTile;
+	ZoneChanger* curChanger;
+
+	curTile = firstTile; 
+	curChanger = firstChanger;
+	while(curTile) {
+		if(player.collidesWith(*curTile, collisionVector)) {
+		//	sprintf_s(debugLineBuf, "Collision!");
+			// save the destination location
+			tempX = player.getX();
+			tempY = player.getY();
+			// place the character back on the X axis
+			player.setX(player.getPrevX());
+			if(player.collidesWith(*curTile, collisionVector)) {
+				// if there is still collision after placing him back where he came from on the X axis, then Y axis is offending
+				Yoffender = true;
+			}
+			player.setX(tempX); // put him back to new position to check Y
+			player.setY(player.getPrevY()); // return him to previous Y to see if X is offending
+			if(player.collidesWith(*curTile, collisionVector)) {
+				// if there is still collision after placing him back where he came from on the Y axis, then X axis is offending
+				Xoffender = true;
+			}
+			player.setY(tempY); // put him in new position
+			if(Xoffender && !Yoffender) {
+				player.setX(player.getPrevX()); // allow Y movement since Y didn't cause collision
+			} else if(Yoffender && !Xoffender) {
+				player.setY(player.getPrevY()); // allow X movement since X didn't cause collision
+			} else if(Xoffender && Yoffender) {
+				player.setX(player.getPrevX());
+				player.setY(player.getPrevY()); // don't allow movement in either direction (corner)
+			}	
+		}
+		curTile = curTile->getNextTile();
+	}
+	while(curChanger) {
+		if(player.collidesWith(*curChanger, collisionVector)) {
+			strcpy(newMap, curChanger->getDestination());
+		}
+		curChanger = curChanger->getNextChanger();
+	}
+}
+
 void Map::reset()
 {
 	int row, col;
 	Tile* curTile = firstTile;
+	ZoneChanger* curChanger = firstChanger;
 	if(initialized) {
 		// reset tiles to starting location
 		while(curTile) {
@@ -246,9 +281,10 @@ void Map::reset()
 			}
 		}
 		// reset map objects to starting location
-		for(std::list<Entity*>::iterator curObject = mapObjects.begin(); curObject != mapObjects.end(); curObject++) {
-			(*curObject)->setX((*curObject)->getStartX() - startX + GAME_WIDTH/2);
-			(*curObject)->setY((*curObject)->getStartY() - startY + GAME_HEIGHT/2);
+		while(curChanger) {
+			curChanger->setX(curChanger->getStartX() - startX + GAME_WIDTH/2);
+			curChanger->setY(curChanger->getStartY() - startY + GAME_HEIGHT/2);
+			curChanger = curChanger->getNextChanger();
 		}
 	}
 }
@@ -263,6 +299,24 @@ void Map::setStartingPos(int tileX, int tileY)
 void Map::getXY(float & x , float & y , int tileX , int tileY ){
 	x = (float)tileX*mapNS::TILE_WIDTH;
 	y = (float)tileY*mapNS::TILE_HEIGHT;  
+}
+
+ZoneChanger* Map::addChanger()
+{
+	ZoneChanger* newChanger = new ZoneChanger;
+	ZoneChanger* curChanger = firstChanger;
+	ZoneChanger* prevChanger = NULL;
+	if(!firstChanger)
+		firstChanger = newChanger;
+	else {
+		while(curChanger) {
+			prevChanger = curChanger;
+			curChanger = curChanger->getNextChanger();
+		}
+		if(prevChanger)
+			prevChanger->setNextChanger(newChanger);
+	}
+	return newChanger;
 }
 
 
@@ -281,5 +335,33 @@ void Map::onResetDevice()
 	while(curTexture) {
 		curTexture->onResetDevice();
 		curTexture = curTexture->getNextTexture();
+	}
+}
+
+void Map::unload()
+{
+	Tile* curTile = firstTile;
+	TextureManager* curTexture = firstTexture;
+	ZoneChanger* curChanger = firstChanger;
+	Tile* nextTile;
+	TextureManager* nextTexture;
+	ZoneChanger* nextChanger;
+
+	onLostDevice();
+	// delete the full linked list of tiles and textures
+	while(curTile) {
+		nextTile = curTile->getNextTile();
+		SAFE_DELETE(curTile);
+		curTile = nextTile;
+	}
+	while(curTexture) {
+		nextTexture = curTexture->getNextTexture();
+		SAFE_DELETE(curTexture);
+		curTexture = nextTexture;
+	}
+	while(curChanger) {
+		nextChanger = curChanger->getNextChanger();
+		SAFE_DELETE(curChanger);
+		curChanger = nextChanger;
 	}
 }
