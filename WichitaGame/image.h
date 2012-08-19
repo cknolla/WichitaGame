@@ -64,12 +64,6 @@ class Image
 	// Return starting Y position.
 	virtual float getStartY()   {return spriteData.startY;}
 
-	// Return ending X position.
-	virtual float getEndX()   {return spriteData.endX;}
-
-	// Return starting Y position.
-	virtual float getEndY()   {return spriteData.endY;}
-
     // Return scale factor.
     virtual float getScale()    {return spriteData.scale;}
 
@@ -128,17 +122,8 @@ class Image
     // Set starting Y location.
     virtual void setStartY(float newY)   {spriteData.startY = newY;}
 
-	// Set ending X location.
-    virtual void setEndX(float newX)   {spriteData.endX = newX;}
-
-    // Set ending Y location.
-    virtual void setEndY(float newY)   {spriteData.endY = newY;}
-
 	// Set starting location using tile count
 	virtual void setStartingPos(int tileX, int tileY);
-
-	// Set ending location using tile count
-	virtual void setEndingPos(int tileX, int tileY);
 
     // Set scale.
     virtual void setScale(float s)  {spriteData.scale = s;}

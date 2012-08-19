@@ -313,14 +313,27 @@ void Map::update(Character &player, float frameTime)
 	}
 	while(curNPC) {
 		curNPC->update(frameTime);
-		if(shiftLeft)
+		if(shiftLeft) {
 			curNPC->setX( curNPC->getX() + (frameTime * mapNS::CAMERA_MOVE_SPEED));
-		if(shiftRight)
+			// mosey positions must be shifted as well to make sure the NPC doesn't "chase" the player
+			curNPC->setMoseyStartX( curNPC->getMoseyStartX() + (frameTime * mapNS::CAMERA_MOVE_SPEED));
+			curNPC->setMoseyEndX( curNPC->getMoseyEndX() + (frameTime * mapNS::CAMERA_MOVE_SPEED));
+		}
+		if(shiftRight) {
 			curNPC->setX( curNPC->getX() - (frameTime * mapNS::CAMERA_MOVE_SPEED));
-		if(shiftUp)
+			curNPC->setMoseyStartX( curNPC->getMoseyStartX() - (frameTime * mapNS::CAMERA_MOVE_SPEED));
+			curNPC->setMoseyEndX( curNPC->getMoseyEndX() - (frameTime * mapNS::CAMERA_MOVE_SPEED));
+		}
+		if(shiftUp) {
 			curNPC->setY( curNPC->getY() + (frameTime * mapNS::CAMERA_MOVE_SPEED));
-		if(shiftDown)
+			curNPC->setMoseyStartY( curNPC->getMoseyStartY() + (frameTime * mapNS::CAMERA_MOVE_SPEED));
+			curNPC->setMoseyEndY( curNPC->getMoseyEndY() + (frameTime * mapNS::CAMERA_MOVE_SPEED));
+		}
+		if(shiftDown) {
 			curNPC->setY( curNPC->getY() - (frameTime * mapNS::CAMERA_MOVE_SPEED));
+			curNPC->setMoseyStartY( curNPC->getMoseyStartY() - (frameTime * mapNS::CAMERA_MOVE_SPEED));
+			curNPC->setMoseyEndY( curNPC->getMoseyEndY() - (frameTime * mapNS::CAMERA_MOVE_SPEED));
+		}
 		curNPC = curNPC->getNextNPC();
 	}
 
@@ -411,12 +424,12 @@ void Map::reset()
 		}
 		while(curNPC) {
 			// offset NPC's movement on the map based on player's starting positon
-			curNPC->setStartX(curNPC->getStartX() - startX + GAME_WIDTH/2);
-			curNPC->setStartY(curNPC->getStartY() - startY + GAME_HEIGHT/2);
-			curNPC->setEndX(curNPC->getEndX() - startX + GAME_WIDTH/2);
-			curNPC->setEndY(curNPC->getEndY() - startY + GAME_HEIGHT/2);
-			curNPC->setX(curNPC->getStartX());
-			curNPC->setY(curNPC->getStartY());
+			curNPC->setMoseyStartX(curNPC->getStartX() - startX + GAME_WIDTH/2);
+			curNPC->setMoseyStartY(curNPC->getStartY() - startY + GAME_HEIGHT/2);
+			curNPC->setMoseyEndX(curNPC->getMoseyEndX() - startX + GAME_WIDTH/2);
+			curNPC->setMoseyEndY(curNPC->getMoseyEndY() - startY + GAME_HEIGHT/2);
+			curNPC->setX(curNPC->getStartX() - startX + GAME_WIDTH/2);
+			curNPC->setY(curNPC->getStartY() - startY + GAME_HEIGHT/2);
 			curNPC = curNPC->getNextNPC();
 		}
 	}
@@ -426,7 +439,6 @@ void Map::setStartingPos(int tileX, int tileY)
 {
 	startX = (float)tileX*TILE_WIDTH;
 	startY = (float)tileY*TILE_HEIGHT;    
-
 }
 
 void Map::getXY(float & x , float & y , int tileX , int tileY ){
