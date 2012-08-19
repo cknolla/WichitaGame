@@ -53,6 +53,9 @@ void WichitaGame::initialize(HWND hwnd)
 	if(!changerTexture.initialize(graphics, "pictures/Village01.png"))
 		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing changer texture"));
 
+	if(!blankTexture.initialize(graphics, "pictures/blank.png"))
+		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing blank texture"));
+
 
 	TextureManager changer2Texture;
 
@@ -94,7 +97,7 @@ void WichitaGame::initialize(HWND hwnd)
 	messageY = GAME_HEIGHT-100.0f;
 
 	// load the current map
-	loadMap(GRAVEYARD, 10.0*TILE_WIDTH, 10.0*TILE_HEIGHT);
+	loadMap(GRAVEYARD2, 10.0*TILE_WIDTH, 10.0*TILE_HEIGHT);
 
 	message = "DEBUG TEXT";
 	if(!currentMap)
@@ -320,10 +323,13 @@ bool WichitaGame::loadMap(MAP_LIST newMap, float startX, float startY)
 {
 	char errorStr[200];
 	sprintf_s(errorStr, "Error initializing map");
+
+	startY = startY - 2.0f; // character collides with things horizontal upon loading, so offset him a bit to avoid that
 	
 	// delete current map and its objects from memory if it exists
 	SAFE_DELETE(currentMap);
 	currentMap = new Map;
+	////////////// GRAVEYARD ////////////////////////////////////////////////////////////////////
 	// strcmp returns 0 if they match, so this statement is "if graveyard"
 	if(newMap == GRAVEYARD) {
 		if(!currentMap->initialize(this, GRAVEYARD_SET, GRAVEYARD_SET_SIZE, mapNS::GRAVEYARD_MAP_KEY))
@@ -352,17 +358,45 @@ bool WichitaGame::loadMap(MAP_LIST newMap, float startX, float startY)
 
 		}
 	} 
+	//////////////////// GRAVEYARD 2.0 ////////////////////////////////////////////////////////
+	else if(newMap == GRAVEYARD2) {
+		if(!currentMap->initialize(this, GRAVEYARD2_SET, GRAVEYARD2_SET_SIZE, mapNS::GRAVEYARD2_MAP_KEY))
+			throw(GameError(gameErrorNS::FATAL_ERROR, errorStr));
+		else { // initialize map objects
+			ZoneChanger* pitChanger = currentMap->addChanger();
+			ZoneChanger* bottomChanger = currentMap->addChanger();
+			NPC* redGuy = currentMap->addNPC();
+
+			if(!pitChanger->initialize(GRAVEYARD,this,0, 0, 0, &blankTexture))
+				throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing pitChanger"));
+
+			if(!bottomChanger->initialize(TEST_MAP2,this,0, 0, 0, &blankTexture))
+				throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing graveyard changer 2"));
+
+			if(!redGuy->initialize(this,34,34,2,&redCharTexture))
+				throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing redGuy"));
+
+			pitChanger->setStartingPos(8,2);
+			pitChanger->setDestinationStartingPos(10,10);
+			bottomChanger->setStartingPos(8,16); // bottom center of graveyard
+			bottomChanger->setDestinationStartingPos(6,6);
+			redGuy->setStartingPos(4,8);
+			redGuy->setMoseyEndingPos(12,8);
+			redGuy->setCurrentFrame(2);
+
+		}
+	} 
 	//////////////////// TESTMAP /////////////////////////////////////////////////////////////
 	else if(newMap == TEST_MAP) {
 		if(!currentMap->initialize(this, TEST_TILE_SET, TEST_SET_SIZE, mapNS::TEST_TILE_MAP_KEY))
 			throw(GameError(gameErrorNS::FATAL_ERROR, errorStr));
 		else {
 			ZoneChanger* graveyardChanger = currentMap->addChanger();
-			if(!graveyardChanger->initialize(GRAVEYARD,this,0, 0, 0, &changerTexture))
+			if(!graveyardChanger->initialize(GRAVEYARD2,this,0, 0, 0, &changerTexture))
 				throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing testMap changer"));
 
 			graveyardChanger->setStartingPos(18,10);
-			graveyardChanger->setDestinationStartingPos(8,2);
+			graveyardChanger->setDestinationStartingPos(8,3);
 		}
 	} 
 	//////////////////// TESTMAP2 /////////////////////////////////////////////////////////////
@@ -371,7 +405,7 @@ bool WichitaGame::loadMap(MAP_LIST newMap, float startX, float startY)
 			throw(GameError(gameErrorNS::FATAL_ERROR, errorStr));
 		else {
 			ZoneChanger* graveyardChanger = currentMap->addChanger();
-			if(!graveyardChanger->initialize(GRAVEYARD,this,0, 0, 0, &changerTexture))
+			if(!graveyardChanger->initialize(GRAVEYARD2,this,0, 0, 0, &changerTexture))
 				throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing testMap2 changer"));
 
 			graveyardChanger->setStartingPos(10,13);
@@ -405,6 +439,7 @@ void WichitaGame::releaseAll()
 	characterTexture.onLostDevice();
 	redCharTexture.onLostDevice();
 	changerTexture.onLostDevice();
+	blankTexture.onLostDevice();
     Game::releaseAll();
     return;
 }
@@ -422,6 +457,7 @@ void WichitaGame::resetAll()
 	characterTexture.onResetDevice();
 	redCharTexture.onResetDevice();
 	changerTexture.onResetDevice();
+	blankTexture.onResetDevice();
     Game::resetAll();
     return;
 }

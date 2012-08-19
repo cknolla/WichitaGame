@@ -44,6 +44,7 @@ private:
 	TextureManager characterTexture;
 	TextureManager redCharTexture;
 	TextureManager changerTexture;
+	TextureManager blankTexture;
 
 	Character player;
 

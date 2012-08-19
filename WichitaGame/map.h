@@ -23,6 +23,7 @@ namespace mapNS {
 	const char TEST_TILE_MAP_KEY[] = "maps/testMap01.txt";
 	const char TEST_TILE_MAP_KEY2[] = "maps/testMap02.txt";
 	const char GRAVEYARD_MAP_KEY[] = "maps/graveyard.map";
+	const char GRAVEYARD2_MAP_KEY[] = "maps/graveyard2.0.map";
 	
 	const RECT TILE_COLLISION_BOX = {-TILE_WIDTH/2, -TILE_HEIGHT/2, TILE_WIDTH/2, TILE_HEIGHT/2};
 }

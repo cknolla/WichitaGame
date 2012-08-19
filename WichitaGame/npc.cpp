@@ -4,6 +4,7 @@
 NPC::NPC()
 {
 	nextNPC = NULL;
+	frameDelay = 0.5f;
 }
 
 NPC::~NPC()
@@ -41,6 +42,8 @@ void NPC::calcVelocity()
 	yLength = moseyEndY-moseyStartY;
 	// if vector is negative, it's moving left
 	if(xLength < 0) {
+		setFrames(2,3);
+		flipHorizontal(true);
 		xSign = -1;
 		// if the NPC is further left than the endpoint, swap endpoint and startpoint
 		if(spriteData.x < moseyEndX) {
@@ -48,7 +51,9 @@ void NPC::calcVelocity()
 			moseyStartX = moseyEndX;
 			moseyEndX = tempX;
 		}
-	} else { // if movement is positive, check for x > endpoint, then swap
+	} else if(xLength > 0) { // if movement is positive, check for x > endpoint, then swap
+		setFrames(2,3);
+		flipHorizontal(false);
 		if(spriteData.x > moseyEndX) {
 			tempX = moseyStartX;
 			moseyStartX = moseyEndX;
@@ -58,13 +63,15 @@ void NPC::calcVelocity()
 	
 	if(yLength < 0) {
 		ySign = -1;
+		setFrames(4,5);
 		// if the NPC is higher than that the endpoint, swap endpoint and startpoint
 		if(spriteData.y < moseyEndY) {
 			tempY = moseyStartY;
 			moseyStartY = moseyEndY;
 			moseyEndY = tempY;
 		}
-	} else {
+	} else if(yLength > 0) {
+		setFrames(0,1);
 		if(spriteData.y > moseyEndY) {
 			tempY = moseyStartY;
 			moseyStartY = moseyEndY;

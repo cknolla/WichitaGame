@@ -50,7 +50,7 @@ const int MAP_HEIGHT = GAME_HEIGHT;
 const int TILE_WIDTH = 32;
 const int TILE_HEIGHT = 32;
 
-const enum MAP_LIST {GRAVEYARD, TEST_MAP, TEST_MAP2};
+const enum MAP_LIST {GRAVEYARD, GRAVEYARD2, TEST_MAP, TEST_MAP2};
 
 
 // audio files required by audio.cpp
