@@ -50,15 +50,17 @@ bool Map::initialize(Game* gamePtr, const char* tileSet[], int tileSetSize, cons
 	}
 
 	// file should be formatted as follows:
-	// StartingTile: playerStartX playerStartY
+	// Layers: #
 	// WidthHeight: width height
 	// row1
 	// row2
 	// row(height)
+	// (Layer2:)
+	// (width x height grid)
+	// (Layer3:)
+	// (width x height grid)
 	// Collidables: 
-	// row1
-	// row2
-	// row(height)
+	// width x height grid
 
 	// tile map texture
 	for(i = 0; i < tileSetSize; i++) {
@@ -129,8 +131,8 @@ bool Map::initialize(Game* gamePtr, const char* tileSet[], int tileSetSize, cons
 			// assign the approriate sprite for this tile using the key (always 0)
 			curTile->setCurrentFrame(0);
 			// place the tile where it belongs on screen - center the character
-			curTile->setX( (float)mapNS::TILE_WIDTH * col - startX + GAME_WIDTH/2);
-			curTile->setY( (float)mapNS::TILE_HEIGHT * row - startY + GAME_HEIGHT/2);
+			curTile->setX( (float)TILE_WIDTH * col - startX + GAME_WIDTH/2);
+			curTile->setY( (float)TILE_HEIGHT * row - startY + GAME_HEIGHT/2);
 
 			// give it full-box collision
 			curTile->setEdge(mapNS::TILE_COLLISION_BOX);
@@ -139,6 +141,7 @@ bool Map::initialize(Game* gamePtr, const char* tileSet[], int tileSetSize, cons
 		}
 //			debugFile << "\n";
 	}
+	// initialize layer 2
 	prevTile = NULL;
 	if(layers > 1)
 	{
@@ -167,8 +170,8 @@ bool Map::initialize(Game* gamePtr, const char* tileSet[], int tileSetSize, cons
 				// assign the approriate sprite for this tile using the key (always 0)
 				curTile->setCurrentFrame(0);
 				// place the tile where it belongs on screen - center the character
-				curTile->setX( (float)mapNS::TILE_WIDTH * col - startX + GAME_WIDTH/2);
-				curTile->setY( (float)mapNS::TILE_HEIGHT * row - startY + GAME_HEIGHT/2);
+				curTile->setX( (float)TILE_WIDTH * col - startX + GAME_WIDTH/2);
+				curTile->setY( (float)TILE_HEIGHT * row - startY + GAME_HEIGHT/2);
 
 				// give it full-box collision
 				curTile->setEdge(mapNS::TILE_COLLISION_BOX);
@@ -178,6 +181,7 @@ bool Map::initialize(Game* gamePtr, const char* tileSet[], int tileSetSize, cons
 	//			debugFile << "\n";
 		}
 	}
+	// initialize layer 3
 	prevTile = NULL;
 	if(layers > 2)
 	{
@@ -206,8 +210,8 @@ bool Map::initialize(Game* gamePtr, const char* tileSet[], int tileSetSize, cons
 				// assign the approriate sprite for this tile using the key (always 0)
 				curTile->setCurrentFrame(0);
 				// place the tile where it belongs on screen - center the character
-				curTile->setX( (float)mapNS::TILE_WIDTH * col - startX + GAME_WIDTH/2);
-				curTile->setY( (float)mapNS::TILE_HEIGHT * row - startY + GAME_HEIGHT/2);
+				curTile->setX( (float)TILE_WIDTH * col - startX + GAME_WIDTH/2);
+				curTile->setY( (float)TILE_HEIGHT * row - startY + GAME_HEIGHT/2);
 
 				// give it full-box collision
 				curTile->setEdge(mapNS::TILE_COLLISION_BOX);
@@ -308,6 +312,7 @@ void Map::update(Character &player, float frameTime)
 		curChanger = curChanger->getNextChanger();
 	}
 	while(curNPC) {
+		curNPC->update(frameTime);
 		if(shiftLeft)
 			curNPC->setX( curNPC->getX() + (frameTime * mapNS::CAMERA_MOVE_SPEED));
 		if(shiftRight)
@@ -391,8 +396,8 @@ void Map::reset()
 			while(curTile) {
 				for(row = 0; row < height; row++) { 
 					for(col = 0; col < width; col++) {
-						curTile->setX( (float)mapNS::TILE_WIDTH * col - startX + GAME_WIDTH/2);
-						curTile->setY( (float)mapNS::TILE_HEIGHT * row - startY + GAME_HEIGHT/2);
+						curTile->setX( (float)TILE_WIDTH * col - startX + GAME_WIDTH/2);
+						curTile->setY( (float)TILE_HEIGHT * row - startY + GAME_HEIGHT/2);
 						curTile = curTile->getNextTile();
 					}
 				}
@@ -405,8 +410,13 @@ void Map::reset()
 			curChanger = curChanger->getNextChanger();
 		}
 		while(curNPC) {
-			curNPC->setX(curNPC->getStartX() - startX + GAME_WIDTH/2);
-			curNPC->setY(curNPC->getStartY() - startY + GAME_HEIGHT/2);
+			// offset NPC's movement on the map based on player's starting positon
+			curNPC->setStartX(curNPC->getStartX() - startX + GAME_WIDTH/2);
+			curNPC->setStartY(curNPC->getStartY() - startY + GAME_HEIGHT/2);
+			curNPC->setEndX(curNPC->getEndX() - startX + GAME_WIDTH/2);
+			curNPC->setEndY(curNPC->getEndY() - startY + GAME_HEIGHT/2);
+			curNPC->setX(curNPC->getStartX());
+			curNPC->setY(curNPC->getStartY());
 			curNPC = curNPC->getNextNPC();
 		}
 	}
@@ -414,14 +424,14 @@ void Map::reset()
 
 void Map::setStartingPos(int tileX, int tileY)
 {
-	startX = (float)tileX*mapNS::TILE_WIDTH;
-	startY = (float)tileY*mapNS::TILE_HEIGHT;    
+	startX = (float)tileX*TILE_WIDTH;
+	startY = (float)tileY*TILE_HEIGHT;    
 
 }
 
 void Map::getXY(float & x , float & y , int tileX , int tileY ){
-	x = (float)tileX*mapNS::TILE_WIDTH;
-	y = (float)tileY*mapNS::TILE_HEIGHT;  
+	x = (float)tileX*TILE_WIDTH;
+	y = (float)tileY*TILE_HEIGHT;  
 }
 
 ZoneChanger* Map::addChanger()

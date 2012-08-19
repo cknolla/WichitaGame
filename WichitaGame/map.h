@@ -16,8 +16,6 @@
 #include "npc.h"
 
 namespace mapNS {
-	const int TILE_WIDTH = 32;
-	const int TILE_HEIGHT = 32;
 	const int MAX_LAYERS = 3;
 	const float CAMERA_TRIGGER = 10*TILE_WIDTH; // used to decide how far from the screen's edge before shifting the 'camera'
 	const float CAMERA_MOVE_SPEED = characterNS::MOVE_SPEED;

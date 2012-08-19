@@ -21,6 +21,8 @@ Image::Image()
     spriteData.y = 0.0;
 	spriteData.startX = 0.0;
     spriteData.startY = 0.0;
+	spriteData.endX = 0.0;
+    spriteData.endY = 0.0;
     spriteData.scale = 1.0;
     spriteData.angle = 0.0;
     spriteData.rect.left = 0;       // used to select one frame from multi-frame image
@@ -190,6 +192,13 @@ void Image::setStartingPos(int tileX, int tileY)
 {
 	spriteData.startX = (float)tileX*TILE_WIDTH;
 	spriteData.startY = (float)tileY*TILE_HEIGHT;    
+
+}
+
+void Image::setEndingPos(int tileX, int tileY)
+{
+	spriteData.endX = (float)tileX*TILE_WIDTH;
+	spriteData.endY = (float)tileY*TILE_HEIGHT;    
 
 }
 

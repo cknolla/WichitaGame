@@ -49,59 +49,17 @@ void WichitaGame::initialize(HWND hwnd)
 {
     Game::initialize(hwnd); // throws GameError
 
-	// initialize map which will initialize a texture and lots of images inside it
-//	if(!testMap.initialize(this, TEST_TILE_SET, mapNS::TEST_TILE_MAP_KEY))
-//		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing map"));
-
-//	if(!testMap2.initialize(this, TEST_TILE_SET, mapNS::TEST_TILE_MAP_KEY2))
-//		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing map"));
-
-	if(!changerTexture.initialize(graphics, "pictures/Village01.png"))
-			throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing changer texture"));
-/*
-	if(!graveyard.initialize(this, GRAVEYARD_SET, mapNS::GRAVEYARD_MAP_KEY))
-		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing map"));
-
-	// Must assign currentMap to a map here
-	currentMap = &graveyard;
-
+	// initialize textures (remember to add them to resetAll() and releaseAll())
 	if(!changerTexture.initialize(graphics, "pictures/Village01.png"))
 		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing changer texture"));
 
-	if(!graveyardChanger1.initialize(&testMap,this,0, 0, 0, &changerTexture))
-		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing changer 1"));
-
-	if(!graveyardChanger2.initialize(&testMap2,this,0, 0, 0, &changerTexture))
-		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing changer 2"));
-
-	if(!testMapChanger.initialize(&graveyard,this,0, 0, 0, &changerTexture))
-		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing testMap changer"));
-	if(!testMap2Changer.initialize(&graveyard,this,0, 0, 0, &changerTexture))
-		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing testMap2 changer"));
-
-	graveyardChanger1.setStartingPos(8,0); // top center of graveyard
-	graveyardChanger2.setStartingPos(8,16); // bottom center of graveyard
-*/	
 
 	TextureManager changer2Texture;
-//	ZoneChanger zoneChanger;
+
 
 	if(!changer2Texture.initialize(graphics, "pictures/bomb.png"))
 		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing changer texture"));
 	
-//	if(!zoneChanger.initialize(&testMap,this,0, 0, 0, &changer2Texture))
-//		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing changer"));
-
-//	zoneChanger.setX(400.0f);
-//	zoneChanger.setY(300.0f);
-
-	// add zone changers to current map's objects so that it moves along with it
-//	graveyard.addObject(graveyardChanger1);
-//	graveyard.addObject(graveyardChanger2);
-
-//	testMap.addObject(testMapChanger);
-
-//	testMap2.addObject(testMap2Changer);
 
 	// character texture
 	if (!characterTexture.initialize(graphics,TEST_CHAR_IMAGE))
@@ -110,9 +68,11 @@ void WichitaGame::initialize(HWND hwnd)
 	if (!redCharTexture.initialize(graphics,RED_TEST_CHAR_IMAGE))
         throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing red character texture"));
 
+	// initialize player character
 	if (!player.initialize(this,34,34,2,&characterTexture))
         throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing character"));
 
+	// set player starting conditions
 	player.setFrames(0,1);
 	player.setFrameDelay(0.1f);
 	player.setActive(true);
@@ -134,8 +94,7 @@ void WichitaGame::initialize(HWND hwnd)
 	messageY = GAME_HEIGHT-100.0f;
 
 	// load the current map
-//	changeMap(*currentMap);
-	loadMap(GRAVEYARD, 100.0, 200.0);
+	loadMap(GRAVEYARD, 10.0*TILE_WIDTH, 10.0*TILE_HEIGHT);
 
 	message = "DEBUG TEXT";
 	if(!currentMap)
@@ -265,6 +224,16 @@ void WichitaGame::render()
 		}
 		curTile = curTile->getNextTile();
 	}
+	
+	// draw map layer 2
+	curTile = currentMap->getLayer2FirstTile();
+		while(curTile) {
+		// only draw the tile if it's on screen
+		if(onScreen(curTile)) {
+				curTile->draw();
+		}
+		curTile = curTile->getNextTile();
+	}
 
 	while(curChanger) {
 		if(onScreen(curChanger))
@@ -278,16 +247,6 @@ void WichitaGame::render()
 	}
 
 	player.draw();
-	
-	// draw map layer 2
-	curTile = currentMap->getLayer2FirstTile();
-		while(curTile) {
-		// only draw the tile if it's on screen
-		if(onScreen(curTile)) {
-				curTile->draw();
-		}
-		curTile = curTile->getNextTile();
-	}
 
 	// draw map layer 3
 	curTile = currentMap->getLayer3FirstTile();
@@ -388,6 +347,7 @@ bool WichitaGame::loadMap(MAP_LIST newMap, float startX, float startY)
 			bottomChanger->setStartingPos(8,16); // bottom center of graveyard
 			bottomChanger->setDestinationStartingPos(6,6);
 			redGuy->setStartingPos(8,7);
+			redGuy->setEndingPos(9,9);
 			redGuy->setCurrentFrame(0);
 
 		}
@@ -443,6 +403,7 @@ void WichitaGame::releaseAll()
 	debugLine->onLostDevice();
 //    menuTexture.onLostDevice();
 	characterTexture.onLostDevice();
+	redCharTexture.onLostDevice();
 	changerTexture.onLostDevice();
     Game::releaseAll();
     return;
@@ -459,6 +420,7 @@ void WichitaGame::resetAll()
 	debugLine->onResetDevice();
 	currentMap->onResetDevice();
 	characterTexture.onResetDevice();
+	redCharTexture.onResetDevice();
 	changerTexture.onResetDevice();
     Game::resetAll();
     return;
