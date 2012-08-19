@@ -7,7 +7,7 @@
 
 namespace npcNS
 {
-	const float MOVE_SPEED = 80.0f;
+	const float MOVE_SPEED = 200.0f;
 };
 
 class NPC : public Entity

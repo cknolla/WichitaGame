@@ -112,7 +112,7 @@ void WichitaGame::update()
 {
 	static bool isBlue = true;
 
-	sprintf_s(debugLineBuf, "OMG Press C to change character color");
+	sprintf_s(debugLineBuf, "Debug Text");
 
 	// move right if left is not pressed or move right if left is not pressed
 	if(input->isKeyDown(MOVE_RIGHT_KEY) && !input->isKeyDown(MOVE_LEFT_KEY)) {
@@ -380,8 +380,8 @@ bool WichitaGame::loadMap(MAP_LIST newMap, float startX, float startY)
 			pitChanger->setDestinationStartingPos(10,10);
 			bottomChanger->setStartingPos(8,16); // bottom center of graveyard
 			bottomChanger->setDestinationStartingPos(6,6);
-			redGuy->setStartingPos(4,8);
-			redGuy->setMoseyEndingPos(12,8);
+			redGuy->setStartingPos(1,6);
+			redGuy->setMoseyEndingPos(1,0);
 			redGuy->setCurrentFrame(2);
 
 		}

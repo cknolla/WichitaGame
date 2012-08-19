@@ -36,15 +36,14 @@ void NPC::setMoseyEndingPos(int tileX, int tileY)
 void NPC::calcVelocity()
 {
 	float angle, xLength, yLength, tempX, tempY;
-	int xSign = 1;
-	int ySign = 1;
+	static int xSign = 1;
+	static int ySign = 1;
 	xLength = moseyEndX-moseyStartX;
 	yLength = moseyEndY-moseyStartY;
 	// if vector is negative, it's moving left
 	if(xLength < 0) {
 		setFrames(2,3);
 		flipHorizontal(true);
-		xSign = -1;
 		// if the NPC is further left than the endpoint, swap endpoint and startpoint
 		if(spriteData.x < moseyEndX) {
 			tempX = moseyStartX;
@@ -61,14 +60,15 @@ void NPC::calcVelocity()
 		}
 	}
 	
+	// if vector is negative, he's moving up
 	if(yLength < 0) {
-		ySign = -1;
 		setFrames(4,5);
 		// if the NPC is higher than that the endpoint, swap endpoint and startpoint
 		if(spriteData.y < moseyEndY) {
 			tempY = moseyStartY;
 			moseyStartY = moseyEndY;
 			moseyEndY = tempY;
+			setCurrentFrame(0);
 		}
 	} else if(yLength > 0) {
 		setFrames(0,1);
@@ -76,8 +76,18 @@ void NPC::calcVelocity()
 			tempY = moseyStartY;
 			moseyStartY = moseyEndY;
 			moseyEndY = tempY;
+			setCurrentFrame(4);
+
 		}
 	}
-	angle = atan(yLength/xLength);
+	if(xLength == 0.0) {
+		if(yLength < 0)
+			angle = -(float)PI/2; // prevent divide by 0 when xLength is 0. atan(inf) = -PI/2
+		if(yLength > 0)
+			angle = (float)PI/2;
+	} else if(xLength < 0)
+		angle = atan(yLength/xLength)+((float)PI); // rotate by 180 degrees
+	else
+		angle = atan(yLength/xLength);
 	setVelocity(VECTOR2(npcNS::MOVE_SPEED*cos(angle)*xSign, npcNS::MOVE_SPEED*sin(angle)*ySign));
 }
