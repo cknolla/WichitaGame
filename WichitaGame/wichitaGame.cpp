@@ -380,8 +380,8 @@ bool WichitaGame::loadMap(MAP_LIST newMap, float startX, float startY)
 			pitChanger->setDestinationStartingPos(10,10);
 			bottomChanger->setStartingPos(8,16); // bottom center of graveyard
 			bottomChanger->setDestinationStartingPos(6,6);
-			redGuy->setStartingPos(1,6);
-			redGuy->setMoseyEndingPos(1,0);
+			redGuy->setStartingPos(4,8);
+			redGuy->setMoseyEndingPos(12,8);
 			redGuy->setCurrentFrame(2);
 
 		}

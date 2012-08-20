@@ -7,7 +7,7 @@
 
 namespace npcNS
 {
-	const float MOVE_SPEED = 200.0f;
+	const float MOVE_SPEED = 80.0f;
 };
 
 class NPC : public Entity
@@ -17,6 +17,10 @@ private:
 	// start and stopping positions for mosey
 	float moseyStartX, moseyStartY;
 	float moseyEndX, moseyEndY;
+	// time between pauses
+	float pauseInterval;
+	// how long he stands still
+	float pauseTime;
 
 public:
 	NPC();
@@ -30,7 +34,7 @@ public:
 	float getMoseyStartY() { return moseyStartY; }
 	void setMoseyStartX(float x) { moseyStartX = x; }
 	void setMoseyStartY(float y) { moseyStartY = y; }
-	// convert starting tile to true coordinates. set mosey start and sprite start position
+	// This gets set in Map::reset() - normally it's not needed, but it's available
 	void setMoseyStartingPos(int tileX, int tileY);
 
 	float getMoseyEndX() { return moseyEndX; }
@@ -39,11 +43,19 @@ public:
 	void setMoseyEndY(float y) { moseyEndY = y; }
 	void setMoseyEndingPos(int tileX, int tileY);
 
+	// time between pauses
+	float getPauseInterval() { return pauseInterval; }
+	void setPauseInterval(float pi) { pauseInterval = pi; }
+
+	// amount of time he stands still
+	float getPauseTime() { return pauseTime; }
+	void setPauseTime(float pt) { pauseTime = pt; }
+
 	// linked list functions
 	NPC* getNextNPC() { return nextNPC; }
 	void setNextNPC(NPC* nnpc) { nextNPC = nnpc; }
 
-	void calcVelocity();
+	void calcVelocity(float frameTime);
 
 };
 

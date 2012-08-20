@@ -36,6 +36,8 @@ private:
 	TextureManager* firstTexture;
 	ZoneChanger* firstChanger;
 	NPC* firstNPC;
+	Image* background;
+	Image* foreground;
 	// adding a new object list? It must be accounted for in these places:
 	// map's update()
 	// game's collisions()
@@ -101,6 +103,12 @@ public:
 
 	// Set first tile in the linked list
 	void setLayer3FirstTile(Tile* nt) { layer3firstTile = nt; }
+
+	// create image and use passed texture
+	void setBackground(Graphics* g, TextureManager texture);
+
+	// create image and use passed texture
+	void setForeground(Graphics* g, TextureManager texture);
 
 	// Return first ZoneChanger in linked list
 	ZoneChanger* getFirstChanger() { return firstChanger; }

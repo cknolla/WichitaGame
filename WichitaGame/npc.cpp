@@ -4,7 +4,12 @@
 NPC::NPC()
 {
 	nextNPC = NULL;
+	// half second between animation frames
 	frameDelay = 0.5f;
+	// 5 seconds before pausing
+	pauseInterval = 5.0f;
+	// 2 second pause
+	pauseTime = 2.0f;
 }
 
 NPC::~NPC()
@@ -12,11 +17,18 @@ NPC::~NPC()
 
 void NPC::update(float frameTime)
 {
-	calcVelocity();
+	calcVelocity(frameTime);
 	spriteData.x += velocity.x * frameTime;
 	spriteData.y += velocity.y * frameTime;
 	// update Image to animate
-	Entity::update(frameTime);
+	if(velocity.x == 0.0 && velocity.y == 0.0) {
+		// don't animate if not moving
+		setLoop(false);
+	} else {
+		// animate
+		setLoop(true);
+		Entity::update(frameTime);
+	}
 }
 
 void NPC::setMoseyStartingPos(int tileX, int tileY)
@@ -33,8 +45,22 @@ void NPC::setMoseyEndingPos(int tileX, int tileY)
 	moseyEndY = (float)tileY*TILE_HEIGHT;    
 }
 
-void NPC::calcVelocity()
+void NPC::calcVelocity(float frameTime)
 {
+	static float timeTillPause = pauseInterval;
+	static float timeTillMosey = pauseTime;
+	if(timeTillPause > 0.0)
+		timeTillPause -= frameTime;
+	else if(timeTillMosey > 0.0) {
+		// NPC should be paused
+		setVelocity(VECTOR2(0.0,0.0));
+		timeTillMosey -= frameTime;
+		return;
+	}
+	else {
+		timeTillPause = pauseInterval;
+		timeTillMosey = pauseTime;
+	}
 	float angle, xLength, yLength, tempX, tempY;
 	static int xSign = 1;
 	static int ySign = 1;

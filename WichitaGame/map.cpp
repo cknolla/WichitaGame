@@ -12,6 +12,8 @@ Map::Map()
 	firstTexture = NULL;
 	firstChanger = NULL;
 	firstNPC = NULL;
+	background = NULL;
+	foreground = NULL;
 }
 
 Map::~Map()
@@ -446,6 +448,28 @@ void Map::getXY(float & x , float & y , int tileX , int tileY ){
 	y = (float)tileY*TILE_HEIGHT;  
 }
 
+void Map::setBackground(Graphics* g, TextureManager texture)
+{
+	// delete current background if it exists
+	SAFE_DELETE(background);
+	background = new Image;
+	if(!background->initialize(g, 0, 0, 0, &texture))
+		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing map background"));
+	background->setX(0.0);
+	background->setY(0.0);
+}
+
+void Map::setForeground(Graphics* g, TextureManager texture)
+{
+	// delete current foreground if it exists
+	SAFE_DELETE(foreground);
+	foreground = new Image;
+	if(!foreground->initialize(g, 0, 0, 0, &texture))
+		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing map foreground"));
+	foreground->setX(0.0);
+	foreground->setY(0.0);
+}
+
 ZoneChanger* Map::addChanger()
 {
 	ZoneChanger* newChanger = new ZoneChanger;
@@ -482,7 +506,6 @@ NPC* Map::addNPC()
 	return newNPC;
 }
 
-
 void Map::onLostDevice()
 {
 	TextureManager* curTexture = firstTexture;
@@ -513,6 +536,8 @@ void Map::unload()
 	NPC* nextNPC;
 
 	onLostDevice();
+	SAFE_DELETE(background);
+	SAFE_DELETE(foreground);
 	// delete the full linked list of tiles and textures
 	while(curTile) {
 		nextTile = curTile->getNextTile();
