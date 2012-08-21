@@ -46,6 +46,7 @@ private:
 	TextureManager redCharTexture;
 	TextureManager changerTexture;
 	TextureManager blankTexture;
+	TextureManager chestTexture;
 
 	Character player;
 
@@ -91,6 +92,9 @@ public:
 	void changeMap(Map &newMap);
 	// unload previous map from memory, load a new one, and place character at startX, startY
 	bool loadMap(MAP_LIST newMap, float startX = 0.0, float startY = 0.0);
+
+	// object 1 is usually player. If player hits collidable object 2, resist his movement
+	void solidObjectCollision(Entity &object1, Entity &object2);
 };
 
 #endif

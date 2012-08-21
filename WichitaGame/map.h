@@ -14,6 +14,7 @@
 #include "zoneChanger.h"
 #include "character.h"
 #include "npc.h"
+#include "chest.h"
 
 namespace mapNS {
 	const int MAX_LAYERS = 3;
@@ -33,19 +34,20 @@ private:
 	Tile* firstTile;
 	Tile* layer2firstTile;
 	Tile* layer3firstTile;
-	TextureManager* firstTexture;
-	ZoneChanger* firstChanger;
-	NPC* firstNPC;
-	Image* background;
-	Image* foreground;
 	// adding a new object list? It must be accounted for in these places:
 	// map's update()
 	// game's collisions()
-	// set/get functions in map
+	// get/add functions in map.h and map.cpp
 	// map's unload()
 	// map's reset()
 	// game's render()
 	// set the new 'first' pointer to NULL in map's constructor
+	TextureManager* firstTexture;
+	ZoneChanger* firstChanger;
+	NPC* firstNPC;
+	Chest* firstChest;
+	Image* background;
+	Image* foreground;
 	bool initialized;
 	int width;
 	int height;
@@ -60,7 +62,8 @@ public:
 	// scroll map when necessary
 	void update(Character& player, float frameTime);
 	// process collisions with player
-	void collisions(Character& player);
+	// replaced by WichitaGame::solidObjectCollision()
+//	void collisions(Character& player);
 
 	// get map width in tiles
 	int getWidth() { return width; }
@@ -117,7 +120,15 @@ public:
 	ZoneChanger* addChanger();
 
 	NPC* getFirstNPC() { return firstNPC; }
+
+	// add an NPC to the linked list
 	NPC* addNPC();
+
+	// Return first Chest in linked list
+	Chest* getFirstChest() { return firstChest; }
+
+	// add a ZoneChest to the Chest list
+	Chest* addChest();
 
 	// reset tiles to their starting location
 	void reset();

@@ -7,9 +7,18 @@
 class Chest : public Entity
 {
 private:
+	Chest* nextChest;
 public:
 	Chest();
 	~Chest();
+
+	bool initialize(Game* gamePtr, int width, int height, int ncols, TextureManager* textureM);
+
+	// next item in linked list
+	Chest* getNextChest() { return nextChest; }
+
+	// set next chest in list
+	void setNextChest(Chest* c) { nextChest = c; }
 };
 
 #endif

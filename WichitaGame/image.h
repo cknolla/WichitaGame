@@ -58,6 +58,21 @@ class Image
     // Return Y position.
     virtual float getY()        {return spriteData.y;}
 
+	// Get sprite's X location in the previous frame
+	float getPrevX() { return spriteData.prevX; }
+
+	// Set new 'previous X location'
+	void setPrevX(float newPrevX) { spriteData.prevX = newPrevX; }
+
+	// Get sprite's X location in the previous frame
+	float getPrevY() { return spriteData.prevY; }
+
+	// Set new 'previous Y location'
+	void setPrevY(float newPrevY) { spriteData.prevY = newPrevY; }
+
+	// Set new previous X and Y location
+	void setPrevLoc(float newPrevX, float newPrevY) { spriteData.prevX = newPrevX; spriteData.prevY = newPrevY; }
+
 	// Return starting X position.
 	virtual float getStartX()   {return spriteData.startX;}
 

@@ -16,8 +16,6 @@ class Character : public Entity
 {
 private:
 	char name[25];
-	float prevX;
-	float prevY;
 
 public:
 	Character();
@@ -32,12 +30,6 @@ public:
 	void moveDown(float frameTime);
 	void stopX();
 	void stopY();
-
-	float getPrevX() { return prevX; }
-	void setPrevX(float newPrevX) { prevX = newPrevX; }
-	float getPrevY() { return prevY; }
-	void setPrevY(float newPrevY) { prevY = newPrevY; }
-	void setPrevLoc(float newPrevX, float newPrevY) { prevX = newPrevX; prevY = newPrevY; }
 
 };
 

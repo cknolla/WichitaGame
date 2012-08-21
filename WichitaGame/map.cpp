@@ -12,6 +12,7 @@ Map::Map()
 	firstTexture = NULL;
 	firstChanger = NULL;
 	firstNPC = NULL;
+	firstChest = NULL;
 	background = NULL;
 	foreground = NULL;
 }
@@ -267,6 +268,7 @@ void Map::update(Character &player, float frameTime)
 	Tile* curTile = firstTile;
 	ZoneChanger* curChanger = firstChanger;
 	NPC* curNPC = firstNPC;
+	Chest* curChest = firstChest;
 
 	if(playerCenterX + player.getEdge().left < mapNS::CAMERA_TRIGGER) {
 		// if the player's collision box passes the 'trigger' point, scroll the map rather than the player
@@ -338,6 +340,17 @@ void Map::update(Character &player, float frameTime)
 		}
 		curNPC = curNPC->getNextNPC();
 	}
+	while(curChest) {
+		if(shiftLeft)
+			curChest->setX( curChest->getX() + (frameTime * mapNS::CAMERA_MOVE_SPEED));
+		if(shiftRight)
+			curChest->setX( curChest->getX() - (frameTime * mapNS::CAMERA_MOVE_SPEED));
+		if(shiftUp)
+			curChest->setY( curChest->getY() + (frameTime * mapNS::CAMERA_MOVE_SPEED));
+		if(shiftDown)
+			curChest->setY( curChest->getY() - (frameTime * mapNS::CAMERA_MOVE_SPEED));
+		curChest = curChest->getNextChest();
+	}
 
 	// push the player back by an equal amount that the camera moved. This keeps the player always on screen
 	if(shiftLeft)
@@ -350,6 +363,8 @@ void Map::update(Character &player, float frameTime)
 		player.setY( player.getY() - (frameTime * mapNS::CAMERA_MOVE_SPEED));
 
 }
+
+/* replaced by WichitaGame::solidObjectCollision()
 
 void Map::collisions(Character& player)
 {
@@ -392,6 +407,7 @@ void Map::collisions(Character& player)
 	}
 }
 
+*/
 void Map::reset()
 {
 	int row, col;
@@ -399,6 +415,7 @@ void Map::reset()
 	Tile* curTile = firstTile;
 	ZoneChanger* curChanger = firstChanger;
 	NPC* curNPC = firstNPC;
+	Chest* curChest = firstChest;
 	if(initialized) {
 		// reset tiles to starting location
 		for(layer = 1; layer <= mapNS::MAX_LAYERS; layer++) {
@@ -433,6 +450,11 @@ void Map::reset()
 			curNPC->setX(curNPC->getStartX() - startX + GAME_WIDTH/2);
 			curNPC->setY(curNPC->getStartY() - startY + GAME_HEIGHT/2);
 			curNPC = curNPC->getNextNPC();
+		}
+		while(curChest) {
+			curChest->setX(curChest->getStartX() - startX + GAME_WIDTH/2);
+			curChest->setY(curChest->getStartY() - startY + GAME_HEIGHT/2);
+			curChest = curChest->getNextChest();
 		}
 	}
 }
@@ -506,6 +528,24 @@ NPC* Map::addNPC()
 	return newNPC;
 }
 
+Chest* Map::addChest()
+{
+	Chest* newChest = new Chest;
+	Chest* curChest = firstChest;
+	Chest* prevChest = NULL;
+	if(!firstChest)
+		firstChest = newChest;
+	else {
+		while(curChest) {
+			prevChest = curChest;
+			curChest = curChest->getNextChest();
+		}
+		if(prevChest)
+			prevChest->setNextChest(newChest);
+	}
+	return newChest;
+}
+
 void Map::onLostDevice()
 {
 	TextureManager* curTexture = firstTexture;
@@ -534,6 +574,8 @@ void Map::unload()
 	ZoneChanger* nextChanger;
 	NPC* curNPC = firstNPC;
 	NPC* nextNPC;
+	Chest* curChest = firstChest;
+	Chest* nextChest;
 
 	onLostDevice();
 	SAFE_DELETE(background);
@@ -570,5 +612,10 @@ void Map::unload()
 		nextNPC = curNPC->getNextNPC();
 		SAFE_DELETE(curNPC);
 		curNPC = nextNPC;
+	}
+	while(curChest) {
+		nextChest = curChest->getNextChest();
+		SAFE_DELETE(curChest);
+		curChest = nextChest;
 	}
 }

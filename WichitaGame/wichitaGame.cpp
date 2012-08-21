@@ -56,6 +56,9 @@ void WichitaGame::initialize(HWND hwnd)
 	if(!blankTexture.initialize(graphics, "pictures/blank.png"))
 		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing blank texture"));
 
+	if(!chestTexture.initialize(graphics, "pictures/chest00.png"))
+		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing chest texture"));
+
 
 	TextureManager changer2Texture;
 
@@ -190,11 +193,17 @@ void WichitaGame::ai()
 void WichitaGame::collisions()
 {
 	VECTOR2 collisionVector;
+	Tile* curTile = currentMap->getFirstTile();
 	ZoneChanger* curChanger = currentMap->getFirstChanger();
+	Chest* curChest = currentMap->getFirstChest();
 
 	if(!noclip) {
 		// check tile collision only - no objects
-		currentMap->collisions(player);
+		while(curTile) {
+			solidObjectCollision(player, *curTile);
+			curTile = curTile->getNextTile();
+		}
+		//currentMap->collisions(player);
 		// check collision with map  objects
 		while(curChanger) {
 			if(player.collidesWith((*curChanger), collisionVector)) {
@@ -203,6 +212,10 @@ void WichitaGame::collisions()
 				break; // after the new map is loaded, this zonechanger list doesn't exist anymore. Break to avoid access violations
 			}
 			curChanger = curChanger->getNextChanger();
+		}
+		while(curChest) {
+			solidObjectCollision(player, *curChest);
+			curChest = curChest->getNextChest();
 		}
 	}
 }
@@ -215,6 +228,7 @@ void WichitaGame::render()
 	Tile* curTile = currentMap->getFirstTile();
 	ZoneChanger* curChanger = currentMap->getFirstChanger();
 	NPC* curNPC = currentMap->getFirstNPC();
+	Chest* curChest = currentMap->getFirstChest();
     graphics->spriteBegin();                // begin drawing sprites
 
 	// Draw from bottom to top
@@ -247,6 +261,11 @@ void WichitaGame::render()
 		if(onScreen(curNPC))
 			curNPC->draw();
 		curNPC = curNPC->getNextNPC();
+	}
+	while(curChest) {
+		if(onScreen(curChest))
+			curChest->draw();
+		curChest = curChest->getNextChest();
 	}
 
 	player.draw();
@@ -366,6 +385,7 @@ bool WichitaGame::loadMap(MAP_LIST newMap, float startX, float startY)
 			ZoneChanger* pitChanger = currentMap->addChanger();
 			ZoneChanger* bottomChanger = currentMap->addChanger();
 			NPC* redGuy = currentMap->addNPC();
+			Chest* treasure = currentMap->addChest();
 
 			if(!pitChanger->initialize(GRAVEYARD,this,0, 0, 0, &blankTexture))
 				throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing pitChanger"));
@@ -376,6 +396,9 @@ bool WichitaGame::loadMap(MAP_LIST newMap, float startX, float startY)
 			if(!redGuy->initialize(this,34,34,2,&redCharTexture))
 				throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing redGuy"));
 
+			if(!treasure->initialize(this, 32, 32, 2, &chestTexture))
+				throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing treasure"));
+
 			pitChanger->setStartingPos(8,2);
 			pitChanger->setDestinationStartingPos(10,10);
 			bottomChanger->setStartingPos(8,16); // bottom center of graveyard
@@ -383,6 +406,8 @@ bool WichitaGame::loadMap(MAP_LIST newMap, float startX, float startY)
 			redGuy->setStartingPos(4,8);
 			redGuy->setMoseyEndingPos(12,8);
 			redGuy->setCurrentFrame(2);
+			treasure->setStartingPos(4,3);
+		//	treasure->setDegrees(270.0);
 
 		}
 	} 
@@ -544,4 +569,40 @@ bool WichitaGame::destroyItemSpawn(){
 
 bool WichitaGame::itemSpawnExists(){
 	return !spawnList.empty();
+}
+
+void WichitaGame::solidObjectCollision(Entity &object1, Entity &object2)
+{
+	VECTOR2 collisionVector;
+	float tempX;
+	float tempY;
+	bool Xoffender = false;
+	bool Yoffender = false;
+
+	if(object1.collidesWith(object2, collisionVector)) {
+		// save the destination location
+		tempX = object1.getX();
+		tempY = object1.getY();
+		// place the character back on the X axis
+		object1.setX(object1.getPrevX());
+		if(object1.collidesWith(object2, collisionVector)) {
+			// if there is still collision after placing him back where he came from on the X axis, then Y axis is offending
+			Yoffender = true;
+		}
+		object1.setX(tempX); // put him back to new position to check Y
+		object1.setY(object1.getPrevY()); // return him to previous Y to see if X is offending
+		if(object1.collidesWith(object2, collisionVector)) {
+			// if there is still collision after placing him back where he came from on the Y axis, then X axis is offending
+			Xoffender = true;
+		}
+		object1.setY(tempY); // put him in new position
+		if(Xoffender && !Yoffender) {
+			object1.setX(object1.getPrevX()); // allow Y movement since Y didn't cause collision
+		} else if(Yoffender && !Xoffender) {
+			object1.setY(object1.getPrevY()); // allow X movement since X didn't cause collision
+		} else if(Xoffender && Yoffender) {
+			object1.setX(object1.getPrevX());
+			object1.setY(object1.getPrevY()); // don't allow movement in either direction (corner)
+		}	
+	}
 }
