@@ -19,6 +19,7 @@
 #include "tilesets.h"
 #include "zoneChanger.h"
 #include "npc.h"
+#include "chest.h"
 #include <list>
 #include <iterator>
 
