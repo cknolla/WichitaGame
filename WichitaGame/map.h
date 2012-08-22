@@ -15,6 +15,7 @@
 #include "character.h"
 #include "npc.h"
 #include "chest.h"
+#include "door.h"
 
 namespace mapNS {
 	const int MAX_LAYERS = 3;
@@ -35,17 +36,18 @@ private:
 	Tile* layer2firstTile;
 	Tile* layer3firstTile;
 	// adding a new object list? It must be accounted for in these places:
+	// set the new 'first' pointer to NULL in map's constructor
 	// map's update()
 	// game's collisions()
 	// get/add functions in map.h and map.cpp
 	// map's unload()
 	// map's reset()
 	// game's render()
-	// set the new 'first' pointer to NULL in map's constructor
 	TextureManager* firstTexture;
 	ZoneChanger* firstChanger;
 	NPC* firstNPC;
 	Chest* firstChest;
+	Door* firstDoor;
 	Image* background;
 	Image* foreground;
 	bool initialized;
@@ -129,6 +131,12 @@ public:
 
 	// add a ZoneChest to the Chest list
 	Chest* addChest();
+
+	// Return first Door in linked list
+	Door* getFirstDoor() { return firstDoor; }
+
+	// add a ZoneDoor to the Door list
+	Door* addDoor();
 
 	// reset tiles to their starting location
 	void reset();

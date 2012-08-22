@@ -13,6 +13,7 @@ Map::Map()
 	firstChanger = NULL;
 	firstNPC = NULL;
 	firstChest = NULL;
+	firstDoor = NULL;
 	background = NULL;
 	foreground = NULL;
 }
@@ -269,6 +270,7 @@ void Map::update(Character &player, float frameTime)
 	ZoneChanger* curChanger = firstChanger;
 	NPC* curNPC = firstNPC;
 	Chest* curChest = firstChest;
+	Door* curDoor = firstDoor;
 
 	if(playerCenterX + player.getEdge().left < mapNS::CAMERA_TRIGGER) {
 		// if the player's collision box passes the 'trigger' point, scroll the map rather than the player
@@ -351,6 +353,17 @@ void Map::update(Character &player, float frameTime)
 			curChest->setY( curChest->getY() - (frameTime * mapNS::CAMERA_MOVE_SPEED));
 		curChest = curChest->getNextChest();
 	}
+	while(curDoor) {
+		if(shiftLeft)
+			curDoor->setX( curDoor->getX() + (frameTime * mapNS::CAMERA_MOVE_SPEED));
+		if(shiftRight)
+			curDoor->setX( curDoor->getX() - (frameTime * mapNS::CAMERA_MOVE_SPEED));
+		if(shiftUp)
+			curDoor->setY( curDoor->getY() + (frameTime * mapNS::CAMERA_MOVE_SPEED));
+		if(shiftDown)
+			curDoor->setY( curDoor->getY() - (frameTime * mapNS::CAMERA_MOVE_SPEED));
+		curDoor = curDoor->getNextDoor();
+	}
 
 	// push the player back by an equal amount that the camera moved. This keeps the player always on screen
 	if(shiftLeft)
@@ -416,6 +429,8 @@ void Map::reset()
 	ZoneChanger* curChanger = firstChanger;
 	NPC* curNPC = firstNPC;
 	Chest* curChest = firstChest;
+	Door* curDoor = firstDoor;
+
 	if(initialized) {
 		// reset tiles to starting location
 		for(layer = 1; layer <= mapNS::MAX_LAYERS; layer++) {
@@ -455,6 +470,11 @@ void Map::reset()
 			curChest->setX(curChest->getStartX() - startX + GAME_WIDTH/2);
 			curChest->setY(curChest->getStartY() - startY + GAME_HEIGHT/2);
 			curChest = curChest->getNextChest();
+		}
+		while(curDoor) {
+			curDoor->setX(curDoor->getStartX() - startX + GAME_WIDTH/2);
+			curDoor->setY(curDoor->getStartY() - startY + GAME_HEIGHT/2);
+			curDoor = curDoor->getNextDoor();
 		}
 	}
 }
@@ -546,6 +566,24 @@ Chest* Map::addChest()
 	return newChest;
 }
 
+Door* Map::addDoor()
+{
+	Door* newDoor = new Door;
+	Door* curDoor = firstDoor;
+	Door* prevDoor = NULL;
+	if(!firstDoor)
+		firstDoor = newDoor;
+	else {
+		while(curDoor) {
+			prevDoor = curDoor;
+			curDoor = curDoor->getNextDoor();
+		}
+		if(prevDoor)
+			prevDoor->setNextDoor(newDoor);
+	}
+	return newDoor;
+}
+
 void Map::onLostDevice()
 {
 	TextureManager* curTexture = firstTexture;
@@ -576,6 +614,8 @@ void Map::unload()
 	NPC* nextNPC;
 	Chest* curChest = firstChest;
 	Chest* nextChest;
+	Door* curDoor = firstDoor;
+	Door* nextDoor;
 
 	onLostDevice();
 	SAFE_DELETE(background);
@@ -617,5 +657,10 @@ void Map::unload()
 		nextChest = curChest->getNextChest();
 		SAFE_DELETE(curChest);
 		curChest = nextChest;
+	}
+	while(curDoor) {
+		nextDoor = curDoor->getNextDoor();
+		SAFE_DELETE(curDoor);
+		curDoor = nextDoor;
 	}
 }

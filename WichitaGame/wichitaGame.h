@@ -47,6 +47,7 @@ private:
 	TextureManager changerTexture;
 	TextureManager blankTexture;
 	TextureManager chestTexture;
+	TextureManager doorTexture;
 
 	Character player;
 

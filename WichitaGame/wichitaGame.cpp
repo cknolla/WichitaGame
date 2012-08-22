@@ -196,6 +196,7 @@ void WichitaGame::collisions()
 	Tile* curTile = currentMap->getFirstTile();
 	ZoneChanger* curChanger = currentMap->getFirstChanger();
 	Chest* curChest = currentMap->getFirstChest();
+	Door* curDoor = currentMap->getFirstDoor();
 
 	if(!noclip) {
 		// check tile collision only - no objects
@@ -216,6 +217,14 @@ void WichitaGame::collisions()
 		while(curChest) {
 			solidObjectCollision(player, *curChest);
 			curChest = curChest->getNextChest();
+		}
+		while(curDoor) {
+			if(player.collidesWith((*curDoor), collisionVector)) {
+				curDoor->setCurrentFrame(1);
+			} else {
+				curDoor->setCurrentFrame(0);
+			}
+			curDoor = curDoor->getNextDoor();
 		}
 	}
 }
@@ -386,6 +395,7 @@ bool WichitaGame::loadMap(MAP_LIST newMap, float startX, float startY)
 			ZoneChanger* bottomChanger = currentMap->addChanger();
 			NPC* redGuy = currentMap->addNPC();
 			Chest* treasure = currentMap->addChest();
+			Door* door = currentMap->addDoor();
 
 			if(!pitChanger->initialize(GRAVEYARD,this,0, 0, 0, &blankTexture))
 				throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing pitChanger"));
@@ -399,15 +409,24 @@ bool WichitaGame::loadMap(MAP_LIST newMap, float startX, float startY)
 			if(!treasure->initialize(this, 32, 32, 2, &chestTexture))
 				throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing treasure"));
 
+			if(!door->initialize(this,32,32,2, &doorTexture))
+				throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing door"));
+
 			pitChanger->setStartingPos(8,2);
 			pitChanger->setDestinationStartingPos(10,10);
+
 			bottomChanger->setStartingPos(8,16); // bottom center of graveyard
 			bottomChanger->setDestinationStartingPos(6,6);
+
 			redGuy->setStartingPos(4,8);
 			redGuy->setMoseyEndingPos(12,8);
 			redGuy->setCurrentFrame(2);
+
 			treasure->setStartingPos(4,3);
 		//	treasure->setDegrees(270.0);
+
+			door->setStartingPos(5,6);
+		
 
 		}
 	} 
