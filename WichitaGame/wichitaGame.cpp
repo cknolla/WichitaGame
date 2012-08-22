@@ -209,14 +209,6 @@ void WichitaGame::collisions()
 		}
 		//currentMap->collisions(player);
 		// check collision with map  objects
-		while(curChanger) {
-			if(player.collidesWith((*curChanger), collisionVector)) {
-				// loadMap destroys the currentMap, so be cautious of the fact that anything referenced from currentMap won't exist when you get back from it
-				loadMap(curChanger->getDestination(), curChanger->getDestinationStartX(), curChanger->getDestinationStartY());
-				break; // after the new map is loaded, this zonechanger list doesn't exist anymore. Break to avoid access violations
-			}
-			curChanger = curChanger->getNextChanger();
-		}
 		while(curChest) {
 			solidObjectCollision(player, *curChest);
 			curChest = curChest->getNextChest();
@@ -229,6 +221,16 @@ void WichitaGame::collisions()
 			}
 			curDoor = curDoor->getNextDoor();
 		}
+		// check for changers LAST because if a new map is loaded, other objects are destroyed
+		while(curChanger) {
+			if(player.collidesWith((*curChanger), collisionVector)) {
+				// loadMap destroys the currentMap, so be cautious of the fact that anything referenced from currentMap won't exist when you get back from it
+				loadMap(curChanger->getDestination(), curChanger->getDestinationStartX(), curChanger->getDestinationStartY());
+				break; // after the new map is loaded, this zonechanger list doesn't exist anymore. Break to avoid access violations
+			}
+			curChanger = curChanger->getNextChanger();
+		}
+		
 	}
 }
 
