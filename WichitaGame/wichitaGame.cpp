@@ -59,6 +59,9 @@ void WichitaGame::initialize(HWND hwnd)
 	if(!chestTexture.initialize(graphics, "pictures/chest00.png"))
 		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing chest texture"));
 
+	if(!doorTexture.initialize(graphics, "pictures/door.png"))
+		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing door texture"));
+
 
 	TextureManager changer2Texture;
 
@@ -238,6 +241,9 @@ void WichitaGame::render()
 	ZoneChanger* curChanger = currentMap->getFirstChanger();
 	NPC* curNPC = currentMap->getFirstNPC();
 	Chest* curChest = currentMap->getFirstChest();
+	Door* curDoor = currentMap->getFirstDoor();
+
+
     graphics->spriteBegin();                // begin drawing sprites
 
 	// Draw from bottom to top
@@ -275,6 +281,11 @@ void WichitaGame::render()
 		if(onScreen(curChest))
 			curChest->draw();
 		curChest = curChest->getNextChest();
+	}
+	while(curDoor) {
+		if(onScreen(curDoor))
+			curDoor->draw();
+		curDoor = curDoor->getNextDoor();
 	}
 
 	player.draw();
@@ -425,7 +436,7 @@ bool WichitaGame::loadMap(MAP_LIST newMap, float startX, float startY)
 			treasure->setStartingPos(4,3);
 		//	treasure->setDegrees(270.0);
 
-			door->setStartingPos(5,6);
+			door->setStartingPos(4,6);
 		
 
 		}

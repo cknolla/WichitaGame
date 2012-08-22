@@ -20,6 +20,7 @@
 #include "zoneChanger.h"
 #include "npc.h"
 #include "chest.h"
+#include "door.h"
 #include <list>
 #include <iterator>
 
