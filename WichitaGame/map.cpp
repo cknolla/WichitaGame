@@ -40,6 +40,10 @@ bool Map::initialize(Game* gamePtr, const char* tileSet[], int tileSetSize, cons
 	TextureManager* useTexture = NULL;
 	Tile* curTile = NULL;
 	Tile* prevTile = NULL;
+
+	if(tileNum.initialize(gamePtr->getGraphics(), 12, true, false, "Arial") == false)
+        throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing tileNum"));
+
 //	try {
 	// check if key file opened
 	if(!key.is_open()) {

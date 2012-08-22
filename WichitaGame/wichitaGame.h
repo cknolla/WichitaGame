@@ -66,6 +66,7 @@ private:
 	char debugLineBuf[1000];
 	std::ofstream debugFile;
 	bool noclip;
+	bool tileNumbers;
 
 public:
     // Constructor

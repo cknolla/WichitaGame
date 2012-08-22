@@ -23,6 +23,7 @@ WichitaGame::WichitaGame()
 		throw(GameError(gameErrorNS::FATAL_ERROR, "Error opening debug file"));
 	currentMap = NULL;
 	noclip = false;
+	tileNumbers = true;
 	//itemSpawn = NULL;
 	
 	spawnCount = 0;
@@ -245,6 +246,10 @@ void WichitaGame::render()
 	Chest* curChest = currentMap->getFirstChest();
 	Door* curDoor = currentMap->getFirstDoor();
 
+	TextDX* tileNum = NULL;
+	char numBuffer[20];
+	int row, col;
+
 
     graphics->spriteBegin();                // begin drawing sprites
 
@@ -253,9 +258,8 @@ void WichitaGame::render()
 	// draw bottom map layer
 	while(curTile) {
 		// only draw the tile if it's on screen
-		if(onScreen(curTile)) {
+		if(onScreen(curTile))
 				curTile->draw();
-		}
 		curTile = curTile->getNextTile();
 	}
 	
@@ -310,6 +314,23 @@ void WichitaGame::render()
 
 	}
 
+	// print x,y position on tiles if debug option is enabled
+	if(tileNumbers) {
+		curTile = currentMap->getFirstTile();
+		for(row = 0; row < currentMap->getHeight(); row++) {
+			for(col = 0; col < currentMap->getWidth(); col++) {
+				if(curTile) {
+					// only draw the tile if it's on screen
+					if(onScreen(curTile)) {
+							sprintf_s(numBuffer, "%d,%d", row, col);
+							currentMap->getTileNum()->print(numBuffer, (int)curTile->getX(), (int)curTile->getY());
+					}
+					curTile = curTile->getNextTile();
+				}
+			}
+		}
+	}
+
     dxFont->setFontColor(graphicsNS::WHITE);
 	debugLine->setFontColor(graphicsNS::WHITE);
  //   dxFont->print(message,20,(int)messageY);
@@ -334,6 +355,7 @@ void WichitaGame::consoleCommand()
         console->print("Console Commands:");
         console->print("fps - toggle display of frames per second");
 		console->print("noclip - toggle clipping");
+		console->print("tileNumbers - toggle display of x,y tile position");
         return;
     }
 
@@ -353,6 +375,15 @@ void WichitaGame::consoleCommand()
 			console->print("Noclip on");
 		else
 			console->print("Noclip off");
+	}
+
+	if(command == "tileNumbers")
+	{
+		tileNumbers = !tileNumbers;               // toggle display of x,y tile position
+		if(tileNumbers)
+			console->print("Tile numbers on");
+		else
+			console->print("Tile numbers off");
 	}
 }
 

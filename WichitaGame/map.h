@@ -35,6 +35,7 @@ private:
 	Tile* firstTile;
 	Tile* layer2firstTile;
 	Tile* layer3firstTile;
+	TextDX tileNum;
 	// adding a new object list? It must be accounted for in these places:
 	// set the new 'first' pointer to NULL in map's constructor
 	// map's update()
@@ -108,6 +109,9 @@ public:
 
 	// Set first tile in the linked list
 	void setLayer3FirstTile(Tile* nt) { layer3firstTile = nt; }
+
+	// Get pointer to tileNum TextDX
+	TextDX* getTileNum() { return &tileNum; };
 
 	// create image and use passed texture
 	void setBackground(Graphics* g, TextureManager texture);
