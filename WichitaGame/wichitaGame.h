@@ -21,6 +21,7 @@
 #include "npc.h"
 #include "chest.h"
 #include "door.h"
+#include "bgfg.h"
 #include <list>
 #include <iterator>
 
@@ -62,6 +63,7 @@ private:
 	TextureManager blankTexture;
 	TextureManager chestTexture;
 	TextureManager doorTexture;
+	TextureManager foregroundTexture;
 
 	Character player;
 
@@ -112,6 +114,9 @@ public:
 
 	// check if object's position makes it visible on screen
 	inline bool onScreen(Image* object);
+
+	// fill screen with image (used for foreground/background). Image must be at least size of screen
+	void fillScreen(Image* image);
 
 	// Replace Game's consoleCommand to create custom commands
 	void consoleCommand();

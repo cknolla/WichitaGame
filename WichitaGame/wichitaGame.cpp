@@ -65,6 +65,9 @@ void WichitaGame::initialize(HWND hwnd)
 	if(!doorTexture.initialize(graphics, "pictures/door.png"))
 		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing door texture"));
 
+	if(!foregroundTexture.initialize(graphics, "pictures/graveyard2.0/fogforeground.png"))
+		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing door texture"));
+
 
 	TextureManager changer2Texture;
 
@@ -247,6 +250,8 @@ void WichitaGame::render()
 	NPC* curNPC = currentMap->getFirstNPC();
 	Chest* curChest = currentMap->getFirstChest();
 	Door* curDoor = currentMap->getFirstDoor();
+	Bgfg* bgImage = currentMap->getBackground();
+	Bgfg* fgImage = currentMap->getForeground();
 
 	Text* tileNum = NULL;
 	char numBuffer[20];
@@ -254,8 +259,14 @@ void WichitaGame::render()
 
 
     graphics->spriteBegin();                // begin drawing sprites
-
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  Can't draw sprites outside this area ////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Draw from bottom to top
+
+	if(bgImage) {
+		fillScreen(bgImage);
+	}
 
 	// draw bottom map layer
 	while(curTile) {
@@ -317,6 +328,10 @@ void WichitaGame::render()
 
 	}
 
+	if(fgImage) {
+		fillScreen(fgImage);
+	}
+
 	// print x,y position on tiles if debug option is enabled
 	if(tileNumbers) {
 		curTile = currentMap->getFirstTile();
@@ -340,6 +355,7 @@ void WichitaGame::render()
 	dxFont->print(messageBuffer, 20,(int)messageY);
 	debugLine->print(debugLineBuf, 20, (int)messageY+20);
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     graphics->spriteEnd();                  // end drawing sprites
 	
 	// draw collision boxes if enabled through console
@@ -526,6 +542,9 @@ bool WichitaGame::loadMap(MAP_LIST newMap, float startX, float startY)
 			if(!redGuy->initialize(this,34,34,2,&redCharTexture))
 				throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing redGuy"));
 
+			currentMap->setForeground(graphics, &foregroundTexture);
+			currentMap->getForeground()->setAutoVscroll(-100.0);
+
 			topChanger->setStartingPos(8,0); // top center of graveyard
 			topChanger->setDestinationStartingPos(3,5);
 			bottomChanger->setStartingPos(8,16); // bottom center of graveyard
@@ -562,6 +581,9 @@ bool WichitaGame::loadMap(MAP_LIST newMap, float startX, float startY)
 			if(!door->initialize(this,32,32,2, &doorTexture))
 				throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing door"));
 
+			currentMap->setBackground(graphics, &foregroundTexture);
+			currentMap->getBackground()->setParallax(0.5);
+
 			pitChanger->setStartingPos(8,2);
 			pitChanger->setDestinationStartingPos(10,10);
 
@@ -589,6 +611,10 @@ bool WichitaGame::loadMap(MAP_LIST newMap, float startX, float startY)
 			if(!graveyardChanger->initialize(GRAVEYARD2,this,0, 0, 0, &changerTexture))
 				throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing testMap changer"));
 
+			currentMap->setForeground(graphics, &foregroundTexture);
+			currentMap->getForeground()->setAutoHscroll(70.0);
+			currentMap->getForeground()->setAutoVscroll(70.0);
+
 			graveyardChanger->setStartingPos(18,10);
 			graveyardChanger->setDestinationStartingPos(8,3);
 		}
@@ -601,6 +627,9 @@ bool WichitaGame::loadMap(MAP_LIST newMap, float startX, float startY)
 			ZoneChanger* graveyardChanger = currentMap->addChanger();
 			if(!graveyardChanger->initialize(GRAVEYARD2,this,0, 0, 0, &changerTexture))
 				throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing testMap2 changer"));
+
+			currentMap->setForeground(graphics, &foregroundTexture);
+			currentMap->getForeground()->setAutoHscroll(150.0);
 
 			graveyardChanger->setStartingPos(10,13);
 			graveyardChanger->setDestinationStartingPos(8,13);
@@ -816,4 +845,96 @@ void WichitaGame::drawCollisionBox(Entity* object, COLOR_ARGB color)
 	graphics->createVertexBuffer(vtx, sizeof vtx, vertexBuffer);
 
 	graphics->drawQuad(vertexBuffer);       // draw collision box
+}
+
+void WichitaGame::fillScreen(Image* image)
+{
+	// save current location
+	float prevX = image->getX();
+	float prevY = image->getY();
+	bool r0c0 = false, r0c1 = false, r0c2 = false, r1c0 = false, r1c1 = true, r1c2 = false, r2c0 = false, r2c1 = false, r2c2 = false;
+	// r1c1 is always drawn. Up to 3 others can be drawn depending on position
+	// r0c0 r0c1 r0c2
+	// r1c0 r1c1 r1c2
+	// r2c0 r2c1 r2c2
+
+	// if the image is offscreen to the right, shift it a full width left
+	if(image->getX() > GAME_WIDTH)
+		image->setX(image->getX() - image->getWidth());
+	// if offscreen to the left, shift it right
+	if(image->getX() + image->getWidth() < 0)
+		image->setX(image->getX() + image->getWidth());
+	// if offscreen below, shift up
+	if(image->getY() > GAME_HEIGHT)
+		image->setY(image->getY() - image->getHeight());
+	// if offscreen above, shift down
+	if(image->getY() + image->getHeight() < 0)
+		image->setY(image->getY() + image->getHeight());
+	// now we know it's onscreen, so we'll draw it a max of 4 times to ensure the full screen is covered
+	image->draw(); // draw it at its current location
+	if(image->getX() > 0) // if left edge is showing
+		r1c0 = true;
+	if(image->getX() + image->getWidth() < GAME_WIDTH) // if right edge is showing
+		r1c2 = true;
+	if(image->getY() > 0) // if top edge is showing
+		r0c1 = true;
+	if(image->getY() + image->getHeight() < GAME_HEIGHT) // if bottom edge showing
+		r2c1 = true;
+	if(image->getX() > 0 && image->getY() > 0) // top left corner showing
+		r0c0 = true;
+	if(image->getY() > 0 && image->getX() + image->getWidth() < GAME_WIDTH) // top right corner
+		r0c2 = true;
+	if(image->getX() > 0 && image->getY() + image->getHeight() < GAME_HEIGHT) // bottom left corner
+		r2c0 = true;
+	if(image->getX() + image->getWidth() < GAME_WIDTH && image->getY() + image->getHeight() < GAME_HEIGHT) // bottom right corner
+		r2c2 = true;
+
+	if(r1c0) {
+		image->setX(image->getX() - image->getWidth());
+		image->draw();
+		image->setX(prevX);
+	}
+	if(r0c1) {
+		image->setY(image->getY() - image->getHeight());
+		image->draw();
+		image->setY(prevY);
+	}
+	if(r1c2) {
+		image->setX(image->getX() + image->getWidth());
+		image->draw();
+		image->setX(prevX);
+	}
+	if(r2c1) {
+		image->setY(image->getY() + image->getHeight());
+		image->draw();
+		image->setY(prevY);
+	}
+	if(r0c0) {
+		image->setX(image->getX() - image->getWidth());
+		image->setY(image->getY() - image->getHeight());
+		image->draw();
+		image->setX(prevX);
+		image->setY(prevY);
+	}
+	if(r0c2) {
+		image->setX(image->getX() + image->getWidth());
+		image->setY(image->getY() - image->getHeight());
+		image->draw();
+		image->setX(prevX);
+		image->setY(prevY);
+	}
+	if(r2c0) {
+		image->setX(image->getX() - image->getWidth());
+		image->setY(image->getY() + image->getHeight());
+		image->draw();
+		image->setX(prevX);
+		image->setY(prevY);
+	}
+	if(r2c2) {
+		image->setX(image->getX() + image->getWidth());
+		image->setY(image->getY() + image->getHeight());
+		image->draw();
+		image->setX(prevX);
+		image->setY(prevY);
+	}
 }

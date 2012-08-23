@@ -16,6 +16,7 @@
 #include "npc.h"
 #include "chest.h"
 #include "door.h"
+#include "bgfg.h"
 
 namespace mapNS {
 	const int MAX_LAYERS = 3;
@@ -50,8 +51,8 @@ private:
 	NPC* firstNPC;
 	Chest* firstChest;
 	Door* firstDoor;
-	Image* background;
-	Image* foreground;
+	Bgfg* background;
+	Bgfg* foreground;
 	bool initialized;
 	int width;
 	int height;
@@ -114,11 +115,17 @@ public:
 	// Get pointer to tileNum TextDX
 	Text* getTileNum() { return &tileNum; };
 
-	// create image and use passed texture
-	void setBackground(Graphics* g, TextureManager texture);
+	// get background image
+	Bgfg* getBackground() { return background; }
 
 	// create image and use passed texture
-	void setForeground(Graphics* g, TextureManager texture);
+	void setBackground(Graphics* g, TextureManager* texture);
+
+	// get foreground image
+	Bgfg* getForeground() { return foreground; }
+
+	// create image and use passed texture
+	void setForeground(Graphics* g, TextureManager* texture);
 
 	// Return first ZoneChanger in linked list
 	ZoneChanger* getFirstChanger() { return firstChanger; }

@@ -291,6 +291,76 @@ void Map::update(Character &player, float frameTime)
 		shiftDown = 1;
 	}
 
+	if(background) {
+		// autoscroll horizontally if not 0
+		if(background->getAutoHscroll())
+			background->setX( background->getX() + (frameTime * background->getAutoHscroll()));
+		else { // otherwise, move like a normal object
+			if(shiftLeft)                                                                        
+				background->setX( background->getX() + (frameTime * mapNS::CAMERA_MOVE_SPEED));
+			if(shiftRight)
+				background->setX( background->getX() - (frameTime * mapNS::CAMERA_MOVE_SPEED));
+		}
+
+		// autoscroll vertically if not 0
+		if(background->getAutoVscroll())
+			background->setY( background->getY() + (frameTime * background->getAutoVscroll()));
+		else { // otherwise, move like a normal object
+			if(shiftUp)                                                                        
+				background->setY( background->getY() + (frameTime * mapNS::CAMERA_MOVE_SPEED));
+			if(shiftDown)
+				background->setY( background->getY() - (frameTime * mapNS::CAMERA_MOVE_SPEED));
+		}
+
+		// parallax
+		if(background->getParallax()) {
+			if(shiftLeft)                                                                        
+				background->setX( background->getX() + (frameTime * mapNS::CAMERA_MOVE_SPEED * background->getParallax()));
+			if(shiftRight)
+				background->setX( background->getX() - (frameTime * mapNS::CAMERA_MOVE_SPEED * background->getParallax()));
+			if(shiftUp)
+				background->setY( background->getY() + (frameTime * mapNS::CAMERA_MOVE_SPEED * background->getParallax()));
+			if(shiftDown)
+				background->setY( background->getY() - (frameTime * mapNS::CAMERA_MOVE_SPEED * background->getParallax()));
+		}
+		
+	}
+
+	if(foreground) {
+		// autoscroll horizontally if not 0
+		if(foreground->getAutoHscroll())
+			foreground->setX( foreground->getX() + (frameTime * foreground->getAutoHscroll()));
+		else { // otherwise, move like a normal object
+			if(shiftLeft)                                                                        
+				foreground->setX( foreground->getX() + (frameTime * mapNS::CAMERA_MOVE_SPEED));
+			if(shiftRight)
+				foreground->setX( foreground->getX() - (frameTime * mapNS::CAMERA_MOVE_SPEED));
+		}
+
+		// autoscroll vertically if not 0
+		if(foreground->getAutoVscroll())
+			foreground->setY( foreground->getY() + (frameTime * foreground->getAutoVscroll()));
+		else { // otherwise, move like a normal object
+			if(shiftUp)                                                                        
+				foreground->setY( foreground->getY() + (frameTime * mapNS::CAMERA_MOVE_SPEED));
+			if(shiftDown)
+				foreground->setY( foreground->getY() - (frameTime * mapNS::CAMERA_MOVE_SPEED));
+		}
+
+		// parallax
+		if(foreground->getParallax()) {
+			if(shiftLeft)                                                                        // multiply to parallax faster
+				foreground->setX( foreground->getX() + (frameTime * mapNS::CAMERA_MOVE_SPEED * foreground->getParallax()));
+			if(shiftRight)
+				foreground->setX( foreground->getX() - (frameTime * mapNS::CAMERA_MOVE_SPEED * foreground->getParallax()));
+			if(shiftUp)
+				foreground->setY( foreground->getY() + (frameTime * mapNS::CAMERA_MOVE_SPEED * foreground->getParallax()));
+			if(shiftDown)
+				foreground->setY( foreground->getY() - (frameTime * mapNS::CAMERA_MOVE_SPEED * foreground->getParallax()));
+		}
+		
+	}
+
 	// move each tile rather than the player to scroll the map
 	for(layer = 1; layer <= mapNS::MAX_LAYERS; layer++) {
 		if(layer == 1)
@@ -497,23 +567,23 @@ void Map::getXY(float & x , float & y , int tileX , int tileY ){
 	y = (float)tileY*TILE_HEIGHT;  
 }
 
-void Map::setBackground(Graphics* g, TextureManager texture)
+void Map::setBackground(Graphics* g, TextureManager* texture)
 {
 	// delete current background if it exists
 	SAFE_DELETE(background);
-	background = new Image;
-	if(!background->initialize(g, 0, 0, 0, &texture))
+	background = new Bgfg;
+	if(!background->initialize(g, 0, 0, 0, texture))
 		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing map background"));
 	background->setX(0.0);
 	background->setY(0.0);
 }
 
-void Map::setForeground(Graphics* g, TextureManager texture)
+void Map::setForeground(Graphics* g, TextureManager* texture)
 {
 	// delete current foreground if it exists
 	SAFE_DELETE(foreground);
-	foreground = new Image;
-	if(!foreground->initialize(g, 0, 0, 0, &texture))
+	foreground = new Bgfg;
+	if(!foreground->initialize(g, 0, 0, 0, texture))
 		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing map foreground"));
 	foreground->setX(0.0);
 	foreground->setY(0.0);
