@@ -20,8 +20,8 @@ bool Door::initialize(Game* gamePtr, int width, int height, int ncols, TextureMa
 	// collision box is the same size as its image
 	edge.left = -spriteData.width/2;
 	edge.right = spriteData.width/2;
-	edge.top = -spriteData.height/2;
-	edge.bottom = spriteData.height/2;
+	edge.top = -spriteData.height;
+	edge.bottom = spriteData.height;
 	
 	return result;
 }

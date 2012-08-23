@@ -23,8 +23,11 @@ WichitaGame::WichitaGame()
 		throw(GameError(gameErrorNS::FATAL_ERROR, "Error opening debug file"));
 	currentMap = NULL;
 	noclip = false;
-	tileNumbers = true;
+	tileNumbers = false;
+	collisionBoxes = true;
 	//itemSpawn = NULL;
+	vertexBuffer = NULL;
+	collisionBoxColor = graphicsNS::RED & graphicsNS::ALPHA50;
 	
 	spawnCount = 0;
 }
@@ -274,8 +277,9 @@ void WichitaGame::render()
 	}
 
 	while(curChanger) {
-		if(onScreen(curChanger))
+		if(onScreen(curChanger)) {
 			curChanger->draw();
+		}
 		curChanger = curChanger->getNextChanger();
 	}
 	while(curNPC) {
@@ -338,6 +342,40 @@ void WichitaGame::render()
 	debugLine->print(debugLineBuf, 20, (int)messageY+20);
 
     graphics->spriteEnd();                  // end drawing sprites
+
+	if(collisionBoxes) {
+		curTile = currentMap->getFirstTile();
+		curChanger = currentMap->getFirstChanger();
+		curNPC = currentMap->getFirstNPC();
+		curChest = currentMap->getFirstChest();
+		curDoor = currentMap->getFirstDoor();
+//		while(curTile) {
+//			if(onScreen(curTile))
+//				drawCollisionBox(curTile);
+//			curTile = curTile->getNextTile();
+//		}
+		drawCollisionBox(&player);
+		while(curChanger) {
+			if(onScreen(curChanger))
+				drawCollisionBox(curChanger);
+			curChanger = curChanger->getNextChanger();
+		}
+		while(curNPC) {
+			if(onScreen(curNPC))
+				drawCollisionBox(curNPC);
+			curNPC = curNPC->getNextNPC();
+		}
+		while(curChest) {
+			if(onScreen(curChest))
+				drawCollisionBox(curChest);
+			curChest = curChest->getNextChest();
+		}
+		while(curDoor) {
+			if(onScreen(curDoor))
+				drawCollisionBox(curDoor);
+			curDoor = curDoor->getNextDoor();
+		}
+	}
 }
 
 //=============================================================================
@@ -354,8 +392,9 @@ void WichitaGame::consoleCommand()
     {
         console->print("Console Commands:");
         console->print("fps - toggle display of frames per second");
-		console->print("nc - toggle clipping");
-		console->print("tn - toggle display of x,y tile position");
+		console->print("noclip (nc) - toggle clipping");
+		console->print("tileNumbers (tn) - toggle display of x,y tile position");
+		console->print("collisionBoxes (cb) - toggle display of collision box");
         return;
     }
 
@@ -368,7 +407,7 @@ void WichitaGame::consoleCommand()
             console->print("fps Off");
     }
 
-	if(command == "nc")
+	if(command == "nc" || command == "noclip")
 	{
 		noclip = !noclip;               // toggle clipping
 		if(noclip)
@@ -377,13 +416,22 @@ void WichitaGame::consoleCommand()
 			console->print("Noclip off");
 	}
 
-	if(command == "tn")
+	if(command == "tn" || command == "tileNumbers")
 	{
 		tileNumbers = !tileNumbers;               // toggle display of x,y tile position
 		if(tileNumbers)
 			console->print("Tile numbers on");
 		else
 			console->print("Tile numbers off");
+	}
+
+	if(command == "cb" || command == "collisionBoxes")
+	{
+		collisionBoxes = !collisionBoxes;               // toggle display of collision boxes
+		if(collisionBoxes)
+			console->print("Collision boxes on");
+		else
+			console->print("Collision boxes off");
 	}
 }
 
@@ -668,4 +716,46 @@ void WichitaGame::solidObjectCollision(Entity &object1, Entity &object2)
 			object1.setY(object1.getPrevY()); // don't allow movement in either direction (corner)
 		}	
 	}
+}
+
+void WichitaGame::drawCollisionBox(Entity* object)
+{
+	// an inactive entity never collides
+	if(!object->getActive())
+		return;
+
+	// release buffer in order to create the next one
+	SAFE_RELEASE(vertexBuffer);
+	// top left
+    vtx[0].x = object->getX()+(object->getWidth()/2)+(float)object->getEdge().left;
+    vtx[0].y = object->getY()+(object->getHeight()/2)+(float)object->getEdge().top;
+    vtx[0].z = 0.0f;
+    vtx[0].rhw = 1.0f;
+    vtx[0].color = collisionBoxColor;
+
+    // top right
+    vtx[1].x = object->getX()+(object->getWidth()/2)+(float)object->getEdge().right;
+    vtx[1].y = object->getY()+(object->getHeight()/2)+(float)object->getEdge().top;
+    vtx[1].z = 0.0f;
+    vtx[1].rhw = 1.0f;
+    vtx[1].color = collisionBoxColor;
+
+    // bottom right
+    vtx[2].x = object->getX()+(object->getWidth()/2)+(float)object->getEdge().right;
+    vtx[2].y = object->getY()+(object->getHeight()/2)+(float)object->getEdge().bottom;
+    vtx[2].z = 0.0f;
+    vtx[2].rhw = 1.0f;
+    vtx[2].color = collisionBoxColor;
+
+    // bottom left
+    vtx[3].x = object->getX()+(object->getWidth()/2)+(float)object->getEdge().left;
+    vtx[3].y = object->getY()+(object->getHeight()/2)+(float)object->getEdge().bottom;
+    vtx[3].z = 0.0f;
+    vtx[3].rhw = 1.0f;
+    vtx[3].color = collisionBoxColor;
+
+//	if(!vertexBuffer)
+	graphics->createVertexBuffer(vtx, sizeof vtx, vertexBuffer);
+
+	graphics->drawQuad(vertexBuffer);       // draw collision box
 }

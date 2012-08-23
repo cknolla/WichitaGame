@@ -67,6 +67,10 @@ private:
 	std::ofstream debugFile;
 	bool noclip;
 	bool tileNumbers;
+	bool collisionBoxes;
+	COLOR_ARGB collisionBoxColor;
+	VertexC vtx[4];                     // vertex data for collision boxes
+    LP_VERTEXBUFFER vertexBuffer;       // buffer to hold collision box vertices
 
 public:
     // Constructor
@@ -89,12 +93,16 @@ public:
 	// check if object's position makes it visible on screen
 	inline bool onScreen(Image* object);
 
+	// Replace Game's consoleCommand to create custom commands
 	void consoleCommand();
 
 	// switch to new map, draw character
 	void changeMap(Map &newMap);
 	// unload previous map from memory, load a new one, and place character at startX, startY
 	bool loadMap(MAP_LIST newMap, float startX = 0.0, float startY = 0.0);
+
+	// draw a semi-transparent box representing the collision area for an entity
+	void drawCollisionBox(Entity* object);
 
 	// object 1 is usually player. If player hits collidable object 2, resist his movement
 	void solidObjectCollision(Entity &object1, Entity &object2);
