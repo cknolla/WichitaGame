@@ -41,8 +41,11 @@ bool Map::initialize(Game* gamePtr, const char* tileSet[], int tileSetSize, cons
 	Tile* curTile = NULL;
 	Tile* prevTile = NULL;
 
-	if(tileNum.initialize(gamePtr->getGraphics(), 12, true, false, "Arial") == false)
+	//if(!tileNum.initialize(gamePtr->getGraphics(), 12, true, false, "Arial") == false)
+	if(!tileNum.initialize(gamePtr->getGraphics(), "pictures/CKfont.png"))
         throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing tileNum"));
+	tileNum.setFontHeight(9);
+//	tileNum.setBold(true);
 
 //	try {
 	// check if key file opened

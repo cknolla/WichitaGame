@@ -246,7 +246,7 @@ void WichitaGame::render()
 	Chest* curChest = currentMap->getFirstChest();
 	Door* curDoor = currentMap->getFirstDoor();
 
-	TextDX* tileNum = NULL;
+	Text* tileNum = NULL;
 	char numBuffer[20];
 	int row, col;
 
@@ -320,10 +320,10 @@ void WichitaGame::render()
 		for(row = 0; row < currentMap->getHeight(); row++) {
 			for(col = 0; col < currentMap->getWidth(); col++) {
 				if(curTile) {
-					// only draw the tile if it's on screen
 					if(onScreen(curTile)) {
-							sprintf_s(numBuffer, "%d,%d", row, col);
-							currentMap->getTileNum()->print(numBuffer, (int)curTile->getX(), (int)curTile->getY());
+						// tiles are drawn across, then down, so the row/col variables will align with curTile
+						sprintf_s(numBuffer, "%d,%d", col, row);                                              // 4 pixel offset on odd numbered tiles
+						currentMap->getTileNum()->print(numBuffer, (int)curTile->getX(), (int)curTile->getY()+(4*(col%2)));
 					}
 					curTile = curTile->getNextTile();
 				}
@@ -354,8 +354,8 @@ void WichitaGame::consoleCommand()
     {
         console->print("Console Commands:");
         console->print("fps - toggle display of frames per second");
-		console->print("noclip - toggle clipping");
-		console->print("tileNumbers - toggle display of x,y tile position");
+		console->print("nc - toggle clipping");
+		console->print("tn - toggle display of x,y tile position");
         return;
     }
 
@@ -368,7 +368,7 @@ void WichitaGame::consoleCommand()
             console->print("fps Off");
     }
 
-	if(command == "noclip")
+	if(command == "nc")
 	{
 		noclip = !noclip;               // toggle clipping
 		if(noclip)
@@ -377,7 +377,7 @@ void WichitaGame::consoleCommand()
 			console->print("Noclip off");
 	}
 
-	if(command == "tileNumbers")
+	if(command == "tn")
 	{
 		tileNumbers = !tileNumbers;               // toggle display of x,y tile position
 		if(tileNumbers)
