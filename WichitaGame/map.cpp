@@ -293,24 +293,12 @@ void Map::update(Character &player, float frameTime)
 
 	if(background) {
 		// autoscroll horizontally if not 0
-		if(background->getAutoHscroll())
+		if(background->getAutoHscroll()) 
 			background->setX( background->getX() + (frameTime * background->getAutoHscroll()));
-		else { // otherwise, move like a normal object
-			if(shiftLeft)                                                                        
-				background->setX( background->getX() + (frameTime * mapNS::CAMERA_MOVE_SPEED));
-			if(shiftRight)
-				background->setX( background->getX() - (frameTime * mapNS::CAMERA_MOVE_SPEED));
-		}
 
 		// autoscroll vertically if not 0
 		if(background->getAutoVscroll())
 			background->setY( background->getY() + (frameTime * background->getAutoVscroll()));
-		else { // otherwise, move like a normal object
-			if(shiftUp)                                                                        
-				background->setY( background->getY() + (frameTime * mapNS::CAMERA_MOVE_SPEED));
-			if(shiftDown)
-				background->setY( background->getY() - (frameTime * mapNS::CAMERA_MOVE_SPEED));
-		}
 
 		// parallax
 		if(background->getParallax()) {
@@ -322,6 +310,15 @@ void Map::update(Character &player, float frameTime)
 				background->setY( background->getY() + (frameTime * mapNS::CAMERA_MOVE_SPEED * background->getParallax()));
 			if(shiftDown)
 				background->setY( background->getY() - (frameTime * mapNS::CAMERA_MOVE_SPEED * background->getParallax()));
+		} else {
+			if(shiftLeft)                                                                        
+				background->setX( background->getX() + (frameTime * mapNS::CAMERA_MOVE_SPEED));
+			if(shiftRight)
+				background->setX( background->getX() - (frameTime * mapNS::CAMERA_MOVE_SPEED));
+			if(shiftUp)                                                                        
+				background->setY( background->getY() + (frameTime * mapNS::CAMERA_MOVE_SPEED));
+			if(shiftDown)
+				background->setY( background->getY() - (frameTime * mapNS::CAMERA_MOVE_SPEED));
 		}
 		
 	}
@@ -330,22 +327,10 @@ void Map::update(Character &player, float frameTime)
 		// autoscroll horizontally if not 0
 		if(foreground->getAutoHscroll())
 			foreground->setX( foreground->getX() + (frameTime * foreground->getAutoHscroll()));
-		else { // otherwise, move like a normal object
-			if(shiftLeft)                                                                        
-				foreground->setX( foreground->getX() + (frameTime * mapNS::CAMERA_MOVE_SPEED));
-			if(shiftRight)
-				foreground->setX( foreground->getX() - (frameTime * mapNS::CAMERA_MOVE_SPEED));
-		}
 
 		// autoscroll vertically if not 0
 		if(foreground->getAutoVscroll())
 			foreground->setY( foreground->getY() + (frameTime * foreground->getAutoVscroll()));
-		else { // otherwise, move like a normal object
-			if(shiftUp)                                                                        
-				foreground->setY( foreground->getY() + (frameTime * mapNS::CAMERA_MOVE_SPEED));
-			if(shiftDown)
-				foreground->setY( foreground->getY() - (frameTime * mapNS::CAMERA_MOVE_SPEED));
-		}
 
 		// parallax
 		if(foreground->getParallax()) {
@@ -357,6 +342,15 @@ void Map::update(Character &player, float frameTime)
 				foreground->setY( foreground->getY() + (frameTime * mapNS::CAMERA_MOVE_SPEED * foreground->getParallax()));
 			if(shiftDown)
 				foreground->setY( foreground->getY() - (frameTime * mapNS::CAMERA_MOVE_SPEED * foreground->getParallax()));
+		} else {
+			if(shiftLeft)                                                                        
+				foreground->setX( foreground->getX() + (frameTime * mapNS::CAMERA_MOVE_SPEED));
+			if(shiftRight)
+				foreground->setX( foreground->getX() - (frameTime * mapNS::CAMERA_MOVE_SPEED));
+			if(shiftUp)                                                                        
+				foreground->setY( foreground->getY() + (frameTime * mapNS::CAMERA_MOVE_SPEED));
+			if(shiftDown)
+				foreground->setY( foreground->getY() - (frameTime * mapNS::CAMERA_MOVE_SPEED));
 		}
 		
 	}
