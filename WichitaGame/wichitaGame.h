@@ -35,6 +35,19 @@ using std::list;
 #pragma comment(lib,"d3d9.lib")
 #pragma comment(lib,"xinput.lib")
 
+namespace wichitaGameNS
+{
+	const enum COLLISION_BOX_MASK {
+		PLAYER_MASK =  1<<0,
+		TILE_MASK =    1<<1,
+		CHANGER_MASK = 1<<2,
+		NPC_MASK =     1<<3,
+		CHEST_MASK =   1<<4,
+		DOOR_MASK =    1<<5,
+	};
+		
+};
+
 //=============================================================================
 // This class is the core of the game
 //=============================================================================
@@ -67,8 +80,15 @@ private:
 	std::ofstream debugFile;
 	bool noclip;
 	bool tileNumbers;
-	bool collisionBoxes;
-	COLOR_ARGB collisionBoxColor;
+	unsigned int collisionBoxMask;
+	/*
+	bool collisionBoxPlayer;
+	bool collisionBoxTile;
+	bool collisionBoxChanger;
+	bool collisionBoxNPC;
+	bool collisionBoxChest;
+	bool collisionBoxDoor;
+	*/
 	VertexC vtx[4];                     // vertex data for collision boxes
     LP_VERTEXBUFFER vertexBuffer;       // buffer to hold collision box vertices
 
@@ -102,7 +122,7 @@ public:
 	bool loadMap(MAP_LIST newMap, float startX = 0.0, float startY = 0.0);
 
 	// draw a semi-transparent box representing the collision area for an entity
-	void drawCollisionBox(Entity* object);
+	void drawCollisionBox(Entity* object, COLOR_ARGB color);
 
 	// object 1 is usually player. If player hits collidable object 2, resist his movement
 	void solidObjectCollision(Entity &object1, Entity &object2);

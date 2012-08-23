@@ -44,6 +44,7 @@ private:
 	// map's unload()
 	// map's reset()
 	// game's render()
+	// console collision box mask and command
 	TextureManager* firstTexture;
 	ZoneChanger* firstChanger;
 	NPC* firstNPC;
