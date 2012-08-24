@@ -94,5 +94,4 @@ public:
 	//Battle function initializer 
 	void WichitaGame::battleStart(const char* file);
 };
-
 #endif

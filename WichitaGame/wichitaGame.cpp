@@ -115,6 +115,9 @@ void WichitaGame::initialize(HWND hwnd)
 
 	messageY = GAME_HEIGHT-100.0f;
 
+	//Initialize the battle to false at the beginning of the game
+	battleOn = false;
+
 	/* saved for reference only
 
 	// menu texture
@@ -153,87 +156,97 @@ void WichitaGame::initialize(HWND hwnd)
 //=============================================================================
 void WichitaGame::update()
 {
-	/* saved for reference only
-    if(menu.getDegrees() > 0)
-    {
-        menu.setDegrees(menu.getDegrees() - frameTime * 120);
-        menu.setScale(menu.getScale() + frameTime * 0.4f);
-    }
-    else if(messageY > -400)
-    {
-        menu.setDegrees(0);
-        menu.setY(menu.getY() - frameTime * 50);
-        messageY -= frameTime * 50;
-    }
-    else    // start over
-    {
-        menu.setDegrees(300);
-        menu.setScale(0.002861f);
-        menu.setY(0);
-        messageY = GAME_HEIGHT;
-    }
-	*/
-	sprintf_s(debugLineBuf, "Debug line - update me");
-
-	// move right if left is not pressed or move right if left is not pressed
-	if(input->isKeyDown(MOVE_RIGHT_KEY) && !input->isKeyDown(MOVE_LEFT_KEY)) {
-		testChar.moveRight(frameTime);
-	} else if(input->isKeyDown(MOVE_LEFT_KEY) && !input->isKeyDown(MOVE_RIGHT_KEY)) {
-		testChar.moveLeft(frameTime);
-	}
-
-	// move up if down is not pressed or move down if up is not pressed
-	if( input->isKeyDown(MOVE_UP_KEY) && !input->isKeyDown(MOVE_DOWN_KEY)) {
-		testChar.moveUp(frameTime);
-	} else if( input->isKeyDown(MOVE_DOWN_KEY) && !input->isKeyDown(MOVE_UP_KEY)) {
-		testChar.moveDown(frameTime);
-	}
-	// set velocity to 0 in x or y direction if neither key is pressed
-	if(!input->isKeyDown(MOVE_UP_KEY) && !input->isKeyDown(MOVE_DOWN_KEY)) {
-		testChar.stopY();
-	}
-	if(!input->isKeyDown(MOVE_LEFT_KEY) && !input->isKeyDown(MOVE_RIGHT_KEY)) {
-		testChar.stopX();
-	}
-
-	if(input->wasKeyPressed('Z')) {
-		changeMap(testMap);	
-	}
-	if(input->wasKeyPressed('X')) {
-		changeMap(testMap2);
-	}
-	if(input->wasKeyPressed('B')) {
-		printf("BOMBz");
-		createItemSpawn();
-	}
-	if(input->wasKeyPressed('N')) {
-		if(itemSpawnExists()){
-			//printf("ItemSpawnExists");
-			destroyItemSpawn();
+if(battleOn == false)
+	{
+		/* saved for reference only
+		if(menu.getDegrees() > 0)
+		{
+			menu.setDegrees(menu.getDegrees() - frameTime * 120);
+			menu.setScale(menu.getScale() + frameTime * 0.4f);
 		}
-		//}else
-		//	printf("ItemSpawnDoesNoTExist");
+		else if(messageY > -400)
+		{
+			menu.setDegrees(0);
+			menu.setY(menu.getY() - frameTime * 50);
+			messageY -= frameTime * 50;
+		}
+		else    // start over
+		{
+			menu.setDegrees(300);
+			menu.setScale(0.002861f);
+			menu.setY(0);
+			messageY = GAME_HEIGHT;
+		}
+		*/
+		sprintf_s(debugLineBuf, "Debug line - update me");
+
+		// move right if left is not pressed or move right if left is not pressed
+		if(input->isKeyDown(MOVE_RIGHT_KEY) && !input->isKeyDown(MOVE_LEFT_KEY)) {
+			testChar.moveRight(frameTime);
+		} else if(input->isKeyDown(MOVE_LEFT_KEY) && !input->isKeyDown(MOVE_RIGHT_KEY)) {
+			testChar.moveLeft(frameTime);
+		}
+
+		// move up if down is not pressed or move down if up is not pressed
+		if( input->isKeyDown(MOVE_UP_KEY) && !input->isKeyDown(MOVE_DOWN_KEY)) {
+			testChar.moveUp(frameTime);
+		} else if( input->isKeyDown(MOVE_DOWN_KEY) && !input->isKeyDown(MOVE_UP_KEY)) {
+			testChar.moveDown(frameTime);
+		}
+		// set velocity to 0 in x or y direction if neither key is pressed
+		if(!input->isKeyDown(MOVE_UP_KEY) && !input->isKeyDown(MOVE_DOWN_KEY)) {
+			testChar.stopY();
+		}
+		if(!input->isKeyDown(MOVE_LEFT_KEY) && !input->isKeyDown(MOVE_RIGHT_KEY)) {
+			testChar.stopX();
+		}
+
+		if(input->wasKeyPressed('Z')) {
+			changeMap(testMap);	
+		}
+		if(input->wasKeyPressed('X')) {
+			changeMap(testMap2);
+		}
+		if(input->wasKeyPressed('B')) {
+			printf("BOMBz");
+			createItemSpawn();
+		}
+		if(input->wasKeyPressed('N')) {
+			if(itemSpawnExists()){
+				//printf("ItemSpawnExists");
+				destroyItemSpawn();
+			}
+			//}else
+			//	printf("ItemSpawnDoesNoTExist");
+		}
+		//Press H to start a battle
+		if(input->wasKeyPressed('H')) {
+			battleStart("pictures/battle/FordBack.jpg");
+		}
+
+	
+		// if no movement keys are pressed, draw the ending frame for the direction he's currently facing and pause animation
+		if( !input->isKeyDown(MOVE_UP_KEY) && !input->isKeyDown(MOVE_DOWN_KEY) && !input->isKeyDown(MOVE_LEFT_KEY) && !input->isKeyDown(MOVE_RIGHT_KEY)) {
+			testChar.setCurrentFrame(testChar.getEndFrame());
+			testChar.setVelocity(VECTOR2(0.0f, 0.0f));
+			testChar.setLoop(false);
+		} else {
+			testChar.setLoop(true);
+		}
+	
+		// Update the map BEFORE the character since it manipulates the player's position
+		currentMap->update(testChar, frameTime);
+		testChar.update(frameTime);
+		sprintf_s(messageBuffer, "X: %.3f, Y: %.3f", testChar.getX(), testChar.getY());
 	}
-	//Press [ to start a battle
-	if(input->wasKeyPressed('H')) {
-		battleStart("pictures/battle/FordBack.jpg");
+	if (battleOn == true)
+	{
+		if(input->wasKeyPressed('J')) {
+			battleOn=false;
+		}
 	}
 
 	
-	// if no movement keys are pressed, draw the ending frame for the direction he's currently facing and pause animation
-	if( !input->isKeyDown(MOVE_UP_KEY) && !input->isKeyDown(MOVE_DOWN_KEY) && !input->isKeyDown(MOVE_LEFT_KEY) && !input->isKeyDown(MOVE_RIGHT_KEY)) {
-		testChar.setCurrentFrame(testChar.getEndFrame());
-		testChar.setVelocity(VECTOR2(0.0f, 0.0f));
-		testChar.setLoop(false);
-	} else {
-		testChar.setLoop(true);
-	}
-	
-	// Update the map BEFORE the character since it manipulates the player's position
-	currentMap->update(testChar, frameTime);
-	testChar.update(frameTime);
-
-	sprintf_s(messageBuffer, "X: %.3f, Y: %.3f", testChar.getX(), testChar.getY());
 
 }
 
@@ -331,8 +344,11 @@ void WichitaGame::render()
 	}
 
 	//Draw new Items if in a battle
-	if(battle.getBattleOn()){
+	if(battleOn == true){
+		//Print Battle Background
 		battle.getBackground().draw();
+		//Print player health
+		battle.getHealth()->print(toString(100),300,300);
 	}
 
     dxFont->setFontColor(graphicsNS::WHITE);
@@ -512,10 +528,13 @@ bool WichitaGame::itemSpawnExists(){
 void WichitaGame::battleStart(const char* backgroundPic)
 {
 	printf("Battle Started\n");
-	battle.setBattleOn();
+
 	//Initialize the background texture
-	battleBackgroundTexture.initialize(graphics,backgroundPic);
+	if(!battleBackgroundTexture.initialize(graphics,backgroundPic))
+		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing background texture"));
 	//Initialize the battle
-	battle.initialize(graphics,&battleBackgroundTexture);
+	if(!battle.initialize(graphics,&battleBackgroundTexture))
+		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing background image"));
+	battleOn=true;
 	return;
 }
