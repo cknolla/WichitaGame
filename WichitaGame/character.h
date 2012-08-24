@@ -9,15 +9,13 @@
 namespace characterNS 
 {
 	const float MOVE_SPEED = 200.0f;
-	const RECT COLLISION_BOX = {-12, 0, 12, 14};
+	const RECT COLLISION_BOX = {-12, 0, 12, 16};
 }
 
 class Character : public Entity
 {
 private:
 	char name[25];
-	float prevX;
-	float prevY;
 
 public:
 	Character();
@@ -32,12 +30,6 @@ public:
 	void moveDown(float frameTime);
 	void stopX();
 	void stopY();
-
-	float getPrevX() { return prevX; }
-	void setPrevX(float newPrevX) { prevX = newPrevX; }
-	float getPrevY() { return prevY; }
-	void setPrevY(float newPrevY) { prevY = newPrevY; }
-	void setPrevLoc(float newPrevX, float newPrevY) { prevX = newPrevX; prevY = newPrevY; }
 
 };
 

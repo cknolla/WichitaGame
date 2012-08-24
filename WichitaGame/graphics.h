@@ -87,6 +87,8 @@ struct SpriteData
     float       y;
 	float       startX;     // starting location for object when map loads
 	float       startY;     
+	float       prevX;      // x and y position in previous frame
+	float       prevY;
     float       scale;      // <1 smaller, >1 bigger
     float       angle;      // rotation angle in radians
     RECT        rect;       // used to select an image from a larger texture
