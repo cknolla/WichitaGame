@@ -127,8 +127,7 @@ void WichitaGame::update()
 {
 	static bool isBlue = true;
 	sprintf_s(debugLineBuf, "Debug Text");
-	if (battleOn == false)
-	{
+	if (!battleOn) {
 		// move right if left is not pressed or move right if left is not pressed
 		if(input->isKeyDown(MOVE_RIGHT_KEY) && !input->isKeyDown(MOVE_LEFT_KEY)) {
 			player.moveRight(frameTime);
@@ -187,16 +186,16 @@ void WichitaGame::update()
 		
 		//Press H to start a battle
 		if(input->wasKeyPressed('H')) {
+			input->clearKeyPress('H');
 			battleStart("pictures\\battle\\FordBack.jpg");
 		}
 		// Update the map BEFORE the character since it manipulates the player's position
 		currentMap->update(player, frameTime);
 		player.update(frameTime);
-	}
-	if (battleOn == true)
-	{
-		if(input->wasKeyPressed('J')) {
-			battleOn=false;
+	} else {
+		if(input->wasKeyPressed('H')) {
+			battleOn = false;
+			input->clearKeyPress('H');
 		}
 	}
 
@@ -363,18 +362,20 @@ void WichitaGame::render()
 		}
 	}
 
+	if(battleOn){
+		//Print Battle Background
+		battle.getBackground().draw();
+		//Print player health
+		battle.getHealth()->print(toString(100),300,300);
+	}
+
     dxFont->setFontColor(graphicsNS::WHITE);
 	debugLine->setFontColor(graphicsNS::WHITE);
  //   dxFont->print(message,20,(int)messageY);
 	dxFont->print(messageBuffer, 20,(int)messageY);
 	debugLine->print(debugLineBuf, 20, (int)messageY+20);
 	//Draw new Items if in a battle
-	if(battleOn == true){
-		//Print Battle Background
-		battle.getBackground().draw();
-		//Print player health
-		battle.getHealth()->print(toString(100),300,300);
-	}
+	
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     graphics->spriteEnd();                  // end drawing sprites
