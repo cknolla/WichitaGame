@@ -341,7 +341,7 @@ void WichitaGame::render()
 					if(onScreen(curTile)) {
 						// tiles are drawn across, then down, so the row/col variables will align with curTile
 						sprintf_s(numBuffer, "%d,%d", col, row);                                              // 4 pixel offset on odd numbered tiles
-						currentMap->getTileNum()->print(numBuffer, (int)curTile->getX(), (int)curTile->getY()+(4*(col%2)));
+						currentMap->getTileNum()->print(numBuffer, (int)curTile->getX(), (int)curTile->getY());//+(4*(col%2)));
 					}
 					curTile = curTile->getNextTile();
 				}
@@ -587,7 +587,7 @@ bool WichitaGame::loadMap(MAP_LIST newMap, float startX, float startY)
 			pitChanger->setStartingPos(8,2);
 			pitChanger->setDestinationStartingPos(10,10);
 
-			bottomChanger->setStartingPos(8,16); // bottom center of graveyard
+			bottomChanger->setStartingPos(8,17); // bottom center of graveyard
 			bottomChanger->setDestinationStartingPos(6,6);
 
 			redGuy->setStartingPos(4,8);
