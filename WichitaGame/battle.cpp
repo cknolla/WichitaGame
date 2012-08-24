@@ -3,13 +3,18 @@
 
 Battle::Battle()
 {
+	healthText = NULL;
 }
+
 Battle::~Battle()
 {
+	SAFE_DELETE(healthText);
 }
 
 bool Battle::initialize(Graphics *g,TextureManager *textureM)
 {
+	// Delete healthText object if it already exists
+	SAFE_DELETE(healthText);
 	//initialize text instance
 	healthText = new Text();
 
