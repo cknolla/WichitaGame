@@ -18,6 +18,7 @@
 #include "map.h"
 #include "tilesets.h"
 #include "zoneChanger.h"
+#include "battle.h"
 #include <list>
 #include <iterator>
 
@@ -57,6 +58,10 @@ private:
 	TextDX *debugLine;
     std::string  message;
 	TextureManager spawnTexture;
+	//Actual battle entity
+	Battle battle; 
+	//Battle background texture
+	TextureManager battleBackgroundTexture;
 	//ItemSpawn* itemSpawn;
 	list<ItemSpawn*> spawnList;
 	int spawnCount;
@@ -65,6 +70,8 @@ private:
 	char debugLineBuf[1000];
 	std::ofstream debugFile;
 	bool noclip;
+	//Battle definition bool
+	bool battleOn;
 
 public:
     // Constructor
@@ -87,6 +94,7 @@ public:
 	void consoleCommand();
 
 	void changeMap(Map &newMap);
+	//Battle function initializer 
+	void WichitaGame::battleStart(const char* file);
 };
-
 #endif
