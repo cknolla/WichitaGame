@@ -27,8 +27,15 @@ namespace mapNS {
 	const char TEST_TILE_MAP_KEY2[] = "maps/testMap02.txt";
 	const char GRAVEYARD_MAP_KEY[] = "maps/graveyard.map";
 	const char GRAVEYARD2_MAP_KEY[] = "maps/graveyard2.0.map";
-	
 	const RECT TILE_COLLISION_BOX = {-TILE_WIDTH/2, -TILE_HEIGHT/2, TILE_WIDTH/2, TILE_HEIGHT/2};
+	const enum COLLISION_BOX_MASK {
+		PLAYER_MASK =  1<<0,
+		TILE_MASK =    1<<1,
+		CHANGER_MASK = 1<<2,
+		NPC_MASK =     1<<3,
+		CHEST_MASK =   1<<4,
+		DOOR_MASK =    1<<5,
+	};
 }
 
 class Map {
@@ -59,6 +66,9 @@ private:
 	// player starting position
 	float startX;
 	float startY;
+	unsigned int collisionBoxMask;
+	VertexC vtx[4];                     // vertex data for collision boxes
+    LP_VERTEXBUFFER vertexBuffer;       // buffer to hold collision box vertices
 
 public:
 	Map();
@@ -66,6 +76,16 @@ public:
 	bool initialize(Game* gamePtr, const char* tileSet[], int tileSetSize, const char* keyFile);
 	// scroll map when necessary
 	void update(Character& player, float frameTime);
+	// render map and objects
+	void render(Character* player);
+	// check if object's position makes it visible on screen
+	inline bool onScreen(Image* object);
+	// fill screen with background/foreground
+	void fillScreen(Image* image);
+	// check if collision boxes need to be drawn
+	void collisionBoxes(Graphics* graphics, Character* player);
+	// draw a semi-transparent box representing the collision area for an entity
+	void drawCollisionBox(Graphics* graphics, Entity* object, COLOR_ARGB color);
 	// process collisions with player
 	// replaced by WichitaGame::solidObjectCollision()
 //	void collisions(Character& player);
@@ -149,6 +169,13 @@ public:
 
 	// add a ZoneDoor to the Door list
 	Door* addDoor();
+
+	// return current mask
+	unsigned int getCollisionBoxMask() { return collisionBoxMask; }
+
+	// set new collision box mask
+	void setCollsionBoxMask(unsigned int mask) { collisionBoxMask = mask; }
+
 
 	// reset tiles to their starting location
 	void reset();

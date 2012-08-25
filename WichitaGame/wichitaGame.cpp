@@ -24,9 +24,6 @@ WichitaGame::WichitaGame()
 	currentMap = NULL;
 	noclip = false;
 	tileNumbers = false;
-	collisionBoxMask = 0;
-	//itemSpawn = NULL;
-	vertexBuffer = NULL;
 	
 	spawnCount = 0;
 }
@@ -259,13 +256,6 @@ void WichitaGame::collisions()
 void WichitaGame::render()
 {
 	Tile* curTile = currentMap->getFirstTile();
-	ZoneChanger* curChanger = currentMap->getFirstChanger();
-	NPC* curNPC = currentMap->getFirstNPC();
-	Chest* curChest = currentMap->getFirstChest();
-	Door* curDoor = currentMap->getFirstDoor();
-	Bgfg* bgImage = currentMap->getBackground();
-	Bgfg* fgImage = currentMap->getForeground();
-
 	Text* tileNum = NULL;
 	char numBuffer[20];
 	int row, col;
@@ -276,63 +266,27 @@ void WichitaGame::render()
 //  Can't draw sprites outside this area ////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Draw from bottom to top
+	if(!battleOn) {
+		currentMap->render(&player);		
 
-	if(bgImage) {
-		fillScreen(bgImage);
-	}
-
-	// draw bottom map layer
-	while(curTile) {
-		// only draw the tile if it's on screen
-		if(onScreen(curTile))
-				curTile->draw();
-		curTile = curTile->getNextTile();
+		// print x,y position on tiles if debug option is enabled
+		if(tileNumbers) {
+			curTile = currentMap->getFirstTile();
+			for(row = 0; row < currentMap->getHeight(); row++) {
+				for(col = 0; col < currentMap->getWidth(); col++) {
+					if(curTile) {
+						if(onScreen(curTile)) {
+							// tiles are drawn across, then down, so the row/col variables will align with curTile
+							sprintf_s(numBuffer, "%d,%d", col, row);                                              // 4 pixel offset on odd numbered tiles
+							currentMap->getTileNum()->print(numBuffer, (int)curTile->getX(), (int)curTile->getY());//+(4*(col%2)));
+						}
+						curTile = curTile->getNextTile();
+					}
+				}
+			}
+		}
 	}
 	
-	// draw map layer 2
-	curTile = currentMap->getLayer2FirstTile();
-		while(curTile) {
-		// only draw the tile if it's on screen
-		if(onScreen(curTile)) {
-				curTile->draw();
-		}
-		curTile = curTile->getNextTile();
-	}
-
-	while(curChanger) {
-		if(onScreen(curChanger)) {
-			curChanger->draw();
-		}
-		curChanger = curChanger->getNextChanger();
-	}
-	while(curNPC) {
-		if(onScreen(curNPC))
-			curNPC->draw();
-		curNPC = curNPC->getNextNPC();
-	}
-	while(curChest) {
-		if(onScreen(curChest))
-			curChest->draw();
-		curChest = curChest->getNextChest();
-	}
-	while(curDoor) {
-		if(onScreen(curDoor))
-			curDoor->draw();
-		curDoor = curDoor->getNextDoor();
-	}
-
-	player.draw();
-
-	// draw map layer 3
-	curTile = currentMap->getLayer3FirstTile();
-		while(curTile) {
-		// only draw the tile if it's on screen
-		if(onScreen(curTile)) {
-				curTile->draw();
-		}
-		curTile = curTile->getNextTile();
-	}
-
 	if(itemSpawnExists()){
 	//	itemSpawn->draw();
 		for(list<ItemSpawn*>::iterator i = spawnList.begin() ; i != spawnList.end() ; ++i ){
@@ -341,88 +295,23 @@ void WichitaGame::render()
 
 	}
 
-	if(fgImage) {
-		fillScreen(fgImage);
-	}
-
-	// print x,y position on tiles if debug option is enabled
-	if(tileNumbers) {
-		curTile = currentMap->getFirstTile();
-		for(row = 0; row < currentMap->getHeight(); row++) {
-			for(col = 0; col < currentMap->getWidth(); col++) {
-				if(curTile) {
-					if(onScreen(curTile)) {
-						// tiles are drawn across, then down, so the row/col variables will align with curTile
-						sprintf_s(numBuffer, "%d,%d", col, row);                                              // 4 pixel offset on odd numbered tiles
-						currentMap->getTileNum()->print(numBuffer, (int)curTile->getX(), (int)curTile->getY());//+(4*(col%2)));
-					}
-					curTile = curTile->getNextTile();
-				}
-			}
-		}
-	}
-
-	if(battleOn){
-		//Print Battle Background
-		battle.getBackground().draw();
-		//Print player health
-		battle.getHealth()->print(toString(100),300,300);
-	}
-
-    dxFont->setFontColor(graphicsNS::WHITE);
+	dxFont->setFontColor(graphicsNS::WHITE);
 	debugLine->setFontColor(graphicsNS::WHITE);
- //   dxFont->print(message,20,(int)messageY);
+	//   dxFont->print(message,20,(int)messageY);
 	dxFont->print(messageBuffer, 20,(int)messageY);
 	debugLine->print(debugLineBuf, 20, (int)messageY+20);
+	
 	//Draw new Items if in a battle
+	if(battleOn){
+		battle.render();
+	}
 	
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     graphics->spriteEnd();                  // end drawing sprites
-	
-	// draw collision boxes if enabled through console
-	if(collisionBoxMask & wichitaGameNS::TILE_MASK) {
-		curTile = currentMap->getFirstTile();
-		while(curTile) {
-			if(onScreen(curTile))
-				drawCollisionBox(curTile, graphicsNS::LIME & graphicsNS::ALPHA50);
-			curTile = curTile->getNextTile();
-		}
-	}
-	if(collisionBoxMask & wichitaGameNS::CHANGER_MASK) {
-		curChanger = currentMap->getFirstChanger();
-		while(curChanger) {
-			if(onScreen(curChanger))
-				drawCollisionBox(curChanger, graphicsNS::YELLOW & graphicsNS::ALPHA50);
-			curChanger = curChanger->getNextChanger();
-		}
-	}
-	if(collisionBoxMask & wichitaGameNS::NPC_MASK) {
-		curNPC = currentMap->getFirstNPC();
-		while(curNPC) {
-			if(onScreen(curNPC))
-				drawCollisionBox(curNPC, graphicsNS::GRAY & graphicsNS::ALPHA50);
-			curNPC = curNPC->getNextNPC();
-		}
-	}
-	if(collisionBoxMask & wichitaGameNS::CHEST_MASK) {
-		curChest = currentMap->getFirstChest();
-		while(curChest) {
-			if(onScreen(curChest))
-				drawCollisionBox(curChest, graphicsNS::CYAN & graphicsNS::ALPHA50);
-			curChest = curChest->getNextChest();
-		}
-	}
-	if(collisionBoxMask & wichitaGameNS::DOOR_MASK) {
-		curDoor = currentMap->getFirstDoor();
-		while(curDoor) {
-			if(onScreen(curDoor))
-				drawCollisionBox(curDoor, graphicsNS::PURPLE & graphicsNS::ALPHA50);
-			curDoor = curDoor->getNextDoor();
-		}
-	}
-	if(collisionBoxMask & wichitaGameNS::PLAYER_MASK)
-		drawCollisionBox(&player, graphicsNS::RED & graphicsNS::ALPHA50);
+
+	// draw collision boxes if enabled
+	currentMap->collisionBoxes(graphics, &player);
 
 }
 
@@ -478,54 +367,54 @@ void WichitaGame::consoleCommand()
 	if(command == "cb" || command == "collisionBoxes")
 	{
 		// toggle display of object collision boxes (not tiles)
-		collisionBoxMask ^= wichitaGameNS::PLAYER_MASK | wichitaGameNS::CHANGER_MASK | wichitaGameNS::CHEST_MASK | wichitaGameNS::NPC_MASK | wichitaGameNS::DOOR_MASK;
+		currentMap->setCollsionBoxMask(currentMap->getCollisionBoxMask() ^ (mapNS::PLAYER_MASK | mapNS::CHANGER_MASK | mapNS::CHEST_MASK | mapNS::NPC_MASK | mapNS::DOOR_MASK));
 		console->print("Non-tile collision boxes swapped");
 	}
 
 	if(command == "cb tile")
 	{
-		collisionBoxMask ^= wichitaGameNS::TILE_MASK;
-		if(collisionBoxMask & wichitaGameNS::TILE_MASK)
+		currentMap->setCollsionBoxMask(currentMap->getCollisionBoxMask() ^ (mapNS::TILE_MASK));
+		if(currentMap->getCollisionBoxMask() & mapNS::TILE_MASK)
 			console->print("Tile collision boxes on");
 		else
 			console->print("Tile collision boxes off");
 	}
 	if(command == "cb player")
 	{
-		collisionBoxMask ^= wichitaGameNS::PLAYER_MASK;
-		if(collisionBoxMask & wichitaGameNS::PLAYER_MASK)
+		currentMap->setCollsionBoxMask(currentMap->getCollisionBoxMask() ^ (mapNS::PLAYER_MASK));
+		if(currentMap->getCollisionBoxMask() & mapNS::PLAYER_MASK)
 			console->print("Player collision boxes on");
 		else
 			console->print("Player collision boxes off");
 	}
 	if(command == "cb changer")
 	{
-		collisionBoxMask ^= wichitaGameNS::CHANGER_MASK;
-		if(collisionBoxMask & wichitaGameNS::CHANGER_MASK)
+		currentMap->setCollsionBoxMask(currentMap->getCollisionBoxMask() ^ (mapNS::CHANGER_MASK));
+		if(currentMap->getCollisionBoxMask() & mapNS::CHANGER_MASK)
 			console->print("Changer collision boxes on");
 		else
 			console->print("Changer collision boxes off");
 	}
 	if(command == "cb npc")
 	{
-		collisionBoxMask ^= wichitaGameNS::NPC_MASK;
-		if(collisionBoxMask & wichitaGameNS::NPC_MASK)
+		currentMap->setCollsionBoxMask(currentMap->getCollisionBoxMask() ^ (mapNS::NPC_MASK));
+		if(currentMap->getCollisionBoxMask() & mapNS::NPC_MASK)
 			console->print("NPC collision boxes on");
 		else
 			console->print("NPC collision boxes off");
 	}
 	if(command == "cb chest")
 	{
-		collisionBoxMask ^= wichitaGameNS::CHEST_MASK;
-		if(collisionBoxMask & wichitaGameNS::CHEST_MASK)
+		currentMap->setCollsionBoxMask(currentMap->getCollisionBoxMask() ^ (mapNS::CHEST_MASK));
+		if(currentMap->getCollisionBoxMask() & mapNS::CHEST_MASK)
 			console->print("Chest collision boxes on");
 		else
 			console->print("Chest collision boxes off");
 	}
 	if(command == "cb door")
 	{
-		collisionBoxMask ^= wichitaGameNS::DOOR_MASK;
-		if(collisionBoxMask & wichitaGameNS::DOOR_MASK)
+		currentMap->setCollsionBoxMask(currentMap->getCollisionBoxMask() ^ (mapNS::DOOR_MASK));
+		if(currentMap->getCollisionBoxMask() & mapNS::DOOR_MASK)
 			console->print("Door collision boxes on");
 		else
 			console->print("Door collision boxes off");
@@ -753,14 +642,6 @@ void WichitaGame::createItemSpawn(){
 
 }
 
-inline bool WichitaGame::onScreen(Image* object)
-{
-	if(object->getX() > -TILE_WIDTH && object->getX() < GAME_WIDTH && object->getY() > -TILE_HEIGHT && object->getY() < GAME_HEIGHT)
-		return true;
-	else
-		return false;
-}
-
 bool WichitaGame::destroyItemSpawn(){
 
 	if(spawnList.empty() ){
@@ -790,6 +671,14 @@ bool WichitaGame::destroyItemSpawn(){
 
 bool WichitaGame::itemSpawnExists(){
 	return !spawnList.empty();
+}
+
+inline bool WichitaGame::onScreen(Image* object)
+{
+	if(object->getX() > -TILE_WIDTH && object->getX() < GAME_WIDTH && object->getY() > -TILE_HEIGHT && object->getY() < GAME_HEIGHT)
+		return true;
+	else
+		return false;
 }
 
 void WichitaGame::solidObjectCollision(Entity &object1, Entity &object2)
@@ -828,143 +717,8 @@ void WichitaGame::solidObjectCollision(Entity &object1, Entity &object2)
 	}
 }
 
-void WichitaGame::drawCollisionBox(Entity* object, COLOR_ARGB color)
-{
-	// an inactive entity never collides
-	if(!object->getActive())
-		return;
-
-	// release buffer in order to create the next one
-	SAFE_RELEASE(vertexBuffer);
-	// top left
-    vtx[0].x = object->getX()+(object->getWidth()/2)+(float)object->getEdge().left;
-    vtx[0].y = object->getY()+(object->getHeight()/2)+(float)object->getEdge().top;
-    vtx[0].z = 0.0f;
-    vtx[0].rhw = 1.0f;
-    vtx[0].color = color;
-
-    // top right
-    vtx[1].x = object->getX()+(object->getWidth()/2)+(float)object->getEdge().right;
-    vtx[1].y = object->getY()+(object->getHeight()/2)+(float)object->getEdge().top;
-    vtx[1].z = 0.0f;
-    vtx[1].rhw = 1.0f;
-    vtx[1].color = color;
-
-    // bottom right
-    vtx[2].x = object->getX()+(object->getWidth()/2)+(float)object->getEdge().right;
-    vtx[2].y = object->getY()+(object->getHeight()/2)+(float)object->getEdge().bottom;
-    vtx[2].z = 0.0f;
-    vtx[2].rhw = 1.0f;
-    vtx[2].color = color;
-
-    // bottom left
-    vtx[3].x = object->getX()+(object->getWidth()/2)+(float)object->getEdge().left;
-    vtx[3].y = object->getY()+(object->getHeight()/2)+(float)object->getEdge().bottom;
-    vtx[3].z = 0.0f;
-    vtx[3].rhw = 1.0f;
-    vtx[3].color = color;
-
-//	if(!vertexBuffer)
-	graphics->createVertexBuffer(vtx, sizeof vtx, vertexBuffer);
-
-	graphics->drawQuad(vertexBuffer);       // draw collision box
-}
-
-void WichitaGame::fillScreen(Image* image)
-{
-	// save current location
-	float prevX = image->getX();
-	float prevY = image->getY();
-	bool r0c0 = false, r0c1 = false, r0c2 = false, r1c0 = false, r1c1 = true, r1c2 = false, r2c0 = false, r2c1 = false, r2c2 = false;
-	// r1c1 is always drawn. Up to 3 others can be drawn depending on position
-	// r0c0 r0c1 r0c2
-	// r1c0 r1c1 r1c2
-	// r2c0 r2c1 r2c2
-
-	// if the image is offscreen to the right, shift it a full width left
-	if(image->getX() > GAME_WIDTH)
-		image->setX(image->getX() - image->getWidth());
-	// if offscreen to the left, shift it right
-	if(image->getX() + image->getWidth() < 0)
-		image->setX(image->getX() + image->getWidth());
-	// if offscreen below, shift up
-	if(image->getY() > GAME_HEIGHT)
-		image->setY(image->getY() - image->getHeight());
-	// if offscreen above, shift down
-	if(image->getY() + image->getHeight() < 0)
-		image->setY(image->getY() + image->getHeight());
-	// now we know it's onscreen, so we'll draw it a max of 4 times to ensure the full screen is covered
-	image->draw(); // draw it at its current location
-	if(image->getX() > 0) // if left edge is showing
-		r1c0 = true;
-	if(image->getX() + image->getWidth() < GAME_WIDTH) // if right edge is showing
-		r1c2 = true;
-	if(image->getY() > 0) // if top edge is showing
-		r0c1 = true;
-	if(image->getY() + image->getHeight() < GAME_HEIGHT) // if bottom edge showing
-		r2c1 = true;
-	if(image->getX() > 0 && image->getY() > 0) // top left corner showing
-		r0c0 = true;
-	if(image->getY() > 0 && image->getX() + image->getWidth() < GAME_WIDTH) // top right corner
-		r0c2 = true;
-	if(image->getX() > 0 && image->getY() + image->getHeight() < GAME_HEIGHT) // bottom left corner
-		r2c0 = true;
-	if(image->getX() + image->getWidth() < GAME_WIDTH && image->getY() + image->getHeight() < GAME_HEIGHT) // bottom right corner
-		r2c2 = true;
-
-	if(r1c0) {
-		image->setX(image->getX() - image->getWidth());
-		image->draw();
-		image->setX(prevX);
-	}
-	if(r0c1) {
-		image->setY(image->getY() - image->getHeight());
-		image->draw();
-		image->setY(prevY);
-	}
-	if(r1c2) {
-		image->setX(image->getX() + image->getWidth());
-		image->draw();
-		image->setX(prevX);
-	}
-	if(r2c1) {
-		image->setY(image->getY() + image->getHeight());
-		image->draw();
-		image->setY(prevY);
-	}
-	if(r0c0) {
-		image->setX(image->getX() - image->getWidth());
-		image->setY(image->getY() - image->getHeight());
-		image->draw();
-		image->setX(prevX);
-		image->setY(prevY);
-	}
-	if(r0c2) {
-		image->setX(image->getX() + image->getWidth());
-		image->setY(image->getY() - image->getHeight());
-		image->draw();
-		image->setX(prevX);
-		image->setY(prevY);
-	}
-	if(r2c0) {
-		image->setX(image->getX() - image->getWidth());
-		image->setY(image->getY() + image->getHeight());
-		image->draw();
-		image->setX(prevX);
-		image->setY(prevY);
-	}
-	if(r2c2) {
-		image->setX(image->getX() + image->getWidth());
-		image->setY(image->getY() + image->getHeight());
-		image->draw();
-		image->setX(prevX);
-		image->setY(prevY);
-	}
-}
-
 //=============================================================================
-// The grahics device has been reset.
-// Recreate all surfaces.
+// Initiate battle
 //=============================================================================
 void WichitaGame::battleStart(const char* backgroundPic)
 {
@@ -974,8 +728,8 @@ void WichitaGame::battleStart(const char* backgroundPic)
 	if(!battleBackgroundTexture.initialize(graphics,backgroundPic))
 		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing background texture"));
 	//Initialize the battle
-	if(!battle.initialize(graphics,&battleBackgroundTexture))
-		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing background image"));
+	if(!battle.initialize(graphics, &battleBackgroundTexture, &player))
+		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing battle"));
 	battleOn=true;
 	return;
 }

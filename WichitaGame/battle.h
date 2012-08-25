@@ -2,7 +2,7 @@
 //Main code for battle initialization
 
 #include "textureManager.h"
-#include "image.h"
+#include "entity.h"
 #include "text.h"
 #include <sstream>
 
@@ -13,17 +13,24 @@ class Battle
 {
 private:
 	Image battleBackground;
-	Text *healthText;
+	Text healthText;
+	Entity* player;
 public:
 	Battle();
 	~Battle();
 
 	//Initialization function prototype
-	bool initialize(Graphics *g,TextureManager *textureM);
+	bool initialize(Graphics *g,TextureManager *textureM, Entity* p1);
+
+	void update(float frameTime);
+	// render battle screen each frame
+	void render();
+
 	//Retrieve the background image for drawing
 	Image getBackground(){return battleBackground;};
 	//void setHealth(Text sentHealth){health = sentHealth; return;};
-	Text* getHealth(){return healthText;};
+	Text* getHealth(){return &healthText;};
+
 	
 };
 // Template for converting items to strings

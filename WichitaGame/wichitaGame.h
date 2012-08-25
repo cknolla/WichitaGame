@@ -40,14 +40,7 @@ using std::list;
 
 namespace wichitaGameNS
 {
-	const enum COLLISION_BOX_MASK {
-		PLAYER_MASK =  1<<0,
-		TILE_MASK =    1<<1,
-		CHANGER_MASK = 1<<2,
-		NPC_MASK =     1<<3,
-		CHEST_MASK =   1<<4,
-		DOOR_MASK =    1<<5,
-	};
+	
 		
 };
 
@@ -88,7 +81,6 @@ private:
 	std::ofstream debugFile;
 	bool noclip;
 	bool tileNumbers;
-	unsigned int collisionBoxMask;
 	/*
 	bool collisionBoxPlayer;
 	bool collisionBoxTile;
@@ -97,8 +89,6 @@ private:
 	bool collisionBoxChest;
 	bool collisionBoxDoor;
 	*/
-	VertexC vtx[4];                     // vertex data for collision boxes
-    LP_VERTEXBUFFER vertexBuffer;       // buffer to hold collision box vertices
 
 
 public:
@@ -119,26 +109,17 @@ public:
 	//bool itemSpawnExists(){ if(itemSpawn != NULL) return true; return false; }
 	bool itemSpawnExists();
 
-	// check if object's position makes it visible on screen
-	inline bool onScreen(Image* object);
-
-	// fill screen with image (used for foreground/background). Image must be at least size of screen
-	void fillScreen(Image* image);
-
 	// Replace Game's consoleCommand to create custom commands
 	void consoleCommand();
-
-	// switch to new map, draw character
-	void changeMap(Map &newMap);
 
 	// unload previous map from memory, load a new one, and place character at startX, startY
 	bool loadMap(MAP_LIST newMap, float startX = 0.0, float startY = 0.0);
 
-	// draw a semi-transparent box representing the collision area for an entity
-	void drawCollisionBox(Entity* object, COLOR_ARGB color);
-
 	// object 1 is usually player. If player hits collidable object 2, resist his movement
 	void solidObjectCollision(Entity &object1, Entity &object2);
+
+	// check if object's position makes it visible on screen
+	inline bool onScreen(Image* object);
 
 	//Battle definition bool
 	bool battleOn;

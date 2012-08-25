@@ -16,6 +16,8 @@ Map::Map()
 	firstDoor = NULL;
 	background = NULL;
 	foreground = NULL;
+	collisionBoxMask = 0;
+	vertexBuffer = NULL;
 }
 
 Map::~Map()
@@ -446,6 +448,270 @@ void Map::update(Character &player, float frameTime)
 	if(shiftDown)
 		player.setY( player.getY() - (frameTime * mapNS::CAMERA_MOVE_SPEED));
 
+}
+
+void Map::render(Character* player)
+{
+	Tile* curTile = firstTile;
+	ZoneChanger* curChanger = firstChanger;
+	NPC* curNPC = firstNPC;
+	Chest* curChest = firstChest;
+	Door* curDoor = firstDoor;
+
+	// draw infinite looping background
+	if(background) {
+		fillScreen(background);
+	}
+
+	// draw bottom map layer
+	while(curTile) {
+		// only draw the tile if it's on screen
+		if(onScreen(curTile))
+				curTile->draw();
+		curTile = curTile->getNextTile();
+	}
+	
+	// draw map layer 2
+	curTile = layer2firstTile;
+		while(curTile) {
+		// only draw the tile if it's on screen
+		if(onScreen(curTile)) {
+				curTile->draw();
+		}
+		curTile = curTile->getNextTile();
+	}
+
+	while(curChanger) {
+		if(onScreen(curChanger)) {
+			curChanger->draw();
+		}
+		curChanger = curChanger->getNextChanger();
+	}
+	while(curNPC) {
+		if(onScreen(curNPC))
+			curNPC->draw();
+		curNPC = curNPC->getNextNPC();
+	}
+	while(curChest) {
+		if(onScreen(curChest))
+			curChest->draw();
+		curChest = curChest->getNextChest();
+	}
+	while(curDoor) {
+		if(onScreen(curDoor))
+			curDoor->draw();
+		curDoor = curDoor->getNextDoor();
+	}
+
+	player->draw();
+
+	// draw map layer 3
+	curTile = layer3firstTile;
+		while(curTile) {
+		// only draw the tile if it's on screen
+		if(onScreen(curTile)) {
+				curTile->draw();
+		}
+		curTile = curTile->getNextTile();
+	}
+
+	if(foreground) {
+		fillScreen(foreground);
+	}
+}
+
+inline bool Map::onScreen(Image* object)
+{
+	if(object->getX() > -TILE_WIDTH && object->getX() < GAME_WIDTH && object->getY() > -TILE_HEIGHT && object->getY() < GAME_HEIGHT)
+		return true;
+	else
+		return false;
+}
+
+void Map::fillScreen(Image* image)
+{
+	// save current location
+	float prevX = image->getX();
+	float prevY = image->getY();
+	bool r0c0 = false, r0c1 = false, r0c2 = false, r1c0 = false, r1c1 = true, r1c2 = false, r2c0 = false, r2c1 = false, r2c2 = false;
+	// r1c1 is always drawn. Up to 3 others can be drawn depending on position
+	// r0c0 r0c1 r0c2
+	// r1c0 r1c1 r1c2
+	// r2c0 r2c1 r2c2
+
+	// if the image is offscreen to the right, shift it a full width left
+	if(image->getX() > GAME_WIDTH)
+		image->setX(image->getX() - image->getWidth());
+	// if offscreen to the left, shift it right
+	if(image->getX() + image->getWidth() < 0)
+		image->setX(image->getX() + image->getWidth());
+	// if offscreen below, shift up
+	if(image->getY() > GAME_HEIGHT)
+		image->setY(image->getY() - image->getHeight());
+	// if offscreen above, shift down
+	if(image->getY() + image->getHeight() < 0)
+		image->setY(image->getY() + image->getHeight());
+	// now we know it's onscreen, so we'll draw it a max of 4 times to ensure the full screen is covered
+	image->draw(); // draw it at its current location
+	if(image->getX() > 0) // if left edge is showing
+		r1c0 = true;
+	if(image->getX() + image->getWidth() < GAME_WIDTH) // if right edge is showing
+		r1c2 = true;
+	if(image->getY() > 0) // if top edge is showing
+		r0c1 = true;
+	if(image->getY() + image->getHeight() < GAME_HEIGHT) // if bottom edge showing
+		r2c1 = true;
+	if(image->getX() > 0 && image->getY() > 0) // top left corner showing
+		r0c0 = true;
+	if(image->getY() > 0 && image->getX() + image->getWidth() < GAME_WIDTH) // top right corner
+		r0c2 = true;
+	if(image->getX() > 0 && image->getY() + image->getHeight() < GAME_HEIGHT) // bottom left corner
+		r2c0 = true;
+	if(image->getX() + image->getWidth() < GAME_WIDTH && image->getY() + image->getHeight() < GAME_HEIGHT) // bottom right corner
+		r2c2 = true;
+
+	if(r1c0) {
+		image->setX(image->getX() - image->getWidth());
+		image->draw();
+		image->setX(prevX);
+	}
+	if(r0c1) {
+		image->setY(image->getY() - image->getHeight());
+		image->draw();
+		image->setY(prevY);
+	}
+	if(r1c2) {
+		image->setX(image->getX() + image->getWidth());
+		image->draw();
+		image->setX(prevX);
+	}
+	if(r2c1) {
+		image->setY(image->getY() + image->getHeight());
+		image->draw();
+		image->setY(prevY);
+	}
+	if(r0c0) {
+		image->setX(image->getX() - image->getWidth());
+		image->setY(image->getY() - image->getHeight());
+		image->draw();
+		image->setX(prevX);
+		image->setY(prevY);
+	}
+	if(r0c2) {
+		image->setX(image->getX() + image->getWidth());
+		image->setY(image->getY() - image->getHeight());
+		image->draw();
+		image->setX(prevX);
+		image->setY(prevY);
+	}
+	if(r2c0) {
+		image->setX(image->getX() - image->getWidth());
+		image->setY(image->getY() + image->getHeight());
+		image->draw();
+		image->setX(prevX);
+		image->setY(prevY);
+	}
+	if(r2c2) {
+		image->setX(image->getX() + image->getWidth());
+		image->setY(image->getY() + image->getHeight());
+		image->draw();
+		image->setX(prevX);
+		image->setY(prevY);
+	}
+}
+
+void Map::collisionBoxes(Graphics* graphics, Character* player)
+{
+	Tile* curTile;
+	ZoneChanger* curChanger;
+	NPC* curNPC;
+	Chest* curChest;
+	Door* curDoor;
+	// draw collision boxes if enabled through console
+	if(collisionBoxMask & mapNS::TILE_MASK) {
+		curTile = firstTile;
+		while(curTile) {
+			if(onScreen(curTile))
+				drawCollisionBox(graphics, curTile, graphicsNS::LIME & graphicsNS::ALPHA50);
+			curTile = curTile->getNextTile();
+		}
+	}
+	if(collisionBoxMask & mapNS::CHANGER_MASK) {
+		curChanger = firstChanger;
+		while(curChanger) {
+			if(onScreen(curChanger))
+				drawCollisionBox(graphics, curChanger, graphicsNS::YELLOW & graphicsNS::ALPHA50);
+			curChanger = curChanger->getNextChanger();
+		}
+	}
+	if(collisionBoxMask & mapNS::NPC_MASK) {
+		curNPC = firstNPC;
+		while(curNPC) {
+			if(onScreen(curNPC))
+				drawCollisionBox(graphics, curNPC, graphicsNS::GRAY & graphicsNS::ALPHA50);
+			curNPC = curNPC->getNextNPC();
+		}
+	}
+	if(collisionBoxMask & mapNS::CHEST_MASK) {
+		curChest = firstChest;
+		while(curChest) {
+			if(onScreen(curChest))
+				drawCollisionBox(graphics, curChest, graphicsNS::CYAN & graphicsNS::ALPHA50);
+			curChest = curChest->getNextChest();
+		}
+	}
+	if(collisionBoxMask & mapNS::DOOR_MASK) {
+		curDoor = firstDoor;
+		while(curDoor) {
+			if(onScreen(curDoor))
+				drawCollisionBox(graphics, curDoor, graphicsNS::PURPLE & graphicsNS::ALPHA50);
+			curDoor = curDoor->getNextDoor();
+		}
+	}
+	if(collisionBoxMask & mapNS::PLAYER_MASK)
+		drawCollisionBox(graphics, player, graphicsNS::RED & graphicsNS::ALPHA50);
+}
+
+void Map::drawCollisionBox(Graphics* graphics, Entity* object, COLOR_ARGB color)
+{
+	// an inactive entity never collides
+	if(!object->getActive())
+		return;
+
+	// release buffer in order to create the next one
+	SAFE_RELEASE(vertexBuffer);
+	// top left
+    vtx[0].x = object->getX()+(object->getWidth()/2)+(float)object->getEdge().left;
+    vtx[0].y = object->getY()+(object->getHeight()/2)+(float)object->getEdge().top;
+    vtx[0].z = 0.0f;
+    vtx[0].rhw = 1.0f;
+    vtx[0].color = color;
+
+    // top right
+    vtx[1].x = object->getX()+(object->getWidth()/2)+(float)object->getEdge().right;
+    vtx[1].y = object->getY()+(object->getHeight()/2)+(float)object->getEdge().top;
+    vtx[1].z = 0.0f;
+    vtx[1].rhw = 1.0f;
+    vtx[1].color = color;
+
+    // bottom right
+    vtx[2].x = object->getX()+(object->getWidth()/2)+(float)object->getEdge().right;
+    vtx[2].y = object->getY()+(object->getHeight()/2)+(float)object->getEdge().bottom;
+    vtx[2].z = 0.0f;
+    vtx[2].rhw = 1.0f;
+    vtx[2].color = color;
+
+    // bottom left
+    vtx[3].x = object->getX()+(object->getWidth()/2)+(float)object->getEdge().left;
+    vtx[3].y = object->getY()+(object->getHeight()/2)+(float)object->getEdge().bottom;
+    vtx[3].z = 0.0f;
+    vtx[3].rhw = 1.0f;
+    vtx[3].color = color;
+
+//	if(!vertexBuffer)
+	graphics->createVertexBuffer(vtx, sizeof vtx, vertexBuffer);
+
+	graphics->drawQuad(vertexBuffer);       // draw collision box
 }
 
 /* replaced by WichitaGame::solidObjectCollision()
