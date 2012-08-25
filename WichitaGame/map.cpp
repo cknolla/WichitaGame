@@ -14,8 +14,11 @@ Map::Map()
 	firstNPC = NULL;
 	firstChest = NULL;
 	firstDoor = NULL;
+	backgroundTexture = NULL;
+	foregroundTexture = NULL;
 	background = NULL;
 	foreground = NULL;
+	tileNumbers = false;
 	collisionBoxMask = 0;
 	vertexBuffer = NULL;
 }
@@ -467,7 +470,7 @@ void Map::render(Character* player)
 	while(curTile) {
 		// only draw the tile if it's on screen
 		if(curTile->onScreen())
-				curTile->draw();
+			curTile->draw();
 		curTile = curTile->getNextTile();
 	}
 	
@@ -476,7 +479,7 @@ void Map::render(Character* player)
 		while(curTile) {
 		// only draw the tile if it's on screen
 		if(curTile->onScreen()) {
-				curTile->draw();
+			curTile->draw();
 		}
 		curTile = curTile->getNextTile();
 	}
@@ -507,10 +510,10 @@ void Map::render(Character* player)
 
 	// draw map layer 3
 	curTile = layer3firstTile;
-		while(curTile) {
+	while(curTile) {
 		// only draw the tile if it's on screen
 		if(curTile->onScreen()) {
-				curTile->draw();
+			curTile->draw();
 		}
 		curTile = curTile->getNextTile();
 	}
@@ -702,6 +705,26 @@ void Map::drawCollisionBox(Graphics* graphics, Entity* object, COLOR_ARGB color)
 	graphics->drawQuad(vertexBuffer);       // draw collision box
 }
 
+void Map::drawTileNumbers()
+{
+	char numBuffer[20];
+	int row, col;
+
+	Tile* curTile = firstTile;
+	for(row = 0; row < height; row++) {
+		for(col = 0; col < width; col++) {
+			if(curTile) {
+				if(curTile->onScreen()) {
+					// tiles are drawn across, then down, so the row/col variables will align with curTile
+					sprintf_s(numBuffer, "%d,%d", col, row);                                              // 4 pixel offset on odd numbered tiles
+					tileNum.print(numBuffer, (int)curTile->getX(), (int)curTile->getY());//+(4*(col%2)));
+				}
+				curTile = curTile->getNextTile();
+			}
+		}
+	}
+}
+
 /* replaced by WichitaGame::solidObjectCollision()
 
 void Map::collisions(Character& player)
@@ -815,23 +838,35 @@ void Map::getXY(float & x , float & y , int tileX , int tileY ){
 	y = (float)tileY*TILE_HEIGHT;  
 }
 
-void Map::setBackground(Graphics* g, TextureManager* texture)
+void Map::setBackground(Graphics* g, const char* textureFile)
 {
+	// delete current texture if it exists, create a new one, and initialize it
+	SAFE_DELETE(backgroundTexture);
+	backgroundTexture = new TextureManager;
+	if(!backgroundTexture->initialize(g, textureFile))
+		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing background texture"));
+
 	// delete current background if it exists
 	SAFE_DELETE(background);
 	background = new Bgfg;
-	if(!background->initialize(g, 0, 0, 0, texture))
+	if(!background->initialize(g, 0, 0, 0, backgroundTexture))
 		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing map background"));
 	background->setX(0.0);
 	background->setY(0.0);
 }
 
-void Map::setForeground(Graphics* g, TextureManager* texture)
+void Map::setForeground(Graphics* g, const char* textureFile)
 {
+	// delete current texture if it exists, create a new one, and initialize it
+	SAFE_DELETE(foregroundTexture);
+	foregroundTexture = new TextureManager;
+	if(!foregroundTexture->initialize(g, textureFile))
+		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing foreground texture"));
+
 	// delete current foreground if it exists
 	SAFE_DELETE(foreground);
 	foreground = new Bgfg;
-	if(!foreground->initialize(g, 0, 0, 0, texture))
+	if(!foreground->initialize(g, 0, 0, 0, foregroundTexture))
 		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing map foreground"));
 	foreground->setX(0.0);
 	foreground->setY(0.0);
@@ -916,6 +951,10 @@ void Map::onLostDevice()
 		curTexture->onLostDevice();
 		curTexture = curTexture->getNextTexture();
 	}
+	if(backgroundTexture)
+		backgroundTexture->onLostDevice();
+	if(foregroundTexture)
+		foregroundTexture->onLostDevice();
 }
 
 void Map::onResetDevice()
@@ -925,6 +964,10 @@ void Map::onResetDevice()
 		curTexture->onResetDevice();
 		curTexture = curTexture->getNextTexture();
 	}
+	if(backgroundTexture)
+		backgroundTexture->onResetDevice();
+	if(foregroundTexture)
+		foregroundTexture->onResetDevice();
 }
 
 void Map::unload()
@@ -943,6 +986,8 @@ void Map::unload()
 	Door* nextDoor;
 
 	onLostDevice();
+	SAFE_DELETE(backgroundTexture);
+	SAFE_DELETE(foregroundTexture);
 	SAFE_DELETE(background);
 	SAFE_DELETE(foreground);
 	// delete the full linked list of tiles and textures

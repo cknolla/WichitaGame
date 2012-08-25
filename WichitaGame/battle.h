@@ -3,7 +3,9 @@
 
 #include "textureManager.h"
 #include "entity.h"
+#include "character.h"
 #include "text.h"
+#include "monster.h"
 #include <sstream>
 
 #ifndef _BATTLE_H
@@ -12,15 +14,19 @@
 class Battle
 {
 private:
+	TextureManager backgroundTexture;
 	Image battleBackground;
-	Text healthText;
-	Entity* player;
+	Text playerHealthText;
+	Text monsterHealthText;
+	Character* player;
+	Monster* firstMonster;
+	Monster testMonster;
 public:
 	Battle();
 	~Battle();
 
 	//Initialization function prototype
-	bool initialize(Graphics *g,TextureManager *textureM, Entity* p1);
+	bool initialize(Graphics *g, const char* textureFile, Character* p1);
 
 	void update(float frameTime);
 	// render battle screen each frame
@@ -28,8 +34,9 @@ public:
 
 	//Retrieve the background image for drawing
 	Image getBackground(){return battleBackground;};
-	//void setHealth(Text sentHealth){health = sentHealth; return;};
-	Text* getHealth(){return &healthText;};
+
+	void onLostDevice();
+	void onResetDevice();
 
 	
 };

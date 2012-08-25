@@ -4,28 +4,39 @@
 Battle::Battle()
 {
 	player = NULL;
+	firstMonster = NULL;
 }
 
 Battle::~Battle()
 {
 }
 
-bool Battle::initialize(Graphics *g,TextureManager *textureM, Entity* p1)
+bool Battle::initialize(Graphics *g, const char* textureFile, Character* p1)
 {
+
+	//Initialize the background texture
+	if(!backgroundTexture.initialize(g,textureFile))
+		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing background texture"));
 	//Setup the battle background with whatever background is passed in.
-	battleBackground.initialize(g,0,0,0,textureM);
+	battleBackground.initialize(g,0,0,0,&backgroundTexture);
 	
 	//Initialize text with the font image
-    if (!healthText.initialize(g,"pictures\\text\\CKfont.png"))
+    if (!playerHealthText.initialize(g,"pictures\\text\\CKfont.png"))
+        throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing font"));
+
+	//Initialize text with the font image
+    if (!monsterHealthText.initialize(g,"pictures\\text\\CKfont.png"))
         throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing font"));
 
 	//Set font size
-	healthText.setFontHeight(12);
+	playerHealthText.setFontHeight(12);
+	monsterHealthText.setFontHeight(12);
 	//Turn off
 	//healthText->setBold(false);
 
-    healthText.setProportional(true);
-    healthText.setFontColor(graphicsNS::WHITE); // solid
+//   playerHealthText.setProportional(true);
+    playerHealthText.setFontColor(graphicsNS::WHITE); // solid
+	monsterHealthText.setFontColor(graphicsNS::WHITE);
 
 	// assign player pointer
 	player = p1;
@@ -35,8 +46,25 @@ bool Battle::initialize(Graphics *g,TextureManager *textureM, Entity* p1)
 
 void Battle::render()
 {
+	char buffer[200];
 	//Print Battle Background
 	battleBackground.draw();
 	//Print player health
-	healthText.print(toString(player->getHealth()),100,GAME_HEIGHT-100);
+	sprintf_s(buffer, "Player HP: %.0f", player->getHealth());
+	playerHealthText.print(buffer, 100, GAME_HEIGHT-100);
+
+	sprintf_s(buffer, "Monster HP: %.0f", testMonster.getHealth());
+	monsterHealthText.print(buffer, GAME_WIDTH-200, GAME_HEIGHT-100);
+}
+
+void Battle::onLostDevice()
+{
+	backgroundTexture.onLostDevice();
+	playerHealthText.onLostDevice();
+}
+
+void Battle::onResetDevice()
+{
+	backgroundTexture.onResetDevice();
+	playerHealthText.onResetDevice();
 }

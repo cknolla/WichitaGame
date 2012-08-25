@@ -22,8 +22,8 @@ WichitaGame::WichitaGame()
 	if(!debugFile.is_open())
 		throw(GameError(gameErrorNS::FATAL_ERROR, "Error opening debug file"));
 	currentMap = NULL;
+	currentBattle = NULL;
 	noclip = false;
-	tileNumbers = false;
 	
 	spawnCount = 0;
 }
@@ -39,6 +39,7 @@ WichitaGame::~WichitaGame()
     SAFE_DELETE(dxFont);
 	SAFE_DELETE(debugLine);
 	SAFE_DELETE(currentMap);
+	battleEnd();
 }
 
 //=============================================================================
@@ -60,9 +61,6 @@ void WichitaGame::initialize(HWND hwnd)
 		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing chest texture"));
 
 	if(!doorTexture.initialize(graphics, "pictures/door.png"))
-		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing door texture"));
-
-	if(!foregroundTexture.initialize(graphics, "pictures/graveyard2.0/fogforeground.png"))
 		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing door texture"));
 
 
@@ -183,8 +181,7 @@ void WichitaGame::update()
 		
 		//Press H to start a battle
 		if(input->wasKeyPressed('H')) {
-			input->clearKeyPress('H');
-			battleStart("pictures\\battle\\FordBack.jpg");
+			battleStart("pictures/battle/battle_background.jpg");
 		}
 		// Update the map BEFORE the character since it manipulates the player's position
 		currentMap->update(player, frameTime);
@@ -192,7 +189,6 @@ void WichitaGame::update()
 	} else {
 		if(input->wasKeyPressed('H')) {
 			battleOn = false;
-			input->clearKeyPress('H');
 		}
 	}
 
@@ -255,10 +251,6 @@ void WichitaGame::collisions()
 //=============================================================================
 void WichitaGame::render()
 {
-	Tile* curTile = currentMap->getFirstTile();
-	Text* tileNum = NULL;
-	char numBuffer[20];
-	int row, col;
 
 
     graphics->spriteBegin();                // begin drawing sprites
@@ -266,25 +258,13 @@ void WichitaGame::render()
 //  Can't draw sprites outside this area ////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Draw from bottom to top
-	if(!battleOn) {
+	// if not in battle and currentMap is initialized
+	if(!battleOn && currentMap) {
 		currentMap->render(&player);		
 
 		// print x,y position on tiles if debug option is enabled
-		if(tileNumbers) {
-			curTile = currentMap->getFirstTile();
-			for(row = 0; row < currentMap->getHeight(); row++) {
-				for(col = 0; col < currentMap->getWidth(); col++) {
-					if(curTile) {
-						if(curTile->onScreen()) {
-							// tiles are drawn across, then down, so the row/col variables will align with curTile
-							sprintf_s(numBuffer, "%d,%d", col, row);                                              // 4 pixel offset on odd numbered tiles
-							currentMap->getTileNum()->print(numBuffer, (int)curTile->getX(), (int)curTile->getY());//+(4*(col%2)));
-						}
-						curTile = curTile->getNextTile();
-					}
-				}
-			}
-		}
+		if(currentMap->getTileNumbers())
+			currentMap->drawTileNumbers();
 	}
 	
 	if(itemSpawnExists()){
@@ -303,7 +283,7 @@ void WichitaGame::render()
 	
 	//Draw new Items if in a battle
 	if(battleOn){
-		battle.render();
+		currentBattle->render();
 	}
 	
 
@@ -357,68 +337,92 @@ void WichitaGame::consoleCommand()
 
 	if(command == "tn" || command == "tileNumbers")
 	{
-		tileNumbers = !tileNumbers;               // toggle display of x,y tile position
-		if(tileNumbers)
-			console->print("Tile numbers on");
-		else
-			console->print("Tile numbers off");
+		if(currentMap) {
+			currentMap->setTileNumbers(!currentMap->getTileNumbers());               // toggle display of x,y tile position
+			if(currentMap->getTileNumbers())
+				console->print("Tile numbers on");
+			else
+				console->print("Tile numbers off");
+		} else
+			console->print("No map loaded");
 	}
 
 	if(command == "cb" || command == "collisionBoxes")
 	{
-		// toggle display of object collision boxes (not tiles)
-		currentMap->setCollsionBoxMask(currentMap->getCollisionBoxMask() ^ (mapNS::PLAYER_MASK | mapNS::CHANGER_MASK | mapNS::CHEST_MASK | mapNS::NPC_MASK | mapNS::DOOR_MASK));
-		console->print("Non-tile collision boxes swapped");
+		if(currentMap) {
+			// toggle display of object collision boxes (not tiles)
+			currentMap->setCollsionBoxMask(currentMap->getCollisionBoxMask() ^ (mapNS::PLAYER_MASK | mapNS::CHANGER_MASK | mapNS::CHEST_MASK | mapNS::NPC_MASK | mapNS::DOOR_MASK));
+			console->print("Non-tile collision boxes swapped");
+		} else
+			console->print("No map loaded");
 	}
 
 	if(command == "cb tile")
 	{
-		currentMap->setCollsionBoxMask(currentMap->getCollisionBoxMask() ^ (mapNS::TILE_MASK));
-		if(currentMap->getCollisionBoxMask() & mapNS::TILE_MASK)
-			console->print("Tile collision boxes on");
-		else
-			console->print("Tile collision boxes off");
+		if(currentMap) {
+			currentMap->setCollsionBoxMask(currentMap->getCollisionBoxMask() ^ (mapNS::TILE_MASK));
+			if(currentMap->getCollisionBoxMask() & mapNS::TILE_MASK)
+				console->print("Tile collision boxes on");
+			else
+				console->print("Tile collision boxes off");
+		} else
+			console->print("No map loaded");
 	}
 	if(command == "cb player")
 	{
-		currentMap->setCollsionBoxMask(currentMap->getCollisionBoxMask() ^ (mapNS::PLAYER_MASK));
-		if(currentMap->getCollisionBoxMask() & mapNS::PLAYER_MASK)
-			console->print("Player collision boxes on");
-		else
-			console->print("Player collision boxes off");
+		if(currentMap) {
+			currentMap->setCollsionBoxMask(currentMap->getCollisionBoxMask() ^ (mapNS::PLAYER_MASK));
+			if(currentMap->getCollisionBoxMask() & mapNS::PLAYER_MASK)
+				console->print("Player collision boxes on");
+			else
+				console->print("Player collision boxes off");
+		} else
+			console->print("No map loaded");
 	}
 	if(command == "cb changer")
 	{
-		currentMap->setCollsionBoxMask(currentMap->getCollisionBoxMask() ^ (mapNS::CHANGER_MASK));
-		if(currentMap->getCollisionBoxMask() & mapNS::CHANGER_MASK)
-			console->print("Changer collision boxes on");
-		else
-			console->print("Changer collision boxes off");
+		if(currentMap) {
+			currentMap->setCollsionBoxMask(currentMap->getCollisionBoxMask() ^ (mapNS::CHANGER_MASK));
+			if(currentMap->getCollisionBoxMask() & mapNS::CHANGER_MASK)
+				console->print("Changer collision boxes on");
+			else
+				console->print("Changer collision boxes off");
+		} else
+			console->print("No map loaded");
 	}
 	if(command == "cb npc")
 	{
-		currentMap->setCollsionBoxMask(currentMap->getCollisionBoxMask() ^ (mapNS::NPC_MASK));
-		if(currentMap->getCollisionBoxMask() & mapNS::NPC_MASK)
-			console->print("NPC collision boxes on");
-		else
-			console->print("NPC collision boxes off");
+		if(currentMap) {
+			currentMap->setCollsionBoxMask(currentMap->getCollisionBoxMask() ^ (mapNS::NPC_MASK));
+			if(currentMap->getCollisionBoxMask() & mapNS::NPC_MASK)
+				console->print("NPC collision boxes on");
+			else
+				console->print("NPC collision boxes off");
+		} else
+			console->print("No map loaded");
 	}
 	if(command == "cb chest")
 	{
-		currentMap->setCollsionBoxMask(currentMap->getCollisionBoxMask() ^ (mapNS::CHEST_MASK));
-		if(currentMap->getCollisionBoxMask() & mapNS::CHEST_MASK)
-			console->print("Chest collision boxes on");
-		else
-			console->print("Chest collision boxes off");
+		if(currentMap) {
+			currentMap->setCollsionBoxMask(currentMap->getCollisionBoxMask() ^ (mapNS::CHEST_MASK));
+			if(currentMap->getCollisionBoxMask() & mapNS::CHEST_MASK)
+				console->print("Chest collision boxes on");
+			else
+				console->print("Chest collision boxes off");
+		} else
+			console->print("No map loaded");
 	}
 	if(command == "cb door")
 	{
-		currentMap->setCollsionBoxMask(currentMap->getCollisionBoxMask() ^ (mapNS::DOOR_MASK));
-		if(currentMap->getCollisionBoxMask() & mapNS::DOOR_MASK)
-			console->print("Door collision boxes on");
-		else
-			console->print("Door collision boxes off");
-	}
+		if(currentMap) {
+			currentMap->setCollsionBoxMask(currentMap->getCollisionBoxMask() ^ (mapNS::DOOR_MASK));
+			if(currentMap->getCollisionBoxMask() & mapNS::DOOR_MASK)
+				console->print("Door collision boxes on");
+			else
+				console->print("Door collision boxes off");
+		} else
+			console->print("No map loaded");
+	} 
 }
 
 //=============================================================================
@@ -454,7 +458,7 @@ bool WichitaGame::loadMap(MAP_LIST newMap, float startX, float startY)
 			if(!redGuy->initialize(this,34,34,2,&redCharTexture))
 				throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing redGuy"));
 
-			currentMap->setForeground(graphics, &foregroundTexture);
+			currentMap->setForeground(graphics, "pictures/graveyard2.0/fogforeground.png");
 			currentMap->getForeground()->setAutoVscroll(-100.0);
 
 			topChanger->setStartingPos(8,0); // top center of graveyard
@@ -493,7 +497,7 @@ bool WichitaGame::loadMap(MAP_LIST newMap, float startX, float startY)
 			if(!door->initialize(this,32,32,2, &doorTexture))
 				throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing door"));
 
-			currentMap->setBackground(graphics, &foregroundTexture);
+			currentMap->setBackground(graphics, "pictures/graveyard2.0/fogforeground.png");
 			currentMap->getBackground()->setParallax(0.5);
 
 			pitChanger->setStartingPos(8,2);
@@ -523,7 +527,7 @@ bool WichitaGame::loadMap(MAP_LIST newMap, float startX, float startY)
 			if(!graveyardChanger->initialize(GRAVEYARD2,this,0, 0, 0, &changerTexture))
 				throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing testMap changer"));
 
-			currentMap->setForeground(graphics, &foregroundTexture);
+			currentMap->setForeground(graphics, "pictures/graveyard2.0/fogforeground.png");
 			currentMap->getForeground()->setAutoHscroll(70.0);
 			currentMap->getForeground()->setAutoVscroll(70.0);
 
@@ -540,7 +544,7 @@ bool WichitaGame::loadMap(MAP_LIST newMap, float startX, float startY)
 			if(!graveyardChanger->initialize(GRAVEYARD2,this,0, 0, 0, &changerTexture))
 				throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing testMap2 changer"));
 
-			currentMap->setForeground(graphics, &foregroundTexture);
+			currentMap->setForeground(graphics, "pictures/graveyard2.0/fogforeground.png");
 			currentMap->getForeground()->setAutoHscroll(150.0);
 
 			graveyardChanger->setStartingPos(10,13);
@@ -714,14 +718,19 @@ void WichitaGame::solidObjectCollision(Entity &object1, Entity &object2)
 //=============================================================================
 void WichitaGame::battleStart(const char* backgroundPic)
 {
+	SAFE_DELETE(currentBattle); // if it exists
+	currentBattle = new Battle;
+
 	printf("Battle Started\n");
 
-	//Initialize the background texture
-	if(!battleBackgroundTexture.initialize(graphics,backgroundPic))
-		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing background texture"));
 	//Initialize the battle
-	if(!battle.initialize(graphics, &battleBackgroundTexture, &player))
+	if(!currentBattle->initialize(graphics, backgroundPic, &player))
 		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing battle"));
-	battleOn=true;
-	return;
+	battleOn = true;
+}
+
+void WichitaGame::battleEnd()
+{
+	battleOn = false;
+	SAFE_DELETE(currentBattle);
 }

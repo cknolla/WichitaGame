@@ -59,6 +59,8 @@ private:
 	NPC* firstNPC;
 	Chest* firstChest;
 	Door* firstDoor;
+	TextureManager* foregroundTexture;
+	TextureManager* backgroundTexture;
 	Bgfg* background;
 	Bgfg* foreground;
 	bool initialized;
@@ -67,6 +69,7 @@ private:
 	// player starting position
 	float startX;
 	float startY;
+	bool tileNumbers;
 	unsigned int collisionBoxMask;
 	VertexC vtx[4];                     // vertex data for collision boxes
     LP_VERTEXBUFFER vertexBuffer;       // buffer to hold collision box vertices
@@ -85,6 +88,8 @@ public:
 	void collisionBoxes(Graphics* graphics, Character* player);
 	// draw a semi-transparent box representing the collision area for an entity
 	void drawCollisionBox(Graphics* graphics, Entity* object, COLOR_ARGB color);
+	// draws x,y position on tiles
+	void drawTileNumbers();
 	// process collisions with player
 	// replaced by WichitaGame::solidObjectCollision()
 //	void collisions(Character& player);
@@ -131,20 +136,17 @@ public:
 	// Set first tile in the linked list
 	void setLayer3FirstTile(Tile* nt) { layer3firstTile = nt; }
 
-	// Get pointer to tileNum TextDX
-	Text* getTileNum() { return &tileNum; };
-
 	// get background image
 	Bgfg* getBackground() { return background; }
 
 	// create image and use passed texture
-	void setBackground(Graphics* g, TextureManager* texture);
+	void setBackground(Graphics* g, const char* textureFile);
 
 	// get foreground image
 	Bgfg* getForeground() { return foreground; }
 
 	// create image and use passed texture
-	void setForeground(Graphics* g, TextureManager* texture);
+	void setForeground(Graphics* g, const char* textureFile);
 
 	// Return first ZoneChanger in linked list
 	ZoneChanger* getFirstChanger() { return firstChanger; }
@@ -168,6 +170,12 @@ public:
 
 	// add a ZoneDoor to the Door list
 	Door* addDoor();
+
+	// return whether tile numbers are shown
+	bool getTileNumbers() { return tileNumbers; }
+
+	// set whether tile numbers are shown
+	void setTileNumbers(bool tn) { tileNumbers = tn; }
 
 	// return current mask
 	unsigned int getCollisionBoxMask() { return collisionBoxMask; }

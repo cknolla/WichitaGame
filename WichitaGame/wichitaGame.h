@@ -23,6 +23,7 @@
 #include "door.h"
 #include "bgfg.h"
 #include "battle.h"
+#include "monster.h"
 
 #include <list>
 #include <iterator>
@@ -58,18 +59,16 @@ private:
 	TextureManager blankTexture;
 	TextureManager chestTexture;
 	TextureManager doorTexture;
-	TextureManager foregroundTexture;
 
 	Character player;
 
 	Map* currentMap;
+	Battle* currentBattle;
 	Map testMap;
     TextDX  *dxFont;            // DirectX font
 	TextDX *debugLine;
     std::string  message;
 	TextureManager spawnTexture;
-	//Actual battle entity
-	Battle battle; 
 	//Battle background texture
 	TextureManager battleBackgroundTexture;
 	//ItemSpawn* itemSpawn;
@@ -80,7 +79,8 @@ private:
 	char debugLineBuf[1000];
 	std::ofstream debugFile;
 	bool noclip;
-	bool tileNumbers;
+	//Battle definition bool
+	bool battleOn;
 	/*
 	bool collisionBoxPlayer;
 	bool collisionBoxTile;
@@ -118,10 +118,9 @@ public:
 	// object 1 is usually player. If player hits collidable object 2, resist his movement
 	void solidObjectCollision(Entity &object1, Entity &object2);
 
-
-	//Battle definition bool
-	bool battleOn;
 	//Battle function initializer 
 	void battleStart(const char* file);
+	// Destroy current battle
+	void battleEnd();
 };
 #endif
