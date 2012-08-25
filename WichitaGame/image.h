@@ -206,6 +206,9 @@ class Image
 
     // Update the animation. frameTime is used to regulate the speed.
     virtual void update(float frameTime);
+
+	// return true if any portion of the sprite is visible in the game window
+	virtual bool onScreen();
 };
 
 #endif

@@ -193,3 +193,11 @@ void Image::setStartingPos(int tileX, int tileY)
 
 }
 
+bool Image::onScreen()
+{
+	if(spriteData.x > -spriteData.width && spriteData.x < GAME_WIDTH && spriteData.y > -spriteData.height && spriteData.y < GAME_HEIGHT)
+		return true;
+	else
+		return false;
+}
+

@@ -53,6 +53,7 @@ private:
 	// map's reset()
 	// game's render()
 	// console collision box mask and command
+	// Map::collisionBoxes()
 	TextureManager* firstTexture;
 	ZoneChanger* firstChanger;
 	NPC* firstNPC;
@@ -78,8 +79,6 @@ public:
 	void update(Character& player, float frameTime);
 	// render map and objects
 	void render(Character* player);
-	// check if object's position makes it visible on screen
-	inline bool onScreen(Image* object);
 	// fill screen with background/foreground
 	void fillScreen(Image* image);
 	// check if collision boxes need to be drawn

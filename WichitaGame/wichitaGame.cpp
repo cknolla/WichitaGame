@@ -275,7 +275,7 @@ void WichitaGame::render()
 			for(row = 0; row < currentMap->getHeight(); row++) {
 				for(col = 0; col < currentMap->getWidth(); col++) {
 					if(curTile) {
-						if(onScreen(curTile)) {
+						if(curTile->onScreen()) {
 							// tiles are drawn across, then down, so the row/col variables will align with curTile
 							sprintf_s(numBuffer, "%d,%d", col, row);                                              // 4 pixel offset on odd numbered tiles
 							currentMap->getTileNum()->print(numBuffer, (int)curTile->getX(), (int)curTile->getY());//+(4*(col%2)));
@@ -671,14 +671,6 @@ bool WichitaGame::destroyItemSpawn(){
 
 bool WichitaGame::itemSpawnExists(){
 	return !spawnList.empty();
-}
-
-inline bool WichitaGame::onScreen(Image* object)
-{
-	if(object->getX() > -TILE_WIDTH && object->getX() < GAME_WIDTH && object->getY() > -TILE_HEIGHT && object->getY() < GAME_HEIGHT)
-		return true;
-	else
-		return false;
 }
 
 void WichitaGame::solidObjectCollision(Entity &object1, Entity &object2)

@@ -466,7 +466,7 @@ void Map::render(Character* player)
 	// draw bottom map layer
 	while(curTile) {
 		// only draw the tile if it's on screen
-		if(onScreen(curTile))
+		if(curTile->onScreen())
 				curTile->draw();
 		curTile = curTile->getNextTile();
 	}
@@ -475,30 +475,30 @@ void Map::render(Character* player)
 	curTile = layer2firstTile;
 		while(curTile) {
 		// only draw the tile if it's on screen
-		if(onScreen(curTile)) {
+		if(curTile->onScreen()) {
 				curTile->draw();
 		}
 		curTile = curTile->getNextTile();
 	}
 
 	while(curChanger) {
-		if(onScreen(curChanger)) {
+		if(curChanger->onScreen()) {
 			curChanger->draw();
 		}
 		curChanger = curChanger->getNextChanger();
 	}
 	while(curNPC) {
-		if(onScreen(curNPC))
+		if(curNPC->onScreen())
 			curNPC->draw();
 		curNPC = curNPC->getNextNPC();
 	}
 	while(curChest) {
-		if(onScreen(curChest))
+		if(curChest->onScreen())
 			curChest->draw();
 		curChest = curChest->getNextChest();
 	}
 	while(curDoor) {
-		if(onScreen(curDoor))
+		if(curDoor->onScreen())
 			curDoor->draw();
 		curDoor = curDoor->getNextDoor();
 	}
@@ -509,7 +509,7 @@ void Map::render(Character* player)
 	curTile = layer3firstTile;
 		while(curTile) {
 		// only draw the tile if it's on screen
-		if(onScreen(curTile)) {
+		if(curTile->onScreen()) {
 				curTile->draw();
 		}
 		curTile = curTile->getNextTile();
@@ -520,13 +520,6 @@ void Map::render(Character* player)
 	}
 }
 
-inline bool Map::onScreen(Image* object)
-{
-	if(object->getX() > -TILE_WIDTH && object->getX() < GAME_WIDTH && object->getY() > -TILE_HEIGHT && object->getY() < GAME_HEIGHT)
-		return true;
-	else
-		return false;
-}
 
 void Map::fillScreen(Image* image)
 {
@@ -622,48 +615,43 @@ void Map::fillScreen(Image* image)
 
 void Map::collisionBoxes(Graphics* graphics, Character* player)
 {
-	Tile* curTile;
-	ZoneChanger* curChanger;
-	NPC* curNPC;
-	Chest* curChest;
-	Door* curDoor;
+	Tile* curTile = firstTile;
+	ZoneChanger* curChanger = firstChanger;
+	NPC* curNPC = firstNPC;
+	Chest* curChest = firstChest;
+	Door* curDoor = firstDoor;
 	// draw collision boxes if enabled through console
 	if(collisionBoxMask & mapNS::TILE_MASK) {
-		curTile = firstTile;
 		while(curTile) {
-			if(onScreen(curTile))
+			if(curTile->onScreen())
 				drawCollisionBox(graphics, curTile, graphicsNS::LIME & graphicsNS::ALPHA50);
 			curTile = curTile->getNextTile();
 		}
 	}
 	if(collisionBoxMask & mapNS::CHANGER_MASK) {
-		curChanger = firstChanger;
 		while(curChanger) {
-			if(onScreen(curChanger))
+			if(curChanger->onScreen())
 				drawCollisionBox(graphics, curChanger, graphicsNS::YELLOW & graphicsNS::ALPHA50);
 			curChanger = curChanger->getNextChanger();
 		}
 	}
 	if(collisionBoxMask & mapNS::NPC_MASK) {
-		curNPC = firstNPC;
 		while(curNPC) {
-			if(onScreen(curNPC))
+			if(curNPC->onScreen())
 				drawCollisionBox(graphics, curNPC, graphicsNS::GRAY & graphicsNS::ALPHA50);
 			curNPC = curNPC->getNextNPC();
 		}
 	}
 	if(collisionBoxMask & mapNS::CHEST_MASK) {
-		curChest = firstChest;
 		while(curChest) {
-			if(onScreen(curChest))
+			if(curChest->onScreen())
 				drawCollisionBox(graphics, curChest, graphicsNS::CYAN & graphicsNS::ALPHA50);
 			curChest = curChest->getNextChest();
 		}
 	}
 	if(collisionBoxMask & mapNS::DOOR_MASK) {
-		curDoor = firstDoor;
 		while(curDoor) {
-			if(onScreen(curDoor))
+			if(curDoor->onScreen())
 				drawCollisionBox(graphics, curDoor, graphicsNS::PURPLE & graphicsNS::ALPHA50);
 			curDoor = curDoor->getNextDoor();
 		}

@@ -118,12 +118,10 @@ public:
 	// object 1 is usually player. If player hits collidable object 2, resist his movement
 	void solidObjectCollision(Entity &object1, Entity &object2);
 
-	// check if object's position makes it visible on screen
-	inline bool onScreen(Image* object);
 
 	//Battle definition bool
 	bool battleOn;
 	//Battle function initializer 
-	void WichitaGame::battleStart(const char* file);
+	void battleStart(const char* file);
 };
 #endif
