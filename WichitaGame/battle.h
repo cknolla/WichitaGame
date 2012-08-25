@@ -6,6 +6,7 @@
 #include "character.h"
 #include "text.h"
 #include "monster.h"
+#include "bgfg.h"
 #include <sstream>
 
 #ifndef _BATTLE_H
@@ -15,18 +16,22 @@
 namespace battleNS
 {
 	const float PLAYER1_X = 100.0;
-	const float PLAYER1_Y = GAME_WIDTH / 2;
+	const float PLAYER1_Y = 500.0;
 	const float MONSTER1_X = GAME_WIDTH - 100.0;
-	const float MONSTER1_Y = GAME_WIDTH / 2;
+	const float MONSTER1_Y = 500.0;
 };
 
 class Battle
 {
 private:
 	TextureManager backgroundTexture;
+	TextureManager foregroundTexture;
+	TextureManager sceneTexture;
 	TextureManager playerTexture;
 	TextureManager monsterTexture;
-	Image battleBackground;
+	Bgfg background;
+	Bgfg foreground;
+	Image scene;
 	Text playerHealthText;
 	Text monsterHealthText;
 	Character player;
@@ -37,14 +42,15 @@ public:
 	~Battle();
 
 	//Initialization function prototype
-	bool initialize(Game* gamePtr, const char* textureFile);
+	bool initialize(Game* gamePtr, const char* sceneTextureFile, const char* bgTextureFile = NULL, const char* fgTextureFile = NULL);
 
 	void update(float frameTime);
 	// render battle screen each frame
 	void render();
 
-	//Retrieve the background image for drawing
-	Image getBackground(){return battleBackground;};
+	Bgfg* getForeground() { return &foreground; }
+
+	Bgfg* getBackground() { return &background; }
 
 	void onLostDevice();
 	void onResetDevice();

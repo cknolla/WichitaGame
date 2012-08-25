@@ -463,7 +463,7 @@ void Map::render(Character* player)
 
 	// draw infinite looping background
 	if(background) {
-		fillScreen(background);
+		background->fillScreen();
 	}
 
 	// draw bottom map layer
@@ -519,100 +519,7 @@ void Map::render(Character* player)
 	}
 
 	if(foreground) {
-		fillScreen(foreground);
-	}
-}
-
-
-void Map::fillScreen(Image* image)
-{
-	// save current location
-	float prevX = image->getX();
-	float prevY = image->getY();
-	bool r0c0 = false, r0c1 = false, r0c2 = false, r1c0 = false, r1c1 = true, r1c2 = false, r2c0 = false, r2c1 = false, r2c2 = false;
-	// r1c1 is always drawn. Up to 3 others can be drawn depending on position
-	// r0c0 r0c1 r0c2
-	// r1c0 r1c1 r1c2
-	// r2c0 r2c1 r2c2
-
-	// if the image is offscreen to the right, shift it a full width left
-	if(image->getX() > GAME_WIDTH)
-		image->setX(image->getX() - image->getWidth());
-	// if offscreen to the left, shift it right
-	if(image->getX() + image->getWidth() < 0)
-		image->setX(image->getX() + image->getWidth());
-	// if offscreen below, shift up
-	if(image->getY() > GAME_HEIGHT)
-		image->setY(image->getY() - image->getHeight());
-	// if offscreen above, shift down
-	if(image->getY() + image->getHeight() < 0)
-		image->setY(image->getY() + image->getHeight());
-	// now we know it's onscreen, so we'll draw it a max of 4 times to ensure the full screen is covered
-	image->draw(); // draw it at its current location
-	if(image->getX() > 0) // if left edge is showing
-		r1c0 = true;
-	if(image->getX() + image->getWidth() < GAME_WIDTH) // if right edge is showing
-		r1c2 = true;
-	if(image->getY() > 0) // if top edge is showing
-		r0c1 = true;
-	if(image->getY() + image->getHeight() < GAME_HEIGHT) // if bottom edge showing
-		r2c1 = true;
-	if(image->getX() > 0 && image->getY() > 0) // top left corner showing
-		r0c0 = true;
-	if(image->getY() > 0 && image->getX() + image->getWidth() < GAME_WIDTH) // top right corner
-		r0c2 = true;
-	if(image->getX() > 0 && image->getY() + image->getHeight() < GAME_HEIGHT) // bottom left corner
-		r2c0 = true;
-	if(image->getX() + image->getWidth() < GAME_WIDTH && image->getY() + image->getHeight() < GAME_HEIGHT) // bottom right corner
-		r2c2 = true;
-
-	if(r1c0) {
-		image->setX(image->getX() - image->getWidth());
-		image->draw();
-		image->setX(prevX);
-	}
-	if(r0c1) {
-		image->setY(image->getY() - image->getHeight());
-		image->draw();
-		image->setY(prevY);
-	}
-	if(r1c2) {
-		image->setX(image->getX() + image->getWidth());
-		image->draw();
-		image->setX(prevX);
-	}
-	if(r2c1) {
-		image->setY(image->getY() + image->getHeight());
-		image->draw();
-		image->setY(prevY);
-	}
-	if(r0c0) {
-		image->setX(image->getX() - image->getWidth());
-		image->setY(image->getY() - image->getHeight());
-		image->draw();
-		image->setX(prevX);
-		image->setY(prevY);
-	}
-	if(r0c2) {
-		image->setX(image->getX() + image->getWidth());
-		image->setY(image->getY() - image->getHeight());
-		image->draw();
-		image->setX(prevX);
-		image->setY(prevY);
-	}
-	if(r2c0) {
-		image->setX(image->getX() - image->getWidth());
-		image->setY(image->getY() + image->getHeight());
-		image->draw();
-		image->setX(prevX);
-		image->setY(prevY);
-	}
-	if(r2c2) {
-		image->setX(image->getX() + image->getWidth());
-		image->setY(image->getY() + image->getHeight());
-		image->draw();
-		image->setX(prevX);
-		image->setY(prevY);
+		foreground->fillScreen();
 	}
 }
 

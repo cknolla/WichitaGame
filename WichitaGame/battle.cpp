@@ -10,16 +10,31 @@ Battle::~Battle()
 {
 }
 
-bool Battle::initialize(Game* gamePtr, const char* textureFile)
+bool Battle::initialize(Game* gamePtr, const char* sceneTextureFile, const char* bgTextureFile, const char* fgTextureFile)
 {
+	if(bgTextureFile) {
+		//Initialize the background texture
+		if(!backgroundTexture.initialize(gamePtr->getGraphics(), bgTextureFile))
+			throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing battle background texture"));
+		//Initialize the background image
+		background.initialize(gamePtr->getGraphics(),0,0,0,&backgroundTexture);
+	}
+	if(fgTextureFile) {
+		//Initialize the foreground texture
+		if(!foregroundTexture.initialize(gamePtr->getGraphics(), fgTextureFile))
+			throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing battle foreground texture"));
+		//Initialize the foreground image
+		foreground.initialize(gamePtr->getGraphics(),0,0,0,&foregroundTexture);
+	}
 
-	//Initialize the background texture
-	if(!backgroundTexture.initialize(gamePtr->getGraphics(),textureFile))
-		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing battle background texture"));
-	//Setup the battle background with whatever background is passed in.
-	battleBackground.initialize(gamePtr->getGraphics(),0,0,0,&backgroundTexture);
 
-	if(!playerTexture.initialize(gamePtr->getGraphics(),"pictures/testcharacter01.png"))
+	//Initialize the scene texture
+	if(!sceneTexture.initialize(gamePtr->getGraphics(), sceneTextureFile))
+		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing battle scene texture"));
+	//Initialize the scene image
+	scene.initialize(gamePtr->getGraphics(),0,0,0,&sceneTexture);
+
+	if(!playerTexture.initialize(gamePtr->getGraphics(), "pictures/testcharacter01.png"))
 		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing battle player texture"));
 
 	if(!player.initialize(gamePtr, 34, 34, 2, &playerTexture))
@@ -35,7 +50,7 @@ bool Battle::initialize(Game* gamePtr, const char* textureFile)
 		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing battle monster image"));
 	testMonster.setCurrentFrame(3);
 	testMonster.flipHorizontal(true);
-	testMonster.setX(battleNS::MONSTER1_X);
+	testMonster.setX(battleNS::MONSTER1_X - testMonster.getWidth());
 	testMonster.setY(battleNS::MONSTER1_Y);
 	
 	//Initialize text with the font image
@@ -59,32 +74,58 @@ bool Battle::initialize(Game* gamePtr, const char* textureFile)
 	return true;
 }
 
+void Battle::update(float frameTime)
+{
+	// autoscroll horizontally if not 0
+	if(background.getAutoHscroll()) 
+		background.setX( background.getX() + (frameTime * background.getAutoHscroll()));
+
+	// autoscroll vertically if not 0
+	if(background.getAutoVscroll())
+		background.setY( background.getY() + (frameTime * background.getAutoVscroll()));
+
+	// autoscroll horizontally if not 0
+	if(foreground.getAutoHscroll()) 
+		foreground.setX( foreground.getX() + (frameTime * foreground.getAutoHscroll()));
+
+	// autoscroll vertically if not 0
+	if(foreground.getAutoVscroll())
+		foreground.setY( foreground.getY() + (frameTime * foreground.getAutoVscroll()));
+}
+
 void Battle::render()
 {
 	char buffer[200];
-	//Print Battle Background
-	battleBackground.draw();
-	// draw UI boxes
+	// Draw background
+	background.fillScreen();
+	// Draw scene image
+	scene.draw();
+	
 
 	// draw entities
 	player.draw();
 	testMonster.draw();
+	
+	// Draw foreground
+	foreground.fillScreen();
+	// draw UI boxes
+
 	//Print player health
 	sprintf_s(buffer, "Player HP: %.0f", player.getHealth());
 	playerHealthText.print(buffer, 100, GAME_HEIGHT-100);
 
 	sprintf_s(buffer, "Monster HP: %.0f", testMonster.getHealth());
-	monsterHealthText.print(buffer, GAME_WIDTH-200, GAME_HEIGHT-100);
+	monsterHealthText.print(buffer, GAME_WIDTH-100, GAME_HEIGHT-100, textNS::RIGHT);
 }
 
 void Battle::onLostDevice()
 {
-	backgroundTexture.onLostDevice();
+	sceneTexture.onLostDevice();
 	playerHealthText.onLostDevice();
 }
 
 void Battle::onResetDevice()
 {
-	backgroundTexture.onResetDevice();
+	sceneTexture.onResetDevice();
 	playerHealthText.onResetDevice();
 }

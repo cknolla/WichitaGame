@@ -32,6 +32,9 @@ public:
 
 	// Set auto vertical scroll speed multiplier
 	void setAutoVscroll(float avs) { autoVscroll = avs; }
+
+	// fill screen with background/foreground
+	void fillScreen();
 };
 
 #endif

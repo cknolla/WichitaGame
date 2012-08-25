@@ -82,8 +82,7 @@ public:
 	void update(Character& player, float frameTime);
 	// render map and objects
 	void render(Character* player);
-	// fill screen with background/foreground
-	void fillScreen(Image* image);
+	
 	// check if collision boxes need to be drawn
 	void collisionBoxes(Graphics* graphics, Character* player);
 	// draw a semi-transparent box representing the collision area for an entity

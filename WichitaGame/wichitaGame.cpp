@@ -190,6 +190,7 @@ void WichitaGame::update()
 		if(input->wasKeyPressed('H')) {
 			battleOn = false;
 		}
+		currentBattle->update(frameTime);
 	}
 
 	sprintf_s(messageBuffer, "X: %.3f, Y: %.3f", player.getX(), player.getY());
@@ -724,8 +725,10 @@ void WichitaGame::battleStart(const char* backgroundPic)
 	printf("Battle Started\n");
 
 	//Initialize the battle
-	if(!currentBattle->initialize(this, backgroundPic))
+	if(!currentBattle->initialize(this, backgroundPic, NULL, "pictures/graveyard2.0/fogforeground.png"))
 		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing battle"));
+
+	currentBattle->getForeground()->setAutoHscroll(150.0);
 	battleOn = true;
 }
 
