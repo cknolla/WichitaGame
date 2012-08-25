@@ -3,7 +3,6 @@
 
 Battle::Battle()
 {
-	player = NULL;
 	firstMonster = NULL;
 }
 
@@ -11,21 +10,40 @@ Battle::~Battle()
 {
 }
 
-bool Battle::initialize(Graphics *g, const char* textureFile, Character* p1)
+bool Battle::initialize(Game* gamePtr, const char* textureFile)
 {
 
 	//Initialize the background texture
-	if(!backgroundTexture.initialize(g,textureFile))
-		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing background texture"));
+	if(!backgroundTexture.initialize(gamePtr->getGraphics(),textureFile))
+		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing battle background texture"));
 	//Setup the battle background with whatever background is passed in.
-	battleBackground.initialize(g,0,0,0,&backgroundTexture);
+	battleBackground.initialize(gamePtr->getGraphics(),0,0,0,&backgroundTexture);
+
+	if(!playerTexture.initialize(gamePtr->getGraphics(),"pictures/testcharacter01.png"))
+		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing battle player texture"));
+
+	if(!player.initialize(gamePtr, 34, 34, 2, &playerTexture))
+		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing battle player image"));
+	player.setCurrentFrame(3);
+	player.setX(battleNS::PLAYER1_X);
+	player.setY(battleNS::PLAYER1_Y);
+
+	if(!monsterTexture.initialize(gamePtr->getGraphics(),"pictures/testcharacter02.png"))
+		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing battle monster texture"));
+
+	if(!testMonster.initialize(gamePtr, 34, 34, 2, &monsterTexture))
+		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing battle monster image"));
+	testMonster.setCurrentFrame(3);
+	testMonster.flipHorizontal(true);
+	testMonster.setX(battleNS::MONSTER1_X);
+	testMonster.setY(battleNS::MONSTER1_Y);
 	
 	//Initialize text with the font image
-    if (!playerHealthText.initialize(g,"pictures\\text\\CKfont.png"))
+    if (!playerHealthText.initialize(gamePtr->getGraphics(),"pictures\\text\\CKfont.png"))
         throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing font"));
 
 	//Initialize text with the font image
-    if (!monsterHealthText.initialize(g,"pictures\\text\\CKfont.png"))
+    if (!monsterHealthText.initialize(gamePtr->getGraphics(),"pictures\\text\\CKfont.png"))
         throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing font"));
 
 	//Set font size
@@ -38,9 +56,6 @@ bool Battle::initialize(Graphics *g, const char* textureFile, Character* p1)
     playerHealthText.setFontColor(graphicsNS::WHITE); // solid
 	monsterHealthText.setFontColor(graphicsNS::WHITE);
 
-	// assign player pointer
-	player = p1;
-
 	return true;
 }
 
@@ -49,8 +64,13 @@ void Battle::render()
 	char buffer[200];
 	//Print Battle Background
 	battleBackground.draw();
+	// draw UI boxes
+
+	// draw entities
+	player.draw();
+	testMonster.draw();
 	//Print player health
-	sprintf_s(buffer, "Player HP: %.0f", player->getHealth());
+	sprintf_s(buffer, "Player HP: %.0f", player.getHealth());
 	playerHealthText.print(buffer, 100, GAME_HEIGHT-100);
 
 	sprintf_s(buffer, "Monster HP: %.0f", testMonster.getHealth());

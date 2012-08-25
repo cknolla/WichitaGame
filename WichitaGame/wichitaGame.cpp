@@ -724,7 +724,7 @@ void WichitaGame::battleStart(const char* backgroundPic)
 	printf("Battle Started\n");
 
 	//Initialize the battle
-	if(!currentBattle->initialize(graphics, backgroundPic, &player))
+	if(!currentBattle->initialize(this, backgroundPic))
 		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing battle"));
 	battleOn = true;
 }

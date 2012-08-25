@@ -11,14 +11,25 @@
 #ifndef _BATTLE_H
 #define _BATTLE_H
 
+
+namespace battleNS
+{
+	const float PLAYER1_X = 100.0;
+	const float PLAYER1_Y = GAME_WIDTH / 2;
+	const float MONSTER1_X = GAME_WIDTH - 100.0;
+	const float MONSTER1_Y = GAME_WIDTH / 2;
+};
+
 class Battle
 {
 private:
 	TextureManager backgroundTexture;
+	TextureManager playerTexture;
+	TextureManager monsterTexture;
 	Image battleBackground;
 	Text playerHealthText;
 	Text monsterHealthText;
-	Character* player;
+	Character player;
 	Monster* firstMonster;
 	Monster testMonster;
 public:
@@ -26,7 +37,7 @@ public:
 	~Battle();
 
 	//Initialization function prototype
-	bool initialize(Graphics *g, const char* textureFile, Character* p1);
+	bool initialize(Game* gamePtr, const char* textureFile);
 
 	void update(float frameTime);
 	// render battle screen each frame
