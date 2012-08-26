@@ -34,6 +34,16 @@ bool Battle::initialize(Game* gamePtr, const char* sceneTextureFile, const char*
 	//Initialize the scene image
 	scene.initialize(gamePtr->getGraphics(),0,0,0,&sceneTexture);
 
+	// initialize ui
+	if(!uiTexture.initialize(gamePtr->getGraphics(), "pictures/battle/uiPlaceholder.png"))
+		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing battle ui texture"));
+	//Initialize the ui image
+	ui.initialize(gamePtr->getGraphics(),0,0,0,&uiTexture);
+	ui.setX(0.0);
+	ui.setY((float)(GAME_HEIGHT - ui.getHeight()));
+
+
+	// initialize player
 	if(!playerTexture.initialize(gamePtr->getGraphics(), "pictures/testcharacter01.png"))
 		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing battle player texture"));
 
@@ -43,6 +53,7 @@ bool Battle::initialize(Game* gamePtr, const char* sceneTextureFile, const char*
 	player.setX(battleNS::PLAYER1_X);
 	player.setY(battleNS::PLAYER1_Y);
 
+	// initialize monster
 	if(!monsterTexture.initialize(gamePtr->getGraphics(),"pictures/testcharacter02.png"))
 		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing battle monster texture"));
 
@@ -109,7 +120,7 @@ void Battle::render()
 	// Draw foreground
 	foreground.fillScreen();
 	// draw UI boxes
-
+	ui.draw();
 	//Print player health
 	sprintf_s(buffer, "Player HP: %.0f", player.getHealth());
 	playerHealthText.print(buffer, 100, GAME_HEIGHT-100);

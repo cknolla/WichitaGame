@@ -27,11 +27,13 @@ private:
 	TextureManager backgroundTexture;
 	TextureManager foregroundTexture;
 	TextureManager sceneTexture;
+	TextureManager uiTexture;
 	TextureManager playerTexture;
 	TextureManager monsterTexture;
 	Bgfg background;
 	Bgfg foreground;
 	Image scene;
+	Image ui;
 	Text playerHealthText;
 	Text monsterHealthText;
 	Character player;

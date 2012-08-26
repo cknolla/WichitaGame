@@ -728,7 +728,8 @@ void WichitaGame::battleStart(const char* backgroundPic)
 	if(!currentBattle->initialize(this, backgroundPic, NULL, "pictures/graveyard2.0/fogforeground.png"))
 		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing battle"));
 
-	currentBattle->getForeground()->setAutoHscroll(150.0);
+	currentBattle->getForeground()->setAutoHscroll(100.0);
+	currentBattle->getForeground()->setAutoVscroll(40.0);
 	battleOn = true;
 }
 
