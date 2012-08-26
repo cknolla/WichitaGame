@@ -181,7 +181,7 @@ void WichitaGame::update()
 		
 		//Press H to start a battle
 		if(input->wasKeyPressed('H')) {
-			battleStart("pictures/battle/battle_background.jpg");
+			battleStart("pictures/battle/pi_background.png");
 		}
 		// Update the map BEFORE the character since it manipulates the player's position
 		currentMap->update(player, frameTime);
@@ -725,11 +725,14 @@ void WichitaGame::battleStart(const char* backgroundPic)
 	printf("Battle Started\n");
 
 	//Initialize the battle
-	if(!currentBattle->initialize(this, backgroundPic, NULL, "pictures/graveyard2.0/fogforeground.png"))
+	if(!currentBattle->initialize(this, backgroundPic, NULL, "pictures/battle/rainTest.png"))
 		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing battle"));
 
-	currentBattle->getForeground()->setAutoHscroll(100.0);
-	currentBattle->getForeground()->setAutoVscroll(40.0);
+//	currentBattle->getBackground()->setAutoHscroll(-100.0);
+//	currentBattle->getBackground()->setAutoVscroll(-70.0);
+
+	currentBattle->getForeground()->setAutoHscroll(2000.0);
+	currentBattle->getForeground()->setAutoVscroll(2000.0);
 	battleOn = true;
 }
 

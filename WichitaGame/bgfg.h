@@ -33,8 +33,8 @@ public:
 	// Set auto vertical scroll speed multiplier
 	void setAutoVscroll(float avs) { autoVscroll = avs; }
 
-	// fill screen with background/foreground
-	void fillScreen();
+	// fill screen with background/foreground - filters available
+	void fillScreen(COLOR_ARGB color = graphicsNS::WHITE);
 };
 
 #endif

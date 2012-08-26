@@ -12,11 +12,11 @@ Bgfg::~Bgfg()
 {
 }
 
-void Bgfg::fillScreen()
+void Bgfg::fillScreen(COLOR_ARGB color)
 {
 	// save current location
-	float prevX = spriteData.x;
-	float prevY = spriteData.y;
+	float prevX;
+	float prevY;
 	bool r0c0 = false, r0c1 = false, r0c2 = false, r1c0 = false, r1c1 = true, r1c2 = false, r2c0 = false, r2c1 = false, r2c2 = false;
 	// r1c1 is always drawn. Up to 3 others can be drawn depending on position
 	// r0c0 r0c1 r0c2
@@ -24,17 +24,27 @@ void Bgfg::fillScreen()
 	// r2c0 r2c1 r2c2
 
 	// if the image is offscreen to the right, shift it a full width left
-	if(spriteData.x > GAME_WIDTH)
+	if(spriteData.x > GAME_WIDTH) {
 		spriteData.x -= spriteData.width;
+//		printf("Shift left X = %f, Y = %f\n", spriteData.x, spriteData.y);
+	}
 	// if offscreen to the left, shift it right
-	if(spriteData.x + spriteData.width < 0)
+	else if(spriteData.x + spriteData.width < 0) {
 		spriteData.x += spriteData.width;
+//		printf("Shift right X = %f, Y = %f\n", spriteData.x, spriteData.y);
+	}
 	// if offscreen below, shift up
-	if(spriteData.y > GAME_HEIGHT)
+	if(spriteData.y > GAME_HEIGHT) {
 		spriteData.y -= spriteData.height;
+//		printf("Shift up Y = %f\n", spriteData.y);
+	}
 	// if offscreen above, shift down
-	if(spriteData.y + spriteData.height < 0)
+	else if(spriteData.y + spriteData.height < 0) {
 		spriteData.y += spriteData.height;
+//		printf("Shift down Y = %f\n", spriteData.y);
+	}
+	prevX = spriteData.x; // save centered location
+	prevY = spriteData.y;
 	// now we know it's onscreen, so we'll draw it a max of 4 times to ensure the full screen is covered
 	draw(); // draw it at its current location
 	if(spriteData.x > 0) // if left edge is showing
@@ -56,49 +66,49 @@ void Bgfg::fillScreen()
 
 	if(r1c0) {
 		spriteData.x -= spriteData.width;
-		draw();
+		draw(color);
 		spriteData.x = prevX;
 	}
 	if(r0c1) {
 		spriteData.y -= spriteData.height;
-		draw();
+		draw(color);
 		spriteData.y = prevY;
 	}
 	if(r1c2) {
 		spriteData.x += spriteData.width;
-		draw();
+		draw(color);
 		spriteData.x = prevX;
 	}
 	if(r2c1) {
 		spriteData.y += spriteData.height;
-		draw();
+		draw(color);
 		spriteData.y = prevY;
 	}
 	if(r0c0) {
 		spriteData.x -= spriteData.width;
 		spriteData.y -= spriteData.height;
-		draw();
+		draw(color);
 		spriteData.x = prevX;
 		spriteData.y = prevY;
 	}
 	if(r0c2) {
 		spriteData.x += spriteData.width;
 		spriteData.y -= spriteData.height;
-		draw();
+		draw(color);
 		spriteData.x = prevX;
 		spriteData.y = prevY;
 	}
 	if(r2c0) {
 		spriteData.x -= spriteData.width;
 		spriteData.y += spriteData.height;
-		draw();
+		draw(color);
 		spriteData.x = prevX;
 		spriteData.y = prevY;
 	}
 	if(r2c2) {
 		spriteData.x += spriteData.width;
 		spriteData.y += spriteData.height;
-		draw();
+		draw(color);
 		spriteData.x = prevX;
 		spriteData.y = prevY;
 	}

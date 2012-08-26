@@ -858,10 +858,8 @@ void Map::onLostDevice()
 		curTexture->onLostDevice();
 		curTexture = curTexture->getNextTexture();
 	}
-	if(backgroundTexture)
-		backgroundTexture->onLostDevice();
-	if(foregroundTexture)
-		foregroundTexture->onLostDevice();
+	SAFE_ON_LOST_DEVICE(backgroundTexture);
+	SAFE_ON_LOST_DEVICE(foregroundTexture);
 }
 
 void Map::onResetDevice()
@@ -871,10 +869,8 @@ void Map::onResetDevice()
 		curTexture->onResetDevice();
 		curTexture = curTexture->getNextTexture();
 	}
-	if(backgroundTexture)
-		backgroundTexture->onResetDevice();
-	if(foregroundTexture)
-		foregroundTexture->onResetDevice();
+	SAFE_ON_RESET_DEVICE(backgroundTexture);
+	SAFE_ON_RESET_DEVICE(foregroundTexture);
 }
 
 void Map::unload()

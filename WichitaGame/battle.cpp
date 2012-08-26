@@ -120,7 +120,7 @@ void Battle::render()
 	// Draw foreground
 	foreground.fillScreen();
 	// draw UI boxes
-	ui.draw();
+	ui.draw(graphicsNS::ALPHA50);
 	//Print player health
 	sprintf_s(buffer, "Player HP: %.0f", player.getHealth());
 	playerHealthText.print(buffer, 100, GAME_HEIGHT-100);
