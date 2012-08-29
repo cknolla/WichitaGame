@@ -3,10 +3,16 @@
 
 GameConfig::GameConfig()
 {
+	// set defaults
 	windowWidth = 1024;
 	windowHeight = 768;
-	gameWidth = 800;
-	gameHeight = 600;
+	gameWidth = 1024;
+	gameHeight = 768;
+
+	moveUpKey = 'W';
+	moveDownKey = 'S';
+	moveLeftKey = 'A';
+	moveRightKey = 'D';
 }
 
 GameConfig::~GameConfig()

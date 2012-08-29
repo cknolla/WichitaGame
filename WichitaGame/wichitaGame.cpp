@@ -123,24 +123,33 @@ void WichitaGame::update()
 	sprintf_s(debugLineBuf, "Debug Text");
 	if (!battleOn) {
 		// move right if left is not pressed or move right if left is not pressed
-		if(input->isKeyDown(MOVE_RIGHT_KEY) && !input->isKeyDown(MOVE_LEFT_KEY)) {
+		if(input->isKeyDown(gameConfig->getMoveRightKey()) && !input->isKeyDown(gameConfig->getMoveLeftKey())) {
 			player.moveRight(frameTime);
-		} else if(input->isKeyDown(MOVE_LEFT_KEY) && !input->isKeyDown(MOVE_RIGHT_KEY)) {
+		} else if(input->isKeyDown(gameConfig->getMoveLeftKey()) && !input->isKeyDown(gameConfig->getMoveRightKey())) {
 			player.moveLeft(frameTime);
 		}
 
 		// move up if down is not pressed or move down if up is not pressed
-		if( input->isKeyDown(MOVE_UP_KEY) && !input->isKeyDown(MOVE_DOWN_KEY)) {
+		if( input->isKeyDown(gameConfig->getMoveUpKey()) && !input->isKeyDown(gameConfig->getMoveDownKey())) {
 			player.moveUp(frameTime);
-		} else if( input->isKeyDown(MOVE_DOWN_KEY) && !input->isKeyDown(MOVE_UP_KEY)) {
+		} else if( input->isKeyDown(gameConfig->getMoveDownKey()) && !input->isKeyDown(gameConfig->getMoveUpKey())) {
 			player.moveDown(frameTime);
 		}
 		// set velocity to 0 in x or y direction if neither key is pressed
-		if(!input->isKeyDown(MOVE_UP_KEY) && !input->isKeyDown(MOVE_DOWN_KEY)) {
+		if(!input->isKeyDown(gameConfig->getMoveUpKey()) && !input->isKeyDown(gameConfig->getMoveDownKey())) {
 			player.stopY();
 		}
-		if(!input->isKeyDown(MOVE_LEFT_KEY) && !input->isKeyDown(MOVE_RIGHT_KEY)) {
+		if(!input->isKeyDown(gameConfig->getMoveLeftKey()) && !input->isKeyDown(gameConfig->getMoveRightKey())) {
 			player.stopX();
+		}
+
+		// if no movement keys are pressed, draw the ending frame for the direction he's currently facing and pause animation
+		if( !input->isKeyDown(gameConfig->getMoveUpKey()) && !input->isKeyDown(gameConfig->getMoveDownKey()) && !input->isKeyDown(gameConfig->getMoveLeftKey()) && !input->isKeyDown(gameConfig->getMoveRightKey())) {
+			player.setCurrentFrame(player.getEndFrame());
+			player.setVelocity(VECTOR2(0.0f, 0.0f));
+			player.setLoop(false);
+		} else {
+			player.setLoop(true);
 		}
 
 
@@ -165,17 +174,6 @@ void WichitaGame::update()
 			}
 			//}else
 			//	printf("ItemSpawnDoesNoTExist");
-		}
-
-
-	
-		// if no movement keys are pressed, draw the ending frame for the direction he's currently facing and pause animation
-		if( !input->isKeyDown(MOVE_UP_KEY) && !input->isKeyDown(MOVE_DOWN_KEY) && !input->isKeyDown(MOVE_LEFT_KEY) && !input->isKeyDown(MOVE_RIGHT_KEY)) {
-			player.setCurrentFrame(player.getEndFrame());
-			player.setVelocity(VECTOR2(0.0f, 0.0f));
-			player.setLoop(false);
-		} else {
-			player.setLoop(true);
 		}
 		
 		//Press H to start a battle

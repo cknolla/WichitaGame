@@ -112,11 +112,14 @@ void Game::initialize(HWND hw)
     hwnd = hw;                                  // save window handle
 	//AllocConsole();
 
+	// initialize gameConfig
+	gameConfig = new GameConfig();
+	gameConfig->initialize(hwnd);
 
     // initialize graphics
     graphics = new Graphics();
     // throws GameError
-    graphics->initialize(hwnd, GAME_WIDTH, GAME_HEIGHT, FULLSCREEN);
+    graphics->initialize(hwnd, gameConfig->getGameWidth(), gameConfig->getGameHeight(), FULLSCREEN);
 
     // initialize input, do not capture mouse
     input->initialize(hwnd, false);             // throws GameError
@@ -125,10 +128,6 @@ void Game::initialize(HWND hw)
     console = new Console();
     console->initialize(graphics, input);       // prepare console
     console->print("---Console---");
-
-	// initialize gameConfig
-	gameConfig = new GameConfig();
-	gameConfig->initialize(hwnd);
 
     // initialize messageDialog
     messageDialog = new MessageDialog();

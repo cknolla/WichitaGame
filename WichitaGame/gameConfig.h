@@ -15,10 +15,10 @@ private:
 	HWND hwnd;
 	UINT windowWidth, gameWidth;
 	UINT windowHeight, gameHeight;
-	UINT moveUpKey;
-	UINT moveDownKey;
-	UINT moveRightKey;
-	UINT moveLeftKey;
+	UCHAR moveUpKey;
+	UCHAR moveDownKey;
+	UCHAR moveRightKey;
+	UCHAR moveLeftKey;
 public:
 	GameConfig();
 	~GameConfig();
@@ -33,6 +33,9 @@ public:
 	UINT getWindowHeight() { return windowHeight; }
 	// to set window width/height, use resizeWindow(). This will avoid having mismatching variables to actual settings
 
+	// resize window and game area using new values
+	void resizeWindow(UINT newWindowWidth, UINT newWindowHeight);
+
 	// get game drawing area width
 	UINT getGameWidth() { return gameWidth; }
 	// set game drawing area width
@@ -43,8 +46,15 @@ public:
 	// set game drawing area height
 	void setGameHeight(UINT gh) { gameHeight = gh; }
 
-	// resize window and game area using new values
-	void resizeWindow(UINT newWindowWidth, UINT newWindowHeight);
+	UCHAR getMoveUpKey() { return moveUpKey; }
+	UCHAR getMoveDownKey() { return moveDownKey; }
+	UCHAR getMoveRightKey() { return moveRightKey; }
+	UCHAR getMoveLeftKey() { return moveLeftKey; }
+
+	void setMoveUpKey(UCHAR key) { moveUpKey = key; }
+	void setMoveDownKey(UCHAR key) { moveDownKey = key; }
+	void setMoveRightKey(UCHAR key) { moveRightKey = key; }
+	void setMoveLeftKey(UCHAR key) { moveLeftKey = key; }
 
 };
 
