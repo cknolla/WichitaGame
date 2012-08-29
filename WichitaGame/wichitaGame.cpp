@@ -5,7 +5,6 @@
 // This class is the core of the game
 
 #include "wichitaGame.h"
-#include "itemspawn.h"
 
 //Comment out these lines if you do not want a console window defined
 

@@ -24,6 +24,7 @@
 #include "bgfg.h"
 #include "battle.h"
 #include "monster.h"
+#include "itemspawn.h"
 
 #include <list>
 #include <iterator>
