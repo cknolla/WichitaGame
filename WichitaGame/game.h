@@ -22,6 +22,7 @@
 #include "gameError.h"
 #include "messageDialog.h"
 #include "inputDialog.h"
+#include "gameConfig.h"
 
 
 namespace gameNS
@@ -39,6 +40,7 @@ protected:
     Input   *input;                 // pointer to Input
     Audio   *audio;                 // pointer to Audio
     Console *console;               // pointer to Console
+	GameConfig *gameConfig;         // pointer to GameConfig
     MessageDialog *messageDialog;   // pointer to MessageDialog
     InputDialog *inputDialog;       // pointer to InputDialog
     HWND    hwnd;                   // window handle

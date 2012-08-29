@@ -22,6 +22,7 @@ Game::Game()
     graphics = NULL;
     audio = NULL;
     console = NULL;
+	gameConfig = NULL;
     messageDialog = NULL;
     inputDialog = NULL;
     fps = 100;
@@ -124,6 +125,10 @@ void Game::initialize(HWND hw)
     console = new Console();
     console->initialize(graphics, input);       // prepare console
     console->print("---Console---");
+
+	// initialize gameConfig
+	gameConfig = new GameConfig();
+	gameConfig->initialize(hwnd);
 
     // initialize messageDialog
     messageDialog = new MessageDialog();
@@ -368,6 +373,7 @@ void Game::deleteAll()
     SAFE_DELETE(graphics);
     SAFE_DELETE(input);
     SAFE_DELETE(console);
+	SAFE_DELETE(gameConfig);
     SAFE_DELETE(messageDialog);
     SAFE_DELETE(inputDialog);
     initialized = false;
