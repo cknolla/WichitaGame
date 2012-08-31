@@ -23,7 +23,7 @@ void GameConfig::initialize(HWND hw)
 {
 	hwnd = hw;
 	// resize window to default settings in constructor
-	resizeWindow(windowWidth, windowHeight);
+//	resizeWindow(windowWidth, windowHeight);
 }
 
 void GameConfig::resizeWindow(UINT newWindowWidth, UINT newWindowHeight)
