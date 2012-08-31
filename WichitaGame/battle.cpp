@@ -82,6 +82,8 @@ bool Battle::initialize(Game* gamePtr, const char* sceneTextureFile, const char*
     playerHealthText.setFontColor(graphicsNS::WHITE); // solid
 	monsterHealthText.setFontColor(graphicsNS::WHITE);
 
+	menu.initialize(gamePtr);
+
 	return true;
 }
 
@@ -102,6 +104,8 @@ void Battle::update(float frameTime)
 	// autoscroll vertically if not 0
 	if(foreground.getAutoVscroll())
 		foreground.setY( foreground.getY() + (frameTime * foreground.getAutoVscroll()));
+
+	menu.update(frameTime);
 }
 
 void Battle::render()
@@ -127,6 +131,8 @@ void Battle::render()
 
 	sprintf_s(buffer, "Monster HP: %.0f", testMonster.getHealth());
 	monsterHealthText.print(buffer, GAME_WIDTH-100, GAME_HEIGHT-100, textNS::RIGHT);
+
+	menu.render();
 }
 
 void Battle::onLostDevice()

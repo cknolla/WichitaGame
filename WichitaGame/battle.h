@@ -7,6 +7,7 @@
 #include "text.h"
 #include "monster.h"
 #include "bgfg.h"
+#include "battleMenu.h"
 #include <sstream>
 
 #ifndef _BATTLE_H
@@ -39,6 +40,7 @@ private:
 	Character player;
 	Monster* firstMonster;
 	Monster testMonster;
+	BattleMenu menu;
 public:
 	Battle();
 	~Battle();

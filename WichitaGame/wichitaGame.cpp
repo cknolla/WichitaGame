@@ -188,6 +188,7 @@ void WichitaGame::update()
 			battleOn = false;
 		}
 		currentBattle->update(frameTime);
+
 	}
 
 	sprintf_s(messageBuffer, "X: %.3f, Y: %.3f", player.getX(), player.getY());

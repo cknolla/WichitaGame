@@ -18,8 +18,7 @@ bool BattleIcon::initialize(Game* gamePtr, const char* textureFile)
 		sprintf_s(errorStr, "Failed to initialize battle icon texture: %s", textureFile);
 		throw(GameError(gameErrorNS::FATAL_ERROR, errorStr));
 	}
-	if(!selector.initialize(gamePtr->getGraphics(), 0, 0, 0, &selectorTexture)) {
-		throw(GameError(gameErrorNS::FATAL_ERROR, "Failed to initialize battle selector image"));
+	Image::initialize(gamePtr->getGraphics(), 0, 0, 0, &texture);
 
 	initialized = true;
 	return initialized;

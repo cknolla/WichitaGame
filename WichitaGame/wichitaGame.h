@@ -23,7 +23,6 @@
 #include "door.h"
 #include "bgfg.h"
 #include "battle.h"
-#include "battleMenu.h"
 #include "monster.h"
 #include "itemspawn.h"
 

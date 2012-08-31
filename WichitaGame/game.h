@@ -103,6 +103,9 @@ public:
     // Return pointer to Input.
     Input* getInput()       {return input;}
 
+	// Return pointer to configuration
+	GameConfig* getGameConfig()  { return gameConfig; }
+
     // Exit the game
     void exitGame()         {PostMessage(hwnd, WM_DESTROY, 0, 0);}
 
