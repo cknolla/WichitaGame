@@ -40,6 +40,8 @@ namespace mapNS {
 
 class Map {
 private:
+	Input* input;
+	GameConfig* gameConfig;
 	Tile* firstTile;
 	Tile* layer2firstTile;
 	Tile* layer3firstTile;

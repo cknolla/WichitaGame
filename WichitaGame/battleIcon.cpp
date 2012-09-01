@@ -5,6 +5,8 @@
 BattleIcon::BattleIcon()
 {
 	initialized = false;
+	parent = false;
+	filter = graphicsNS::WHITE;
 }
 
 BattleIcon::~BattleIcon()
@@ -22,5 +24,14 @@ bool BattleIcon::initialize(Game* gamePtr, const char* textureFile)
 
 	initialized = true;
 	return initialized;
+}
+
+void BattleIcon::setParent(bool isParent)
+{
+	parent = isParent;
+	if(parent)
+		filter = graphicsNS::YELLOW;
+	else
+		filter = graphicsNS::WHITE;
 }
 

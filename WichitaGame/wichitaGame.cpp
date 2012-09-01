@@ -122,48 +122,7 @@ void WichitaGame::update()
 	static bool isBlue = true;
 	sprintf_s(debugLineBuf, "Debug Text");
 	if (!battleOn) {
-		// move right if left is not pressed or move right if left is not pressed
-		if(input->isKeyDown(gameConfig->getMoveRightKey()) && !input->isKeyDown(gameConfig->getMoveLeftKey())) {
-			player.moveRight(frameTime);
-		} else if(input->isKeyDown(gameConfig->getMoveLeftKey()) && !input->isKeyDown(gameConfig->getMoveRightKey())) {
-			player.moveLeft(frameTime);
-		}
-
-		// move up if down is not pressed or move down if up is not pressed
-		if( input->isKeyDown(gameConfig->getMoveUpKey()) && !input->isKeyDown(gameConfig->getMoveDownKey())) {
-			player.moveUp(frameTime);
-		} else if( input->isKeyDown(gameConfig->getMoveDownKey()) && !input->isKeyDown(gameConfig->getMoveUpKey())) {
-			player.moveDown(frameTime);
-		}
-		// set velocity to 0 in x or y direction if neither key is pressed
-		if(!input->isKeyDown(gameConfig->getMoveUpKey()) && !input->isKeyDown(gameConfig->getMoveDownKey())) {
-			player.stopY();
-		}
-		if(!input->isKeyDown(gameConfig->getMoveLeftKey()) && !input->isKeyDown(gameConfig->getMoveRightKey())) {
-			player.stopX();
-		}
-
-		// if no movement keys are pressed, draw the ending frame for the direction he's currently facing and pause animation
-		if( !input->isKeyDown(gameConfig->getMoveUpKey()) && !input->isKeyDown(gameConfig->getMoveDownKey()) && !input->isKeyDown(gameConfig->getMoveLeftKey()) && !input->isKeyDown(gameConfig->getMoveRightKey())) {
-			player.setCurrentFrame(player.getEndFrame());
-			player.setVelocity(VECTOR2(0.0f, 0.0f));
-			player.setLoop(false);
-		} else {
-			player.setLoop(true);
-		}
-
-
-		if(input->wasKeyPressed('C')) {
-			if(isBlue) {
-				if (!player.initialize(this,34,34,2,&redCharTexture))
-					throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing character"));
-				isBlue = false;
-			} else {
-				if (!player.initialize(this,34,34,2,&characterTexture))
-					throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing character"));
-				isBlue = true;
-			}
-		}
+		
 		if(input->wasKeyPressed('B')) {
 			createItemSpawn();
 		}
@@ -183,6 +142,7 @@ void WichitaGame::update()
 		// Update the map BEFORE the character since it manipulates the player's position
 		currentMap->update(player, frameTime);
 		player.update(frameTime);
+
 	} else {
 		if(input->wasKeyPressed('H')) {
 			battleOn = false;

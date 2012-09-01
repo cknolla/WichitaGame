@@ -110,7 +110,7 @@ void Battle::update(float frameTime)
 
 void Battle::render()
 {
-	char buffer[200];
+//	char buffer[200];
 	// Draw background
 	background.fillScreen();
 	// Draw scene image
@@ -124,13 +124,13 @@ void Battle::render()
 	// Draw foreground
 	foreground.fillScreen();
 	// draw UI boxes
-	ui.draw(graphicsNS::ALPHA50);
+//	ui.draw(graphicsNS::ALPHA50);
 	//Print player health
-	sprintf_s(buffer, "Player HP: %.0f", player.getHealth());
-	playerHealthText.print(buffer, 100, GAME_HEIGHT-100);
+//	sprintf_s(buffer, "Player HP: %.0f", player.getHealth());
+//	playerHealthText.print(buffer, 100, GAME_HEIGHT-100);
 
-	sprintf_s(buffer, "Monster HP: %.0f", testMonster.getHealth());
-	monsterHealthText.print(buffer, GAME_WIDTH-100, GAME_HEIGHT-100, textNS::RIGHT);
+//	sprintf_s(buffer, "Monster HP: %.0f", testMonster.getHealth());
+//	monsterHealthText.print(buffer, GAME_WIDTH-100, GAME_HEIGHT-100, textNS::RIGHT);
 
 	menu.render();
 }

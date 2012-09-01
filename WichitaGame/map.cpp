@@ -6,6 +6,8 @@
 Map::Map()
 {
 	initialized = false;
+	input = NULL;
+	gameConfig = NULL;
 	firstTile = NULL;
 	layer2firstTile = NULL;
 	layer3firstTile = NULL;
@@ -45,6 +47,8 @@ bool Map::initialize(Game* gamePtr, const char* tileSet[], int tileSetSize, cons
 	TextureManager* useTexture = NULL;
 	Tile* curTile = NULL;
 	Tile* prevTile = NULL;
+	input = gamePtr->getInput();
+	gameConfig = gamePtr->getGameConfig();
 
 	//if(!tileNum.initialize(gamePtr->getGraphics(), 12, true, false, "Arial") == false)
 	if(!tileNum.initialize(gamePtr->getGraphics(), "pictures/CKfont.png"))
@@ -284,6 +288,39 @@ void Map::update(Character &player, float frameTime)
 	Chest* curChest = firstChest;
 	Door* curDoor = firstDoor;
 
+	// HANDLE INPUT
+	// move right if left is not pressed or move right if left is not pressed
+	if(input->isKeyDown(gameConfig->getMoveRightKey()) && !input->isKeyDown(gameConfig->getMoveLeftKey())) {
+		player.moveRight(frameTime);
+	} else if(input->isKeyDown(gameConfig->getMoveLeftKey()) && !input->isKeyDown(gameConfig->getMoveRightKey())) {
+		player.moveLeft(frameTime);
+	}
+
+	// move up if down is not pressed or move down if up is not pressed
+	if( input->isKeyDown(gameConfig->getMoveUpKey()) && !input->isKeyDown(gameConfig->getMoveDownKey())) {
+		player.moveUp(frameTime);
+	} else if( input->isKeyDown(gameConfig->getMoveDownKey()) && !input->isKeyDown(gameConfig->getMoveUpKey())) {
+		player.moveDown(frameTime);
+	}
+	// set velocity to 0 in x or y direction if neither key is pressed
+	if(!input->isKeyDown(gameConfig->getMoveUpKey()) && !input->isKeyDown(gameConfig->getMoveDownKey())) {
+		player.stopY();
+	}
+	if(!input->isKeyDown(gameConfig->getMoveLeftKey()) && !input->isKeyDown(gameConfig->getMoveRightKey())) {
+		player.stopX();
+	}
+
+	// if no movement keys are pressed, draw the ending frame for the direction he's currently facing and pause animation
+	if( !input->isKeyDown(gameConfig->getMoveUpKey()) && !input->isKeyDown(gameConfig->getMoveDownKey()) && !input->isKeyDown(gameConfig->getMoveLeftKey()) && !input->isKeyDown(gameConfig->getMoveRightKey())) {
+		player.setCurrentFrame(player.getEndFrame());
+		player.setVelocity(VECTOR2(0.0f, 0.0f));
+		player.setLoop(false);
+	} else {
+		player.setLoop(true);
+	}
+
+	// SHIFT MAP AT CAMERA TRIGGER POINT
+
 	if(playerCenterX + player.getEdge().left < mapNS::CAMERA_TRIGGER) {
 		// if the player's collision box passes the 'trigger' point, scroll the map rather than the player
 		shiftLeft = 1;
@@ -295,6 +332,8 @@ void Map::update(Character &player, float frameTime)
 	} else if(playerCenterY + player.getEdge().bottom > GAME_HEIGHT - mapNS::CAMERA_TRIGGER) {
 		shiftDown = 1;
 	}
+
+	// BACKGROUND AND FOREGROUND MOVEMENT
 
 	if(background) {
 		// autoscroll horizontally if not 0
@@ -359,6 +398,8 @@ void Map::update(Character &player, float frameTime)
 		}
 		
 	}
+
+	// SHIFT MAP ITEMS
 
 	// move each tile rather than the player to scroll the map
 	for(layer = 1; layer <= mapNS::MAX_LAYERS; layer++) {
