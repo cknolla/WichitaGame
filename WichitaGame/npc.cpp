@@ -34,6 +34,7 @@ bool NPC::initialize(Game* gamePtr, int width, int height, int ncols, TextureMan
 	if(!dialogText.initialize(gamePtr->getGraphics(), SPRITE_TEXT_FILE))
 		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing NPC dialogText"));
 	dialogText.setFontHeight(14);
+//	dialogText.setProportional(true);
 
 	return result;
 }
@@ -158,7 +159,7 @@ void NPC::speak()
 		dialogBox->setX(gameConfig->getDialogBoxAnchorX());
 		dialogBox->setY(gameConfig->getDialogBoxAnchorY());
 		dialogBox->draw(graphicsNS::ALPHA75);
-		sprintf_s(dialog, "Octopi.");
-		dialogText.print(dialog, (int)gameConfig->getDialogBoxAnchorX()+20, (int)gameConfig->getDialogBoxAnchorY()+20);
+		sprintf_s(dialog, "O hai. I'm the owner of the dialog box. You should be able to fit 6 long lines of text in here, or you could do 4 lines of text and 2 selection options. Or, you could even do 3 lines of text and 3 selection options. Logic would tell you that you could also do 2 lines of text and 4 selection options. Understand that this dialog is long and useless for the sake of testing word-wrap functionality. Now leave me alone.");
+		dialogText.print(dialog, (int)gameConfig->getDialogBoxAnchorX()+20, (int)gameConfig->getDialogBoxAnchorY()+20, textNS::WORD_WRAP_LIMIT);
 	} 
 }

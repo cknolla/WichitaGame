@@ -26,7 +26,7 @@ private:
 	// NPC is currently speaking
 	bool speaking;
 	// char buffer to hold NPC dialog
-	char dialog[1000];
+	char dialog[3000];
 	// sprite text to hold dialog
 	Text dialogText;
 	// pointer to the game's dialog box

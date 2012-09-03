@@ -179,6 +179,34 @@ void Text::print(const std::string &str, int x, int y, textNS::Alignment al)
 }
 
 //=============================================================================
+// print at x,y and add line breaks
+// pre: spriteBegin()
+// post: spriteEnd()
+//=============================================================================
+void Text::print(const std::string &str, int x, int y, int lineCharLimit)
+{
+	// str is const, so it can't be modified
+	std::string modstr = str;
+	int slength = str.length();
+	int i, previ = 0;
+	// begin looking at the maximum allowed character position for a space
+	for(i = lineCharLimit - 1; i > previ; i--) {
+		if(modstr.at(i)  == ' ') {
+			// if a space is found, replace it with a new line
+			modstr.replace(i,1,"\n");
+			// remember position for next line, if a space isn't found until this position, there are none
+			previ = i;
+			// shift index to + (max allowed characters per line) from current position to compare next line
+			i += lineCharLimit - 1;
+			// if the new i value exceeds the length of the strength, it will all fit on the next line
+			if(i >= slength)
+				break;
+		}
+	}
+	print(modstr, x, y);
+}
+
+//=============================================================================
 // Print string at x,y
 // pre: spriteBegin()
 // post: spriteEnd()

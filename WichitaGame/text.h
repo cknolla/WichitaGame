@@ -43,6 +43,7 @@ namespace textNS
     const char UNDERLINE = '_';
     const char SOLID = 0x7F;        // solid block used for fill character ASCII $7F
     const int BOLD_SIZE = 4;        // pixel shift for bold display
+	const int WORD_WRAP_LIMIT = 76; // character limit before wrapping to the next line
 }
 
 
@@ -95,6 +96,9 @@ public:
 
     // Print at x,y. Call between spriteBegin()/spriteEnd()
     virtual void print(const std::string &str, int x, int y);
+
+	// Print at x, y with line breaks. Call between spriteBegin()/spriteEnd()
+	virtual void Text::print(const std::string &str, int x, int y, int lineCharLimit);
 
     // Print at x,y using align. Call between spriteBegin()/spriteEnd()
     virtual void print(const std::string &str, int x, int y, textNS::Alignment align);
