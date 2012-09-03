@@ -26,6 +26,9 @@ public:
 	NPC();
 	virtual ~NPC();
 
+	// initialize NPC collision
+	bool initialize(Game* gamePtr, int width, int height, int ncols, TextureManager* textureM);
+
 	// progress the NPC mosey
 	void update(float frameTime);
 

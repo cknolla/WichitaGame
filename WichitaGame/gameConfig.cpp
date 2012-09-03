@@ -13,6 +13,7 @@ GameConfig::GameConfig()
 	moveDownKey = 'S';
 	moveLeftKey = 'A';
 	moveRightKey = 'D';
+	actionKey = ENTER_KEY;
 }
 
 GameConfig::~GameConfig()

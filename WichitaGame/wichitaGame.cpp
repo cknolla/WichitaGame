@@ -137,7 +137,7 @@ void WichitaGame::update()
 		
 		//Press H to start a battle
 		if(input->wasKeyPressed('H')) {
-			battleStart("pictures/battle/pi_background.png");
+			battleStart("pictures/battle/battle_background.jpg");
 		}
 		// Update the map BEFORE the character since it manipulates the player's position
 		currentMap->update(player, frameTime);
@@ -171,6 +171,7 @@ void WichitaGame::collisions()
 	ZoneChanger* curChanger = currentMap->getFirstChanger();
 	Chest* curChest = currentMap->getFirstChest();
 	Door* curDoor = currentMap->getFirstDoor();
+	NPC* curNPC = currentMap->getFirstNPC();
 
 	if(!noclip) {
 		// check tile collision only - no objects
@@ -191,6 +192,13 @@ void WichitaGame::collisions()
 				curDoor->setCurrentFrame(0);
 			}
 			curDoor = curDoor->getNextDoor();
+		}
+		while(curNPC) {
+			if(player.collidesWith((*curNPC), collisionVector)) {
+				if(input->wasKeyPressed(gameConfig->getActionKey()))
+					printf("Speak!");// speak
+			}
+			curNPC = curNPC->getNextNPC();
 		}
 		// check for changers LAST because if a new map is loaded, other objects are destroyed
 		while(curChanger) {

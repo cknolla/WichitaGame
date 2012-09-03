@@ -12,7 +12,7 @@ namespace battleMenuNS
 	const int MAX_COLUMNS = 3;
 	const int MAX_ROWS = 10;
 	// anchor is the reference point for the first character icon to draw at
-	const float ANCHOR_X = 100.0;
+	const float ANCHOR_X = 200.0;
 	const float ANCHOR_Y = 100.0;
 	const int ICON_WIDTH = 32;
 	const int ICON_HEIGHT = 32;

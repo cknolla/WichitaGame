@@ -19,6 +19,7 @@ private:
 	UCHAR moveDownKey;
 	UCHAR moveRightKey;
 	UCHAR moveLeftKey;
+	UCHAR actionKey;
 public:
 	GameConfig();
 	~GameConfig();
@@ -50,11 +51,13 @@ public:
 	UCHAR getMoveDownKey() { return moveDownKey; }
 	UCHAR getMoveRightKey() { return moveRightKey; }
 	UCHAR getMoveLeftKey() { return moveLeftKey; }
+	UCHAR getActionKey() { return actionKey; }
 
 	void setMoveUpKey(UCHAR key) { moveUpKey = key; }
 	void setMoveDownKey(UCHAR key) { moveDownKey = key; }
 	void setMoveRightKey(UCHAR key) { moveRightKey = key; }
 	void setMoveLeftKey(UCHAR key) { moveLeftKey = key; }
+	void setActionKey(UCHAR key) { actionKey = key; }
 
 };
 

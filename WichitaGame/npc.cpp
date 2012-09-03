@@ -15,6 +15,20 @@ NPC::NPC()
 NPC::~NPC()
 {}
 
+bool NPC::initialize(Game* gamePtr, int width, int height, int ncols, TextureManager* textureM)
+{
+	// image must be initialized first in order to use sprite size data
+	bool result = Entity::initialize(gamePtr, width, height, ncols, textureM);
+	// active and set collision box area
+	active = true;
+	edge.left = -spriteData.width/2;
+	edge.right = spriteData.width/2;
+	edge.top = -spriteData.height/2;
+	edge.bottom = spriteData.height/2;
+
+	return result;
+}
+
 void NPC::update(float frameTime)
 {
 	calcVelocity(frameTime);
