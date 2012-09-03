@@ -62,6 +62,9 @@ void WichitaGame::initialize(HWND hwnd)
 	if(!doorTexture.initialize(graphics, "pictures/door.png"))
 		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing door texture"));
 
+	if(!dialogBoxTexture.initialize(graphics, "pictures/dialogPlaceholder.png"))
+		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing dialog box texture"));
+
 
 	TextureManager changer2Texture;
 
@@ -80,6 +83,9 @@ void WichitaGame::initialize(HWND hwnd)
 	// initialize player character
 	if (!player.initialize(this,34,34,2,&characterTexture))
         throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing character"));
+
+	if (!dialogBox.initialize(graphics,0,0,0,&dialogBoxTexture))
+        throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing dialog box"));
 
 	// set player starting conditions
 	player.setFrames(0,1);
@@ -119,7 +125,6 @@ void WichitaGame::initialize(HWND hwnd)
 //=============================================================================
 void WichitaGame::update()
 {
-	static bool isBlue = true;
 	sprintf_s(debugLineBuf, "Debug Text");
 	if (!battleOn) {
 		
@@ -196,7 +201,9 @@ void WichitaGame::collisions()
 		while(curNPC) {
 			if(player.collidesWith((*curNPC), collisionVector)) {
 				if(input->wasKeyPressed(gameConfig->getActionKey()))
-					printf("Speak!");// speak
+					curNPC->setSpeaking(!curNPC->getSpeaking()); // toggle whether NPC is speaking or not with action key
+				if(input->wasKeyPressed(gameConfig->getCancelKey()))
+					curNPC->setSpeaking(false); // always cancel speaking if cancel key pressed
 			}
 			curNPC = curNPC->getNextNPC();
 		}
@@ -414,7 +421,7 @@ bool WichitaGame::loadMap(MAP_LIST newMap, float startX, float startY)
 		else { // initialize map objects
 			ZoneChanger* topChanger = currentMap->addChanger();
 			ZoneChanger* bottomChanger = currentMap->addChanger();
-			NPC* redGuy = currentMap->addNPC();
+//			NPC* redGuy = currentMap->addNPC();
 
 			if(!topChanger->initialize(TEST_MAP,this,0, 0, 0, &changerTexture))
 				throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing graveyard changer 1"));
@@ -422,8 +429,8 @@ bool WichitaGame::loadMap(MAP_LIST newMap, float startX, float startY)
 			if(!bottomChanger->initialize(TEST_MAP2,this,0, 0, 0, &changerTexture))
 				throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing graveyard changer 2"));
 
-			if(!redGuy->initialize(this,34,34,2,&redCharTexture))
-				throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing redGuy"));
+//			if(!redGuy->initialize(this,34,34,2,&redCharTexture))
+//				throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing redGuy"));
 
 			currentMap->setForeground(graphics, "pictures/graveyard2.0/fogforeground.png");
 			currentMap->getForeground()->setAutoVscroll(-100.0);
@@ -432,9 +439,9 @@ bool WichitaGame::loadMap(MAP_LIST newMap, float startX, float startY)
 			topChanger->setDestinationStartingPos(3,5);
 			bottomChanger->setStartingPos(8,16); // bottom center of graveyard
 			bottomChanger->setDestinationStartingPos(6,6);
-			redGuy->setStartingPos(8,7);
-			redGuy->setMoseyEndingPos(10,10);
-			redGuy->setCurrentFrame(0);
+//			redGuy->setStartingPos(8,7);
+//			redGuy->setMoseyEndingPos(10,10);
+//			redGuy->setCurrentFrame(0);
 
 		}
 	} 
@@ -455,7 +462,7 @@ bool WichitaGame::loadMap(MAP_LIST newMap, float startX, float startY)
 			if(!bottomChanger->initialize(TEST_MAP2,this,0, 0, 0, &blankTexture))
 				throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing graveyard changer 2"));
 
-			if(!redGuy->initialize(this,34,34,2,&redCharTexture))
+			if(!redGuy->initialize(this, 34, 34, 2, &redCharTexture, &dialogBox))
 				throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing redGuy"));
 
 			if(!treasure->initialize(this, 32, 32, 2, &chestTexture))

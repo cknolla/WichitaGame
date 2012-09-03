@@ -35,12 +35,12 @@ bool Battle::initialize(Game* gamePtr, const char* sceneTextureFile, const char*
 	scene.initialize(gamePtr->getGraphics(),0,0,0,&sceneTexture);
 
 	// initialize ui
-	if(!uiTexture.initialize(gamePtr->getGraphics(), "pictures/battle/uiPlaceholder.png"))
-		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing battle ui texture"));
+//	if(!uiTexture.initialize(gamePtr->getGraphics(), "pictures/battle/uiPlaceholder.png"))
+//		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing battle ui texture"));
 	//Initialize the ui image
-	ui.initialize(gamePtr->getGraphics(),0,0,0,&uiTexture);
-	ui.setX(0.0);
-	ui.setY((float)(GAME_HEIGHT - ui.getHeight()));
+//	ui.initialize(gamePtr->getGraphics(),0,0,0,&uiTexture);
+//	ui.setX(0.0);
+//	ui.setY((float)(GAME_HEIGHT - ui.getHeight()));
 
 
 	// initialize player
@@ -65,11 +65,11 @@ bool Battle::initialize(Game* gamePtr, const char* sceneTextureFile, const char*
 	testMonster.setY(battleNS::MONSTER1_Y);
 	
 	//Initialize text with the font image
-    if (!playerHealthText.initialize(gamePtr->getGraphics(),"pictures\\text\\CKfont.png"))
+    if (!playerHealthText.initialize(gamePtr->getGraphics(), SPRITE_TEXT_FILE))
         throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing font"));
 
 	//Initialize text with the font image
-    if (!monsterHealthText.initialize(gamePtr->getGraphics(),"pictures\\text\\CKfont.png"))
+    if (!monsterHealthText.initialize(gamePtr->getGraphics(), SPRITE_TEXT_FILE))
         throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing font"));
 
 	//Set font size

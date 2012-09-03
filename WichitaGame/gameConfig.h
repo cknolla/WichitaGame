@@ -15,11 +15,13 @@ private:
 	HWND hwnd;
 	UINT windowWidth, gameWidth;
 	UINT windowHeight, gameHeight;
+	float dialogBoxAnchorX, dialogBoxAnchorY;
 	UCHAR moveUpKey;
 	UCHAR moveDownKey;
 	UCHAR moveRightKey;
 	UCHAR moveLeftKey;
 	UCHAR actionKey;
+	UCHAR cancelKey;
 public:
 	GameConfig();
 	~GameConfig();
@@ -52,12 +54,20 @@ public:
 	UCHAR getMoveRightKey() { return moveRightKey; }
 	UCHAR getMoveLeftKey() { return moveLeftKey; }
 	UCHAR getActionKey() { return actionKey; }
+	UCHAR getCancelKey() { return cancelKey; }
 
 	void setMoveUpKey(UCHAR key) { moveUpKey = key; }
 	void setMoveDownKey(UCHAR key) { moveDownKey = key; }
 	void setMoveRightKey(UCHAR key) { moveRightKey = key; }
 	void setMoveLeftKey(UCHAR key) { moveLeftKey = key; }
 	void setActionKey(UCHAR key) { actionKey = key; }
+	void setCancelKey(UCHAR key) { cancelKey = key; }
+
+	// return default drawing position for dialog box
+	float getDialogBoxAnchorX() { return dialogBoxAnchorX; }
+
+	// return default drawing position for dialog box
+	float getDialogBoxAnchorY() { return dialogBoxAnchorY; }
 
 };
 

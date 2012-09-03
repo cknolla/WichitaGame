@@ -3,6 +3,7 @@
 #define WIN32_LEAN_AND_MEAN
 
 #include "entity.h"
+#include "text.h"
 #include <math.h>
 
 namespace npcNS
@@ -13,6 +14,7 @@ namespace npcNS
 class NPC : public Entity
 {
 private:
+	GameConfig* gameConfig;
 	NPC* nextNPC;
 	// start and stopping positions for mosey
 	float moseyStartX, moseyStartY;
@@ -21,13 +23,21 @@ private:
 	float pauseInterval;
 	// how long he stands still
 	float pauseTime;
+	// NPC is currently speaking
+	bool speaking;
+	// char buffer to hold NPC dialog
+	char dialog[1000];
+	// sprite text to hold dialog
+	Text dialogText;
+	// pointer to the game's dialog box
+	Image* dialogBox;
 
 public:
 	NPC();
 	virtual ~NPC();
 
-	// initialize NPC collision
-	bool initialize(Game* gamePtr, int width, int height, int ncols, TextureManager* textureM);
+	// initialize NPC
+	bool initialize(Game* gamePtr, int width, int height, int ncols, TextureManager* textureM, Image* gameDialogBox);
 
 	// progress the NPC mosey
 	void update(float frameTime);
@@ -59,6 +69,14 @@ public:
 	void setNextNPC(NPC* nnpc) { nextNPC = nnpc; }
 
 	void calcVelocity(float frameTime);
+
+	// return whether this NPC is currently speaking
+	bool getSpeaking() { return speaking; }
+	// set whether this NPC should be speaking
+	void setSpeaking(bool isSpeaking) { speaking = isSpeaking; }
+
+	// select dialog and print to screen
+	void speak();
 
 };
 

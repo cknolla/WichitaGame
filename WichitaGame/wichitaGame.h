@@ -60,11 +60,13 @@ private:
 	TextureManager blankTexture;
 	TextureManager chestTexture;
 	TextureManager doorTexture;
+	TextureManager dialogBoxTexture;
 
 	Character player;
 
 	Map* currentMap;
 	Battle* currentBattle;
+	Image dialogBox;
 	Map testMap;
     TextDX  *dxFont;            // DirectX font
 	TextDX *debugLine;

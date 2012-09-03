@@ -10,13 +10,16 @@ NPC::NPC()
 	pauseInterval = 5.0f;
 	// 2 second pause
 	pauseTime = 2.0f;
+	speaking = false;
+	dialogBox = NULL;
 }
 
 NPC::~NPC()
 {}
 
-bool NPC::initialize(Game* gamePtr, int width, int height, int ncols, TextureManager* textureM)
+bool NPC::initialize(Game* gamePtr, int width, int height, int ncols, TextureManager* textureM, Image* gameDialogBox)
 {
+	gameConfig = gamePtr->getGameConfig();
 	// image must be initialized first in order to use sprite size data
 	bool result = Entity::initialize(gamePtr, width, height, ncols, textureM);
 	// active and set collision box area
@@ -25,6 +28,12 @@ bool NPC::initialize(Game* gamePtr, int width, int height, int ncols, TextureMan
 	edge.right = spriteData.width/2;
 	edge.top = -spriteData.height/2;
 	edge.bottom = spriteData.height/2;
+
+	dialogBox = gameDialogBox;
+
+	if(!dialogText.initialize(gamePtr->getGraphics(), SPRITE_TEXT_FILE))
+		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing NPC dialogText"));
+	dialogText.setFontHeight(14);
 
 	return result;
 }
@@ -61,8 +70,21 @@ void NPC::setMoseyEndingPos(int tileX, int tileY)
 
 void NPC::calcVelocity(float frameTime)
 {
+	float angle, xLength, yLength, tempX, tempY;
+	static int xSign = 1;
+	static int ySign = 1;
+	xLength = moseyEndX-moseyStartX;
+	yLength = moseyEndY-moseyStartY;
+
 	static float timeTillPause = pauseInterval;
 	static float timeTillMosey = pauseTime;
+
+	if(speaking) {
+		// prevent movement while speaking
+		setVelocity(VECTOR2(0.0,0.0));
+		return;
+	}
+
 	if(timeTillPause > 0.0)
 		timeTillPause -= frameTime;
 	else if(timeTillMosey > 0.0) {
@@ -75,11 +97,7 @@ void NPC::calcVelocity(float frameTime)
 		timeTillPause = pauseInterval;
 		timeTillMosey = pauseTime;
 	}
-	float angle, xLength, yLength, tempX, tempY;
-	static int xSign = 1;
-	static int ySign = 1;
-	xLength = moseyEndX-moseyStartX;
-	yLength = moseyEndY-moseyStartY;
+	// if he is not paused, continue on to mosey...
 	// if vector is negative, it's moving left
 	if(xLength < 0) {
 		setFrames(2,3);
@@ -130,4 +148,17 @@ void NPC::calcVelocity(float frameTime)
 	else
 		angle = atan(yLength/xLength);
 	setVelocity(VECTOR2(npcNS::MOVE_SPEED*cos(angle)*xSign, npcNS::MOVE_SPEED*sin(angle)*ySign));
+}
+
+void NPC::speak()
+{
+	// This is a render function, so it must be within drawSprite
+	// called from Map::render()
+	if(speaking) {
+		dialogBox->setX(gameConfig->getDialogBoxAnchorX());
+		dialogBox->setY(gameConfig->getDialogBoxAnchorY());
+		dialogBox->draw(graphicsNS::ALPHA75);
+		sprintf_s(dialog, "Octopi.");
+		dialogText.print(dialog, (int)gameConfig->getDialogBoxAnchorX()+20, (int)gameConfig->getDialogBoxAnchorY()+20);
+	} 
 }

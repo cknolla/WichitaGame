@@ -51,7 +51,7 @@ bool Map::initialize(Game* gamePtr, const char* tileSet[], int tileSetSize, cons
 	gameConfig = gamePtr->getGameConfig();
 
 	//if(!tileNum.initialize(gamePtr->getGraphics(), 12, true, false, "Arial") == false)
-	if(!tileNum.initialize(gamePtr->getGraphics(), "pictures/CKfont.png"))
+	if(!tileNum.initialize(gamePtr->getGraphics(), SPRITE_TEXT_FILE))
         throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing tileNum"));
 	tileNum.setFontHeight(9);
 //	tileNum.setBold(true);
@@ -280,6 +280,7 @@ void Map::update(Character &player, float frameTime)
 	int shiftUp = 0;
 	int shiftDown = 0;
 	int layer;
+	bool lockInput = false;
 	float playerCenterX = player.getX() + player.getWidth()/2;
 	float playerCenterY = player.getY() + player.getHeight()/2;
 	Tile* curTile = firstTile;
@@ -288,35 +289,49 @@ void Map::update(Character &player, float frameTime)
 	Chest* curChest = firstChest;
 	Door* curDoor = firstDoor;
 
+	while(curNPC) {
+		if(curNPC->getSpeaking())
+			lockInput = true;
+		curNPC = curNPC->getNextNPC();
+	}
+	// reset to first NPC so he'll update
+	curNPC = firstNPC;
 	// HANDLE INPUT
-	// move right if left is not pressed or move right if left is not pressed
-	if(input->isKeyDown(gameConfig->getMoveRightKey()) && !input->isKeyDown(gameConfig->getMoveLeftKey())) {
-		player.moveRight(frameTime);
-	} else if(input->isKeyDown(gameConfig->getMoveLeftKey()) && !input->isKeyDown(gameConfig->getMoveRightKey())) {
-		player.moveLeft(frameTime);
-	}
+	if(!lockInput) {
+		// move right if left is not pressed or move right if left is not pressed
+		if(input->isKeyDown(gameConfig->getMoveRightKey()) && !input->isKeyDown(gameConfig->getMoveLeftKey())) {
+			player.moveRight(frameTime);
+		} else if(input->isKeyDown(gameConfig->getMoveLeftKey()) && !input->isKeyDown(gameConfig->getMoveRightKey())) {
+			player.moveLeft(frameTime);
+		}
 
-	// move up if down is not pressed or move down if up is not pressed
-	if( input->isKeyDown(gameConfig->getMoveUpKey()) && !input->isKeyDown(gameConfig->getMoveDownKey())) {
-		player.moveUp(frameTime);
-	} else if( input->isKeyDown(gameConfig->getMoveDownKey()) && !input->isKeyDown(gameConfig->getMoveUpKey())) {
-		player.moveDown(frameTime);
-	}
-	// set velocity to 0 in x or y direction if neither key is pressed
-	if(!input->isKeyDown(gameConfig->getMoveUpKey()) && !input->isKeyDown(gameConfig->getMoveDownKey())) {
-		player.stopY();
-	}
-	if(!input->isKeyDown(gameConfig->getMoveLeftKey()) && !input->isKeyDown(gameConfig->getMoveRightKey())) {
-		player.stopX();
-	}
+		// move up if down is not pressed or move down if up is not pressed
+		if( input->isKeyDown(gameConfig->getMoveUpKey()) && !input->isKeyDown(gameConfig->getMoveDownKey())) {
+			player.moveUp(frameTime);
+		} else if( input->isKeyDown(gameConfig->getMoveDownKey()) && !input->isKeyDown(gameConfig->getMoveUpKey())) {
+			player.moveDown(frameTime);
+		}
+		// set velocity to 0 in x or y direction if neither key is pressed
+		if(!input->isKeyDown(gameConfig->getMoveUpKey()) && !input->isKeyDown(gameConfig->getMoveDownKey())) {
+			player.stopY();
+		}
+		if(!input->isKeyDown(gameConfig->getMoveLeftKey()) && !input->isKeyDown(gameConfig->getMoveRightKey())) {
+			player.stopX();
+		}
 
-	// if no movement keys are pressed, draw the ending frame for the direction he's currently facing and pause animation
-	if( !input->isKeyDown(gameConfig->getMoveUpKey()) && !input->isKeyDown(gameConfig->getMoveDownKey()) && !input->isKeyDown(gameConfig->getMoveLeftKey()) && !input->isKeyDown(gameConfig->getMoveRightKey())) {
+		// if no movement keys are pressed, draw the ending frame for the direction he's currently facing and pause animation
+		if( !input->isKeyDown(gameConfig->getMoveUpKey()) && !input->isKeyDown(gameConfig->getMoveDownKey()) && !input->isKeyDown(gameConfig->getMoveLeftKey()) && !input->isKeyDown(gameConfig->getMoveRightKey())) {
+			player.setCurrentFrame(player.getEndFrame());
+			player.setVelocity(VECTOR2(0.0f, 0.0f));
+			player.setLoop(false);
+		} else {
+			player.setLoop(true);
+		}
+	} else {
+		// if input is locked, stop the player
 		player.setCurrentFrame(player.getEndFrame());
 		player.setVelocity(VECTOR2(0.0f, 0.0f));
 		player.setLoop(false);
-	} else {
-		player.setLoop(true);
 	}
 
 	// SHIFT MAP AT CAMERA TRIGGER POINT
@@ -561,6 +576,12 @@ void Map::render(Character* player)
 
 	if(foreground) {
 		foreground->fillScreen();
+	}
+	curNPC = firstNPC;
+	while(curNPC) {
+		// draw the dialog box and dialog to the top of the screen if NPC is speaking
+		curNPC->speak();
+		curNPC = curNPC->getNextNPC();
 	}
 }
 

@@ -14,6 +14,10 @@ GameConfig::GameConfig()
 	moveLeftKey = 'A';
 	moveRightKey = 'D';
 	actionKey = ENTER_KEY;
+	cancelKey = ESC_KEY;
+
+	dialogBoxAnchorX = 100;
+	dialogBoxAnchorY = 0;
 }
 
 GameConfig::~GameConfig()
