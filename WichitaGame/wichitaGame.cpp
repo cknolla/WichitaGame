@@ -200,8 +200,12 @@ void WichitaGame::collisions()
 		}
 		while(curNPC) {
 			if(player.collidesWith((*curNPC), collisionVector)) {
-				if(input->wasKeyPressed(gameConfig->getActionKey()))
-					curNPC->setSpeaking(!curNPC->getSpeaking()); // toggle whether NPC is speaking or not with action key
+				if(input->wasKeyPressed(gameConfig->getActionKey())) {
+					if(!curNPC->getSpeaking())
+						curNPC->setSpeaking(true); // start speaking to NPC with action key
+					else  
+						curNPC->progressSpeech(); // if already speaking, progress to the next message
+				}
 				if(input->wasKeyPressed(gameConfig->getCancelKey()))
 					curNPC->setSpeaking(false); // always cancel speaking if cancel key pressed
 			}

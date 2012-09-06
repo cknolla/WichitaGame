@@ -5,8 +5,6 @@
 #include "entity.h"
 #include "map.h"
 
-class TextureManager;
-
 class ItemSpawn : public Entity
 {
 private:

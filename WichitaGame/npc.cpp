@@ -11,6 +11,10 @@ NPC::NPC()
 	// 2 second pause
 	pauseTime = 2.0f;
 	speaking = false;
+	responses = 0;
+	selectedResponse = 0;
+	actualResponse = 0;
+	messageNum = 0;
 	dialogBox = NULL;
 }
 
@@ -34,7 +38,16 @@ bool NPC::initialize(Game* gamePtr, int width, int height, int ncols, TextureMan
 	if(!dialogText.initialize(gamePtr->getGraphics(), SPRITE_TEXT_FILE))
 		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing NPC dialogText"));
 	dialogText.setFontHeight(14);
+
+	if(!responseText.initialize(gamePtr->getGraphics(), SPRITE_TEXT_FILE))
+		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing NPC response Text"));
+	responseText.setFontHeight(14);
+
 //	dialogText.setProportional(true);
+	if(!selectorTexture.initialize(gamePtr->getGraphics(), "pictures/text/selector.png"))
+		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing NPC selector texture"));
+	if(!selector.initialize(gamePtr->getGraphics(), 0, 0, 0, &selectorTexture))
+		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing NPC selector image"));
 
 	return result;
 }
@@ -155,11 +168,68 @@ void NPC::speak()
 {
 	// This is a render function, so it must be within drawSprite
 	// called from Map::render()
+	int prevResponses = responses;
 	if(speaking) {
+		responses = 0;
 		dialogBox->setX(gameConfig->getDialogBoxAnchorX());
 		dialogBox->setY(gameConfig->getDialogBoxAnchorY());
 		dialogBox->draw(graphicsNS::ALPHA75);
-		sprintf_s(dialog, "O hai. I'm the owner of the dialog box. You should be able to fit 6 long lines of text in here, or you could do 4 lines of text and 2 selection options. Or, you could even do 3 lines of text and 3 selection options. Logic would tell you that you could also do 2 lines of text and 4 selection options. Understand that this dialog is long and useless for the sake of testing word-wrap functionality. Now leave me alone.");
-		dialogText.print(dialog, (int)gameConfig->getDialogBoxAnchorX()+20, (int)gameConfig->getDialogBoxAnchorY()+20, textNS::WORD_WRAP_LIMIT);
+		if(messageNum == 0)
+			sprintf_s(dialog, "O hai. I'm the owner of the dialog box. You should be able to fit 6 long lines of text in here, or you could do 4 lines of text and 2 selection options. Or, you could even do 3 lines of text and 3 selection options. Logic would tell you that you could also do 2 lines of text and 4 selection options. Understand that this dialog is long and useless for the sake of testing word-wrap functionality. Now leave me alone.");
+		if(messageNum == 1) {
+			sprintf_s(dialog, "Answer!");
+			addResponses("Yes", "No");
+		}
+		if(messageNum == 2) {
+			if(actualResponse == 0)
+				sprintf_s(dialog, "You said yes");
+			else if(actualResponse == 1)
+				sprintf_s(dialog, "You said no");
+		}
+		dialogText.print(dialog, (int)dialogBox->getX() + textNS::BORDER_BUFFER, (int)dialogBox->getY() + textNS::BORDER_BUFFER, textNS::WORD_WRAP_LIMIT);
+		if(prevResponses != responses) { // if number of responses was changed in this frame, set the selector to default to the top option
+			selector.setX(dialogBox->getX() + textNS::BORDER_BUFFER);
+			selector.setY(dialogBox->getY() + dialogBox->getHeight() - textNS::BORDER_BUFFER - responseText.getFontHeight()*responses);
+			selectedResponse = 0;
+		}
+		if(responses)
+			selector.draw();
 	} 
+}
+
+void NPC::addResponses(const char* response1, const char* response2)
+{
+	responses = 2;
+	responseText.print(response1, (int)dialogBox->getX() + textNS::BORDER_BUFFER + 16, (int)dialogBox->getY() + dialogBox->getHeight() - textNS::BORDER_BUFFER - responseText.getFontHeight()*2);
+	responseText.print(response2, (int)dialogBox->getX() + textNS::BORDER_BUFFER + 16, (int)dialogBox->getY() + dialogBox->getHeight() - textNS::BORDER_BUFFER - responseText.getFontHeight());
+}
+
+void NPC::moveSelectorUp()
+{
+	// you can only move up if you're below response 0
+	if(selectedResponse > 0) {
+		selector.setY(selector.getY() - responseText.getFontHeight());
+		selectedResponse--;
+	}
+}
+
+void NPC::moveSelectorDown()
+{
+	// you can only move down if you're above the max response
+	if(selectedResponse < responses-1) {
+		selector.setY(selector.getY() + responseText.getFontHeight());
+		selectedResponse++;
+	}
+}
+
+void NPC::progressSpeech()
+{
+	if(responses)
+		actualResponse = selectedResponse;
+	messageNum++;
+	if(messageNum > 2) {
+		speaking = false; // if you surpass the max message count, stop speaking
+		messageNum = 0; // start the dialog loop over
+	}
+
 }

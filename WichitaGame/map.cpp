@@ -290,8 +290,13 @@ void Map::update(Character &player, float frameTime)
 	Door* curDoor = firstDoor;
 
 	while(curNPC) {
-		if(curNPC->getSpeaking())
+		if(curNPC->getSpeaking()) {
 			lockInput = true;
+			if(input->wasKeyPressed(gameConfig->getMoveUpKey()))
+				curNPC->moveSelectorUp();
+			if(input->wasKeyPressed(gameConfig->getMoveDownKey()))
+				curNPC->moveSelectorDown();
+		}
 		curNPC = curNPC->getNextNPC();
 	}
 	// reset to first NPC so he'll update

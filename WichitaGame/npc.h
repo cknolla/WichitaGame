@@ -25,12 +25,30 @@ private:
 	float pauseTime;
 	// NPC is currently speaking
 	bool speaking;
+	// Number of responses available to player in a selection dialog
+	int responses;
+	// number of currently selected response
+	int selectedResponse;
+	// response chosen in previous message
+	int actualResponse;
+	// ID number of message in database
+	int messageNum;
 	// char buffer to hold NPC dialog
 	char dialog[3000];
 	// sprite text to hold dialog
 	Text dialogText;
+	// sprite text to hold response choices
+	Text responseText;
 	// pointer to the game's dialog box
 	Image* dialogBox;
+	// selector texture
+	TextureManager selectorTexture;
+	// selector image
+	Image selector;
+
+	// add choices to a selection box
+	void addResponses(const char* response1, const char* response2);
+	void addResponses(const char* response1, const char* response2, const char* response3);
 
 public:
 	NPC();
@@ -75,8 +93,17 @@ public:
 	// set whether this NPC should be speaking
 	void setSpeaking(bool isSpeaking) { speaking = isSpeaking; }
 
-	// select dialog and print to screen
+	// select dialog and print to screen. Must be between spriteBegin/spriteEnd
 	void speak();
+	// progress to the next message and process response if applicable
+	void progressSpeech();
+
+	// move selector icon to the next option up
+	void moveSelectorUp();
+
+	// move selector icon to the next option down
+	void moveSelectorDown();
+
 
 };
 

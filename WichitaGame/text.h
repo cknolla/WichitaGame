@@ -44,6 +44,7 @@ namespace textNS
     const char SOLID = 0x7F;        // solid block used for fill character ASCII $7F
     const int BOLD_SIZE = 4;        // pixel shift for bold display
 	const int WORD_WRAP_LIMIT = 76; // character limit before wrapping to the next line
+	const int BORDER_BUFFER = 20;
 }
 
 
