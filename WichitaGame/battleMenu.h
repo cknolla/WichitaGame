@@ -57,6 +57,10 @@ public:
 
 	// draw the menu
 	void render();
+
+	// handle textures when graphics device is lost/reset
+	void onLostDevice();
+	void onResetDevice();
 	
 
 };

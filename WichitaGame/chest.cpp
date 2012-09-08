@@ -3,6 +3,7 @@
 
 Chest::Chest()
 {
+	opened = false;
 	nextChest = NULL;
 }
 
@@ -10,7 +11,7 @@ Chest::~Chest()
 {
 }
 
-bool Chest::initialize(Game* gamePtr, int width, int height, int ncols, TextureManager* textureM)
+bool Chest::initialize(Game* gamePtr, TextureManager* textureM, int width, int height, int ncols)
 {
 	bool result = false;
 	// initialize parent classes
@@ -24,5 +25,19 @@ bool Chest::initialize(Game* gamePtr, int width, int height, int ncols, TextureM
 	edge.bottom = spriteData.height/2;
 	
 	return result;
+}
+
+void Chest::open()
+{
+	// UNDER CONSTRUCTION - NOT READY FOR USE
+	if(opened)
+		return;
+	opened = true;
+	char buffer[1000];
+	// look up item in database to give to player
+	setCurrentFrame(1); // chest open
+	sprintf_s(buffer, "You receive 'Item X'!");
+
+
 }
 

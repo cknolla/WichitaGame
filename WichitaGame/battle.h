@@ -25,6 +25,7 @@ namespace battleNS
 class Battle
 {
 private:
+	bool active;
 	TextureManager backgroundTexture;
 	TextureManager foregroundTexture;
 	TextureManager sceneTexture;
@@ -55,6 +56,11 @@ public:
 	Bgfg* getForeground() { return &foreground; }
 
 	Bgfg* getBackground() { return &background; }
+
+	// return whether battle is open
+	bool getActive() { return active; }
+	// set whether battle is open
+	void setActive(bool isActive) { active = isActive; }
 
 	void onLostDevice();
 	void onResetDevice();

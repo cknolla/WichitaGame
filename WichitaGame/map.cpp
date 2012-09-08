@@ -18,6 +18,7 @@ Map::Map()
 	firstDoor = NULL;
 	backgroundTexture = NULL;
 	foregroundTexture = NULL;
+	messageDialog = NULL;
 	background = NULL;
 	foreground = NULL;
 	tileNumbers = false;
@@ -49,6 +50,7 @@ bool Map::initialize(Game* gamePtr, const char* tileSet[], int tileSetSize, cons
 	Tile* prevTile = NULL;
 	input = gamePtr->getInput();
 	gameConfig = gamePtr->getGameConfig();
+	messageDialog = gamePtr->getMessageDialog();
 
 	//if(!tileNum.initialize(gamePtr->getGraphics(), 12, true, false, "Arial") == false)
 	if(!tileNum.initialize(gamePtr->getGraphics(), SPRITE_TEXT_FILE))

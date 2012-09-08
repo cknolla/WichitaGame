@@ -106,6 +106,9 @@ public:
 	// Return pointer to configuration
 	GameConfig* getGameConfig()  { return gameConfig; }
 
+	// Return pointer to game's message dialog
+	MessageDialog* getMessageDialog() { return messageDialog; }
+
     // Exit the game
     void exitGame()         {PostMessage(hwnd, WM_DESTROY, 0, 0);}
 

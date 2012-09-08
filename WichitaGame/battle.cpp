@@ -4,6 +4,7 @@
 Battle::Battle()
 {
 	firstMonster = NULL;
+	active = false;
 }
 
 Battle::~Battle()
@@ -137,12 +138,27 @@ void Battle::render()
 
 void Battle::onLostDevice()
 {
+	backgroundTexture.onLostDevice();
+	foregroundTexture.onLostDevice();
 	sceneTexture.onLostDevice();
+	uiTexture.onLostDevice();
+	playerTexture.onLostDevice();
+	monsterTexture.onLostDevice();
 	playerHealthText.onLostDevice();
+	monsterHealthText.onLostDevice();
+	menu.onLostDevice();
+	
 }
 
 void Battle::onResetDevice()
 {
+	backgroundTexture.onResetDevice();
+	foregroundTexture.onResetDevice();
 	sceneTexture.onResetDevice();
+	uiTexture.onResetDevice();
+	playerTexture.onResetDevice();
+	monsterTexture.onResetDevice();
 	playerHealthText.onResetDevice();
+	monsterHealthText.onResetDevice();
+	menu.onResetDevice();
 }

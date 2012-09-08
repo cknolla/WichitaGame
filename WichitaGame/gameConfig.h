@@ -22,6 +22,7 @@ private:
 	UCHAR moveLeftKey;
 	UCHAR actionKey;
 	UCHAR cancelKey;
+	UCHAR menuKey;
 public:
 	GameConfig();
 	~GameConfig();
@@ -55,6 +56,7 @@ public:
 	UCHAR getMoveLeftKey() { return moveLeftKey; }
 	UCHAR getActionKey() { return actionKey; }
 	UCHAR getCancelKey() { return cancelKey; }
+	UCHAR getMenuKey() { return menuKey; }
 
 	void setMoveUpKey(UCHAR key) { moveUpKey = key; }
 	void setMoveDownKey(UCHAR key) { moveDownKey = key; }
@@ -62,6 +64,7 @@ public:
 	void setMoveLeftKey(UCHAR key) { moveLeftKey = key; }
 	void setActionKey(UCHAR key) { actionKey = key; }
 	void setCancelKey(UCHAR key) { cancelKey = key; }
+	void setMenuKey(UCHAR key) { menuKey = key; }
 
 	// return default drawing position for dialog box
 	float getDialogBoxAnchorX() { return dialogBoxAnchorX; }

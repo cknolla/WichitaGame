@@ -15,6 +15,7 @@ GameConfig::GameConfig()
 	moveRightKey = 'D';
 	actionKey = ENTER_KEY;
 	cancelKey = ESC_KEY;
+	menuKey = 'I';
 
 	dialogBoxAnchorX = 100;
 	dialogBoxAnchorY = 0;

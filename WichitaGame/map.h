@@ -65,6 +65,7 @@ private:
 	TextureManager* backgroundTexture;
 	Bgfg* background;
 	Bgfg* foreground;
+	MessageDialog* messageDialog;
 	bool initialized;
 	int width;
 	int height;

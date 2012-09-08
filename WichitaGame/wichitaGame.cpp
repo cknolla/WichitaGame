@@ -65,6 +65,9 @@ void WichitaGame::initialize(HWND hwnd)
 	if(!dialogBoxTexture.initialize(graphics, "pictures/dialogPlaceholder.png"))
 		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing dialog box texture"));
 
+	if(!gameMenu.initialize(this))
+		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing game menu"));
+
 
 	TextureManager changer2Texture;
 
@@ -111,9 +114,6 @@ void WichitaGame::initialize(HWND hwnd)
 	// load the current map
 	loadMap(GRAVEYARD2, 10.0*TILE_WIDTH, 10.0*TILE_HEIGHT);
 
-	//Initialize the battle to false at the beginning of the game
-	battleOn = false;
-
 	message = "DEBUG TEXT";
 	if(!currentMap)
 		throw(GameError(gameErrorNS::FATAL_ERROR, "currentMap is NULL! Assign it to a map in WichitaGame::initialize!"));
@@ -126,7 +126,12 @@ void WichitaGame::initialize(HWND hwnd)
 void WichitaGame::update()
 {
 	sprintf_s(debugLineBuf, "Debug Text");
-	if (!battleOn) {
+	if (!currentBattle && !gameMenu.getActive()) {
+		
+		if(input->wasKeyPressed(gameConfig->getMenuKey())) {
+			gameMenu.setActive(true);
+			return; // menu has been activated, so escape this function to avoid input conflict
+		}
 		
 		if(input->wasKeyPressed('B')) {
 			createItemSpawn();
@@ -143,17 +148,20 @@ void WichitaGame::update()
 		//Press H to start a battle
 		if(input->wasKeyPressed('H')) {
 			battleStart("pictures/battle/battle_background.jpg");
+			return; // battle has begun. escape function to avoid input conflict
 		}
 		// Update the map BEFORE the character since it manipulates the player's position
 		currentMap->update(player, frameTime);
 		player.update(frameTime);
 
-	} else {
-		if(input->wasKeyPressed('H')) {
-			battleOn = false;
-		}
+	} else if(gameMenu.getActive()) { // if game menu is open
+		gameMenu.update(frameTime);
+	} else if(currentBattle) { // if in battle
+		
 		currentBattle->update(frameTime);
-
+		if(input->wasKeyPressed('H')) {
+			battleEnd();
+		}
 	}
 
 	sprintf_s(messageBuffer, "X: %.3f, Y: %.3f", player.getX(), player.getY());
@@ -206,8 +214,8 @@ void WichitaGame::collisions()
 					else  
 						curNPC->progressSpeech(); // if already speaking, progress to the next message
 				}
-				if(input->wasKeyPressed(gameConfig->getCancelKey()))
-					curNPC->setSpeaking(false); // always cancel speaking if cancel key pressed
+			//	if(input->wasKeyPressed(gameConfig->getCancelKey()))
+			//		curNPC->setSpeaking(false); // always cancel speaking if cancel key pressed
 			}
 			curNPC = curNPC->getNextNPC();
 		}
@@ -237,7 +245,7 @@ void WichitaGame::render()
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Draw from bottom to top
 	// if not in battle and currentMap is initialized
-	if(!battleOn && currentMap) {
+	if(!currentBattle && currentMap) {
 		currentMap->render(&player);		
 
 		// print x,y position on tiles if debug option is enabled
@@ -260,8 +268,12 @@ void WichitaGame::render()
 	debugLine->print(debugLineBuf, 20, (int)messageY+20);
 	
 	//Draw new Items if in a battle
-	if(battleOn){
+	if(currentBattle){
 		currentBattle->render();
+	}
+	// draw game menu if open
+	if(gameMenu.getActive()) {
+		gameMenu.render();
 	}
 	
 
@@ -469,7 +481,7 @@ bool WichitaGame::loadMap(MAP_LIST newMap, float startX, float startY)
 			if(!redGuy->initialize(this, 34, 34, 2, &redCharTexture, &dialogBox))
 				throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing redGuy"));
 
-			if(!treasure->initialize(this, 32, 32, 2, &chestTexture))
+			if(!treasure->initialize(this, &chestTexture))
 				throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing treasure"));
 
 			if(!door->initialize(this,32,32,2, &doorTexture))
@@ -557,8 +569,13 @@ void WichitaGame::releaseAll()
 	redCharTexture.onLostDevice();
 	changerTexture.onLostDevice();
 	blankTexture.onLostDevice();
+	chestTexture.onLostDevice();
+	doorTexture.onLostDevice();
+	dialogBoxTexture.onLostDevice();
+	gameMenu.onLostDevice();
+	if(currentBattle)
+		currentBattle->onLostDevice();
     Game::releaseAll();
-    return;
 }
 
 //=============================================================================
@@ -575,8 +592,13 @@ void WichitaGame::resetAll()
 	redCharTexture.onResetDevice();
 	changerTexture.onResetDevice();
 	blankTexture.onResetDevice();
+	chestTexture.onResetDevice();
+	doorTexture.onResetDevice();
+	dialogBoxTexture.onResetDevice();
+	gameMenu.onResetDevice();
+	if(currentBattle)
+		currentBattle->onResetDevice();
     Game::resetAll();
-    return;
 }
 
 void WichitaGame::createItemSpawn(){
@@ -710,11 +732,11 @@ void WichitaGame::battleStart(const char* backgroundPic)
 
 	currentBattle->getForeground()->setAutoHscroll(2000.0);
 	currentBattle->getForeground()->setAutoVscroll(2000.0);
-	battleOn = true;
+//	battleOn = true;
 }
 
 void WichitaGame::battleEnd()
 {
-	battleOn = false;
+//	battleOn = false;
 	SAFE_DELETE(currentBattle);
 }

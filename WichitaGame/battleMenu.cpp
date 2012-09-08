@@ -210,3 +210,27 @@ BattleIcon* BattleMenu::getParent(BattleIcon &icon)
 	}
 	return NULL;
 }
+
+void BattleMenu::onLostDevice()
+{
+	int i;
+	selectorTexture.onLostDevice();
+	for(i = 0; i < battleMenuNS::MAX_CHARACTERS; i++)
+		character[i].onLostDevice();
+	for(i = 0; i < battleMenuNS::MAX_CATEGORIES; i++)
+		category[i].onLostDevice();
+	for(i = 0; i < battleMenuNS::MAX_ACTIONS; i++)
+		action[i].onLostDevice();
+}
+
+void BattleMenu::onResetDevice()
+{
+	int i;
+	selectorTexture.onResetDevice();
+	for(i = 0; i < battleMenuNS::MAX_CHARACTERS; i++)
+		character[i].onResetDevice();
+	for(i = 0; i < battleMenuNS::MAX_CATEGORIES; i++)
+		category[i].onResetDevice();
+	for(i = 0; i < battleMenuNS::MAX_ACTIONS; i++)
+		action[i].onResetDevice();
+}

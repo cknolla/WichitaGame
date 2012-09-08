@@ -25,6 +25,7 @@
 #include "battle.h"
 #include "monster.h"
 #include "itemspawn.h"
+#include "gameMenu.h"
 
 #include <list>
 #include <iterator>
@@ -66,6 +67,7 @@ private:
 
 	Map* currentMap;
 	Battle* currentBattle;
+	GameMenu gameMenu;
 	Image dialogBox;
 	Map testMap;
     TextDX  *dxFont;            // DirectX font
@@ -83,7 +85,7 @@ private:
 	std::ofstream debugFile;
 	bool noclip;
 	//Battle definition bool
-	bool battleOn;
+//	bool battleOn;
 	/*
 	bool collisionBoxPlayer;
 	bool collisionBoxTile;
