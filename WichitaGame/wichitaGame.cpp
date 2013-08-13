@@ -133,7 +133,7 @@ void WichitaGame::update()
 			return; // menu has been activated, so escape this function to avoid input conflict
 		}
 		
-		if(input->wasKeyPressed('B')) {
+		if(input->wasKeyPressed('I')) {
 			createItemSpawn();
 		}
 		if(input->wasKeyPressed('N')) {
@@ -146,7 +146,7 @@ void WichitaGame::update()
 		}
 		
 		//Press H to start a battle
-		if(input->wasKeyPressed('H')) {
+		if(input->wasKeyPressed('B')) {
 			battleStart("pictures/battle/battle_background.jpg");
 			return; // battle has begun. escape function to avoid input conflict
 		}
@@ -159,7 +159,7 @@ void WichitaGame::update()
 	} else if(currentBattle) { // if in battle
 		
 		currentBattle->update(frameTime);
-		if(input->wasKeyPressed('H')) {
+		if(input->wasKeyPressed('B')) {
 			battleEnd();
 		}
 	}
