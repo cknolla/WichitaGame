@@ -1,12 +1,6 @@
-// Programming 2D Games
-// Copyright (c) 2011 by: 
-// Charles Kelly
-// createThisClass.cpp v1.0
 // This class is the core of the game
 
 #include "wichitaGame.h"
-
-//Comment out these lines if you do not want a console window defined
 
 
 //=============================================================================
@@ -68,9 +62,7 @@ void WichitaGame::initialize(HWND hwnd)
 	if(!gameMenu.initialize(this))
 		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing game menu"));
 
-
 	TextureManager changer2Texture;
-
 
 	if(!changer2Texture.initialize(graphics, "pictures/bomb.png"))
 		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing changer texture"));
@@ -115,6 +107,7 @@ void WichitaGame::initialize(HWND hwnd)
 	loadMap(GRAVEYARD2, 10.0*TILE_WIDTH, 10.0*TILE_HEIGHT);
 
 	message = "DEBUG TEXT";
+	sprintf_s(debugLineBuf, "Debug Text");
 	if(!currentMap)
 		throw(GameError(gameErrorNS::FATAL_ERROR, "currentMap is NULL! Assign it to a map in WichitaGame::initialize!"));
     return;
@@ -125,7 +118,7 @@ void WichitaGame::initialize(HWND hwnd)
 //=============================================================================
 void WichitaGame::update()
 {
-	sprintf_s(debugLineBuf, "Debug Text");
+	//sprintf_s(debugLineBuf, "Debug Text");
 	if (!currentBattle && !gameMenu.getActive()) {
 		
 		if(input->wasKeyPressed(gameConfig->getMenuKey())) {
@@ -149,8 +142,10 @@ void WichitaGame::update()
 		if(input->wasKeyPressed(gameConfig->getActionKey())) {
 			Chest* curChest = currentMap->getFirstChest();
 			while(curChest) {
-				if(curChest->update(player))
+				if(curChest->update(player)) {
 					input->clearKeyPress(gameConfig->getActionKey()); // clear the key only if a chest opens
+					sprintf_s(debugLineBuf, "Chest opened. Key cleared");
+				}
 				curChest = curChest->getNextChest();
 			}
 		}
@@ -167,7 +162,6 @@ void WichitaGame::update()
 	} else if(gameMenu.getActive()) { // if game menu is open
 		gameMenu.update(frameTime);
 	} else if(currentBattle) { // if in battle
-		
 		currentBattle->update(frameTime);
 		if(input->wasKeyPressed('B')) {
 			battleEnd();
@@ -252,7 +246,6 @@ void WichitaGame::collisions()
 //=============================================================================
 void WichitaGame::render()
 {
-
 
     graphics->spriteBegin();                // begin drawing sprites
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
