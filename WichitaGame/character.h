@@ -16,6 +16,9 @@ class Character : public Entity
 {
 private:
 	char name[25];
+	// direction character is facing
+	char directionUD;
+	char directionLR;
 
 public:
 	Character();
@@ -30,6 +33,9 @@ public:
 	void moveDown(float frameTime);
 	void stopX();
 	void stopY();
+
+	char getDirectionLR() { return directionLR; }
+	char getDirectionUD() { return directionUD; }
 
 };
 

@@ -3,12 +3,14 @@
 #define WIN32_LEAN_AND_MEAN
 
 #include "entity.h"
+#include "character.h"
 #include "text.h"
 
 class Chest : public Entity
 {
 private:
 	bool opened;
+	bool locked;
 
 	Chest* nextChest;
 public:
@@ -18,6 +20,9 @@ public:
 	// initialize with standard image properties as well as game's generic dialog box and text
 	bool initialize(Game* gamePtr, TextureManager* textureM, int width = TILE_WIDTH, int height = TILE_HEIGHT, int ncols = 2);
 
+	// check if chest should open
+	bool update(Character& player);
+
 	// next item in linked list
 	Chest* getNextChest() { return nextChest; }
 
@@ -25,7 +30,7 @@ public:
 	void setNextChest(Chest* c) { nextChest = c; }
 
 	// open the chest if it isn't yet
-	void open();
+	bool open();
 };
 
 #endif

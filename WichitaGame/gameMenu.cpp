@@ -26,8 +26,7 @@ bool GameMenu::initialize(Game* gamePtr)
 		throw(GameError(gameErrorNS::FATAL_ERROR, "Error initializing menu background image"));
 
 	bgImage.setX(0.0);
-	bgImage.setY(0.0);
-	
+	bgImage.setY(0.0);	
 
 	initialized = true;
 	return initialized;
@@ -43,7 +42,7 @@ void GameMenu::update(float frameTime)
 
 void GameMenu::render()
 {
-	bgImage.draw();
+	bgImage.draw(graphicsNS::ALPHA85);
 }
 
 void GameMenu::onLostDevice()

@@ -62,7 +62,8 @@ namespace graphicsNS
     const COLOR_ARGB ALPHA25 = D3DCOLOR_ARGB( 64,255,255,255);  // AND with color to get 25% alpha
     const COLOR_ARGB ALPHA50 = D3DCOLOR_ARGB(128,255,255,255);  // AND with color to get 50% alpha
 	const COLOR_ARGB ALPHA75 = D3DCOLOR_ARGB(192,255,255,255);  // AND with color to get 75% alpha
-    const COLOR_ARGB BACK_COLOR = BLACK;                         // background color of game
+	const COLOR_ARGB ALPHA85 = D3DCOLOR_ARGB(217,255,255,255);  // AND with color to get 85% alpha
+    const COLOR_ARGB BACK_COLOR = GRAY;                         // background color of game
 
     enum DISPLAY_MODE{TOGGLE, FULLSCREEN, WINDOW};
 }

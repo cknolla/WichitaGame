@@ -144,8 +144,18 @@ void WichitaGame::update()
 			//}else
 			//	printf("ItemSpawnDoesNoTExist");
 		}
+
+		// ACTION KEY LIST - Listed from highest priority to lowest. Each action clears the key, so only one is performed
+		if(input->wasKeyPressed(gameConfig->getActionKey())) {
+			Chest* curChest = currentMap->getFirstChest();
+			while(curChest) {
+				if(curChest->update(player))
+					input->clearKeyPress(gameConfig->getActionKey()); // clear the key only if a chest opens
+				curChest = curChest->getNextChest();
+			}
+		}
 		
-		//Press H to start a battle
+		//Press B to start a battle
 		if(input->wasKeyPressed('B')) {
 			battleStart("pictures/battle/battle_background.jpg");
 			return; // battle has begun. escape function to avoid input conflict
@@ -162,6 +172,11 @@ void WichitaGame::update()
 		if(input->wasKeyPressed('B')) {
 			battleEnd();
 		}
+	}
+
+	// Insta-quit with Q. Definitely don't want to keep this
+	if(input->wasKeyPressed('Q')) {
+		PostQuitMessage(0);
 	}
 
 	sprintf_s(messageBuffer, "X: %.3f, Y: %.3f", player.getX(), player.getY());

@@ -3,6 +3,9 @@
 
 Character::Character() : Entity()
 {
+	// default direction is down/right
+	directionUD = 'D';
+	directionLR = 'R';
 }
 
 Character::~Character()
@@ -28,6 +31,7 @@ void Character::moveRight(float frameTime)
 	// select frames of animation for rightward movement
 	setFrames(2,3);
 	flipHorizontal(false);
+	directionLR = 'R';
 	setVelocity(VECTOR2(characterNS::MOVE_SPEED, velocity.y));
 }
 
@@ -35,14 +39,16 @@ void Character::moveLeft(float frameTime)
 {
 	// select frames of animation for leftward movement
 	setFrames(2,3);
-	setVelocity(VECTOR2(-characterNS::MOVE_SPEED, velocity.y));
 	flipHorizontal(true);
+	directionLR = 'L';
+	setVelocity(VECTOR2(-characterNS::MOVE_SPEED, velocity.y));
 }
 
 void Character::moveUp(float frameTime)
 {
 	// select frames of animation for upward movement
 	setFrames(4,5);
+	directionUD = 'U';
 	setVelocity(VECTOR2(velocity.x,-characterNS::MOVE_SPEED));
 }
 
@@ -50,6 +56,7 @@ void Character::moveDown(float frameTime)
 {
 	// select frames of animation for downward movement
 	setFrames(0,1);
+	directionUD = 'D';
 	setVelocity(VECTOR2(velocity.x,characterNS::MOVE_SPEED));
 }
 

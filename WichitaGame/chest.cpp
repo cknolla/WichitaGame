@@ -4,6 +4,7 @@
 Chest::Chest()
 {
 	opened = false;
+	locked = false;
 	nextChest = NULL;
 }
 
@@ -27,17 +28,42 @@ bool Chest::initialize(Game* gamePtr, TextureManager* textureM, int width, int h
 	return result;
 }
 
-void Chest::open()
+bool Chest::update(Character& player)
 {
-	// UNDER CONSTRUCTION - NOT READY FOR USE
+	bool openOccurred = false;
+	VECTOR2 collisionVector;
+	//move chest right by 5 pixels to check for collision with player
+	spriteData.x += 5.0f;
+	// if chest now collides with player and he is facing left, open the chest
+	if(collidesWith(player, collisionVector) && player.getDirectionLR() == 'L')
+		openOccurred |= open();
+	spriteData.x -= 5.0f; // return to original position
+	spriteData.x -= 5.0f; // shift left by 5 to look for collision
+	if(collidesWith(player, collisionVector) && player.getDirectionLR() == 'R')
+		openOccurred |= open();
+	spriteData.x += 5.0f; // return
+	spriteData.y += 5.0f; // shift down by 5
+	if(collidesWith(player, collisionVector) && player.getDirectionUD() == 'U')
+		openOccurred |= open();
+	spriteData.y -= 5.0f; // return
+	spriteData.y -= 5.0f; // shift up by 5
+	if(collidesWith(player, collisionVector) && player.getDirectionUD() == 'D')
+		openOccurred |= open();
+	spriteData.y += 5.0f; // return
+	return openOccurred;
+}
+
+bool Chest::open()
+{
 	if(opened)
-		return;
+		return false;
+	if(locked)
+		return false;
 	opened = true;
 	char buffer[1000];
 	// look up item in database to give to player
 	setCurrentFrame(1); // chest open
 	sprintf_s(buffer, "You receive 'Item X'!");
-
-
+	return true;
 }
 
